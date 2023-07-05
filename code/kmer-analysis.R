@@ -23,6 +23,7 @@ pacman::p_load(ape, kmer, readr, lubridate, stringr)
 # Assumption: tar filename format is country-variant-etc.
 # Extract GISAID tars to data/GISAID/datasets/country-variant
 # If data/GISAID/datasets already exist, do not do this routine
+# Note: Each tar = {tsv, fasta}
 
 # GISAID data path from root
 datapath <- 'data/GISAID'
@@ -42,6 +43,7 @@ if (dir.exists(extractpath)) {
   }
 }
 
+# DEFINE FUNCTIONS ###########################################
 
 # Function computes the kmer of given length, returns a data frame
 kmer_df <- function(fastaPath,tsvPath,k){
@@ -60,44 +62,22 @@ kmer_df <- function(fastaPath,tsvPath,k){
 
 # WORK WITH DATA ###########################################
 
-
 # Different lengths of kmers to be used 
 kmer_list <- list(3,5,7)
 
 for(k in kmer_list) {
-  # get list of tar files in data, tar = {tsv, csv}
-
   # fasta contains sequence, while tsv contains metadata
-  # fastas <- list.files('data/GISAID/datasets', pattern = '.+\\.fasta')
-  # tsvs <- list.files('data/GISAID/datasets', pattern = '.+\\.tsv')
-  # nfiles <- length(fastas)  # equivalent to length(tsvs)
-  # # Problems 4, 12
-  # i <- 10
-  # print(paste("Reading", fastas[i]))
-  # print(paste("Reading", tsvs[i]))
-  # fastaPath <- paste('data/GISAID/datasets', fastas[i], sep='/')
-  # tsvPath <- paste('data/GISAID/datasets', tsvs[i], sep='/')
-  # fasta <- read.FASTA(fastaPath)
-  # metadata <- as.data.frame(read_tsv(tsvPath, col_select = c(1,2,5,10,11,12,19)))
-  # metadata <- metadata %>%
-  #   dplyr::mutate(year = lubridate::year(date), 
-  #                 month = lubridate::month(date), 
-  #                 day = lubridate::day(date))
-  # 
-  # print("Calling problems")
-  # problems(fasta)
-  # problems(metadata)
-  # for (i in 1:nfiles) {
-    # print(paste("Reading", fastas[i]))
-    # print(paste("Reading", tsvs[i]))
+  fastas <- list.files('data/GISAID/datasets', recursive = TRUE, pattern = '.+\\.fasta')
+  tsvs <- list.files('data/GISAID/datasets', recursive = TRUE, pattern = '.+\\.tsv')
+  nfiles <- length(fastas)
+  for (i in 1:nfiles) {
+    fastapath <- paste(extractpath, fastas[i], sep='/')
+    tsvpath <- paste(extractpath, tsvs[i], sep='/')
+    print(paste("Reading", fastapath))
+    print(paste("Reading", tsvpath))
     # kmer_df(fastas[i],tsvs[i],k)
-  # }
-  # alpha = kmer_df('alpha.fasta','alpha',k)
-  # beta = kmer_df('beta.fasta','beta',k)
-  # gamma = kmer_df('gamma.fasta','gamma',k)
-  # omicron = kmer_df('omicron.fasta','omicron',k)
-  # delta = kmer_df('delta.fasta','delta',k)
-  # 
+  }
+
   # data = bind_rows(alpha, beta, delta, gamma, omicron)
   # outputName = sprintf("covid_kmer_%d.csv",k)
   # #store the combined data in a csv file 
