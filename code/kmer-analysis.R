@@ -11,16 +11,15 @@ if (!require("pacman"))
 library(pacman)
 
 # Use pacman to load add-on packages as desired
-# First call are standard packages, second call are file specific packages.
+# First call are standard packages for the project
 pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
                ggvis, httr, lubridate, plotly, psych,
                rio, rmarkdown, shiny, 
                stringr, tidyr, tidyverse)
+# Second call are file-specific packages
 pacman::p_load(ape, kmer)
 
 # LOAD DATA ################################################
-# Set working directory to container of fasta and metadata files
-setwd("data/GISAID/datasets")
 
 # WORK WITH DATA ###########################################
 
@@ -51,6 +50,9 @@ for(k in kmer_list)
 }
 
 # CLEAN UP #################################################
+
+# Reset wd to project root
+setwd(getwd())
 
 # Clear environment
 rm(list = ls()) 
