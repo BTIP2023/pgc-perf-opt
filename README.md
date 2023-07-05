@@ -5,15 +5,15 @@ A project to benchmark the performance of bioinformatics workflows according to 
 This section will describe characteristics of the data such as sources, size, and format. These will motivate the upcoming data importation, sanitation, visualization, and analysis. Different data configurations may also be used in different benchmarks.
 
 ### On GISAID Data
-For data obtained from GISAID, only accession numbers will be included in this and the root README files. GISAID (2012) gives the following reason:
+For data obtained from GISAID, only **accession numbers** must be referenced. Do not release the actual datasets. GISAID (2012) gives the following reason:
 
 > GISAID does not promote the release of data to databases where access to data is anonymous and the rights of the submitter are relinquished.  GISAID already provides the public with open access to data in a transparent way.
 
 ## Workflows
-This section will describe the collected bioinformatics workflows. Currently, only the code from the reference repository will be benchmarked for the prototype becnhmarking workflow.
+This section will describe the collected bioinformatics workflows. Currently, only the code from the reference repository will be benchmarked for the prototype benchmark workflow.
 
 ## Code
-This section will explain the code used for running the workflows and the benchmarks. Relevant hardware, software, and data configurations must be explicitly noted for each benchamrk.
+This section will explain the code used for running the workflows and the benchmarks. Relevant hardware, software, and data configurations must be explicitly noted for each benchmark.
 
 Pilot code may also be written for more novel workflows. For instance, see [this](https://www.frontiersin.org/articles/10.3389/fbioe.2015.00035/full) wheat mutation analysis article.
 
