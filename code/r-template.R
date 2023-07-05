@@ -9,10 +9,13 @@ if (!require("pacman")) install.packages("pacman", repos = "https://cran.case.ed
 library(pacman)
 
 # Use pacman to load add-on packages as desired
+# First call are standard packages for the project
 pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
                ggvis, httr, lubridate, plotly, psych,
                rio, rmarkdown, shiny, 
                stringr, tidyr, tidyverse)
+# Second call are file-specific packages
+# pacman::p_load()
 
 # LOAD DATA ################################################
 
