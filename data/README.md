@@ -9,7 +9,7 @@ For data obtained from GISAID, only **accession numbers** will be included in th
 All GISAID data are stored in `~/data/GISAID`, but the contents won't be committed (via `.gitignore`).
 
 ### GISAID Directory Usage
-To devs: To use the GISAID directory, open the Google Drive folder shared by the mentor, and then navigate to data/GISAID/datasets. Copy the contents of that (`.fasta` and `.tsv`) into your local repo's `~/data/GISAID/datasets`. The aforementioned directory has to be updated every time there's a change in the data.
+To devs: To use the GISAID directory, open the Google Drive folder shared by the mentor, and then navigate to `data/GISAID/datasets`. Copy the contents of that (`.fasta` and `.tsv`) into your local repo's `~/data/GISAID/datasets`. The aforementioned directory has to be updated every time there's a change in the data.
 
 ---
 ## References
