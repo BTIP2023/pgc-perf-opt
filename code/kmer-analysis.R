@@ -26,19 +26,19 @@ pacman::p_load(ape, kmer, readr, lubridate, stringr)
 # Note: Each tar = {tsv, fasta}
 
 # GISAID data path from root
-datapath <- 'data/GISAID'
+dataPath <- 'data/GISAID'
 # GISAID data extraction path after getting untarred
-extractpath <- 'data/GISAID/datasets'
+extractPath <- 'data/GISAID/datasets'
 
-if (dir.exists(extractpath)) {
+if (dir.exists(extractPath)) {
   print("GISAID data already extracted from tar archives.")
 } else {
-  tars <- list.files(datapath, pattern = '.+\\.tar')
+  tars <- list.files(dataPath, pattern = '.+\\.tar')
   for (filename in tars) {
     subdir <- str_match(filename, pattern='[^-]+-[^-]+')
     print(paste("Extracting to:", subdir))
-    untar(paste(datapath, filename, sep='/'),
-          exdir = paste(extractpath, subdir, sep='/'),
+    untar(paste(dataPath, filename, sep='/'),
+          exdir = paste(extractPath, subdir, sep='/'),
           verbose = FALSE)
   }
 }
@@ -71,10 +71,10 @@ for(k in kmer_list) {
   tsvs <- list.files('data/GISAID/datasets', recursive = TRUE, pattern = '.+\\.tsv')
   nfiles <- length(fastas)
   for (i in 1:nfiles) {
-    fastapath <- paste(extractpath, fastas[i], sep='/')
-    tsvpath <- paste(extractpath, tsvs[i], sep='/')
-    print(paste("Reading", fastapath))
-    print(paste("Reading", tsvpath))
+    fastaPath <- paste(extractpath, fastas[i], sep='/')
+    tsvPath <- paste(extractpath, tsvs[i], sep='/')
+    print(paste("Reading", fastaPath))
+    print(paste("Reading", tsvPath))
     # kmer_df(fastas[i],tsvs[i],k)
   }
 
