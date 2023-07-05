@@ -17,7 +17,7 @@ pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
                rio, rmarkdown, shiny, 
                stringr, tidyr, tidyverse)
 # Second call are file-specific packages
-pacman::p_load(ape, kmer, readr, lubridate, stringr)
+pacman::p_load(ape, kmer, readr, lubridate, stringr, validate)
 
 # LOAD DATA ################################################
 # Assumption: tar filename format is country-variant-etc.
@@ -34,54 +34,66 @@ if (dir.exists(extractPath)) {
   print("GISAID data already extracted from tar archives.")
 } else {
   tars <- list.files(dataPath, pattern = '.+\\.tar')
-  for (filename in tars) {
-    subdir <- str_match(filename, pattern='[^-]+-[^-]+')
+  for (fileName in tars) {
+    subdir <- str_match(fileName, pattern='[^-]+-[^-]+')
     print(paste("Extracting to:", subdir))
-    untar(paste(dataPath, filename, sep='/'),
+    untar(paste(dataPath, fileName, sep='/'),
           exdir = paste(extractPath, subdir, sep='/'),
           verbose = FALSE)
   }
 }
 
 # DEFINE FUNCTIONS ###########################################
+omicron_sub = c('ba275', 'xbb', 'xbb_1.5', 'xbb_1.16', 'xbb1.91')
 
 # Function computes the kmer of given length, returns a data frame
-kmer_df <- function(fastaPath,tsvPath,k){
-  fastaPath <- paste('data/GISAID/datasets', fastaPath, sep='/')
-  tsvPath <- paste('data/GISAID/datasets', tsvPath, sep='/')
+kmer_df <- function(fastaPath, tsvPath, variant, k){
   fasta <- read.FASTA(fastaPath)
-  tsv <- read_tsv(tsvPath)
-  print("Calling problems")
-  problems(fasta)
-  problems(tsv)
-  # kmer3 = kcount(kmer, k = k)
-  # target = rep((variant),length(kmer))
-  # kmer_df1 = data.frame(kmer3, target)
-  # return(kmer_df1)
+  meta <- as.data.frame(read_tsv(tsvPath, col_select = c(1,2,5,10,11,12,14,16,17,19)))
+  # Not removing raw date as I believe it is useful for sorting or can be parsed on an as needed basis
+  meta <- meta %>%
+    dplyr::mutate(year = lubridate::year(date),
+                  month = lubridate::month(date),
+                  day = lubridate::day(date))
+  kmers <- kcount(fasta, k = k)
+  target <- rep((variant),length(kmers))
+  kmer_df <- data.frame(kmers, target)
+  
+  # Append meta
+  kmer_df <- cbind(kmer_df, meta)
+  
+  return(kmer_df)
 }
 
 # WORK WITH DATA ###########################################
 
 # Different lengths of kmers to be used 
-kmer_list <- list(3,5,7)
+kmer_list <- list(3)
+
+# Instantiate alpha accumulators
 
 for(k in kmer_list) {
-  # fasta contains sequence, while tsv contains metadata
+  # fasta contains sequence, while tsv contains meta
   fastas <- list.files('data/GISAID/datasets', recursive = TRUE, pattern = '.+\\.fasta')
   tsvs <- list.files('data/GISAID/datasets', recursive = TRUE, pattern = '.+\\.tsv')
   nfiles <- length(fastas)
+  # instantiate accumulator
+  data <- data.frame()
   for (i in 1:nfiles) {
-    fastaPath <- paste(extractpath, fastas[i], sep='/')
-    tsvPath <- paste(extractpath, tsvs[i], sep='/')
+    fastaPath <- paste(extractPath, fastas[i], sep='/')
+    tsvPath <- paste(extractPath, tsvs[i], sep='/')
+    variant <- str_match(fastaPath, pattern = '(?<=-).*(?=\\/)')
+    if (variant %vin% omicron_sub) {
+      variant <- 'omicron_sub'
+    }
     print(paste("Reading", fastaPath))
     print(paste("Reading", tsvPath))
-    # kmer_df(fastas[i],tsvs[i],k)
+    temp <- kmer_df(fastaPath, tsvPath, variant, k)
+    data <- bind_rows(data, temp)
   }
-
-  # data = bind_rows(alpha, beta, delta, gamma, omicron)
-  # outputName = sprintf("covid_kmer_%d.csv",k)
+  outputName = sprintf("kmer_%d.csv", k)
   # #store the combined data in a csv file 
-  # write.csv(data, outputName)
+  write.csv(paste('data/kmers'), outputName)
 }
 
 # CLEAN UP #################################################
