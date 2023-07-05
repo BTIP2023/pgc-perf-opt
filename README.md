@@ -9,6 +9,8 @@ For data obtained from GISAID, only **accession numbers** must be referenced. Do
 
 > GISAID does not promote the release of data to databases where access to data is anonymous and the rights of the submitter are relinquished.  GISAID already provides the public with open access to data in a transparent way.
 
+Please see `~/data/README.md` for more information.
+
 ## Workflows
 This section will describe the collected bioinformatics workflows. Currently, only the code from the reference repository will be benchmarked for the prototype benchmark workflow.
 
