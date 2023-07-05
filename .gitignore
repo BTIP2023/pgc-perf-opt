@@ -49,4 +49,4 @@ po/*~
 rsconnect/
 
 # README and RMarkdown previews
-README.html
+**/README.html
