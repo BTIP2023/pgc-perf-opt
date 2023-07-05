@@ -9,7 +9,7 @@ For data obtained from GISAID, only **accession numbers** must be referenced. Do
 
 > GISAID does not promote the release of data to databases where access to data is anonymous and the rights of the submitter are relinquished.  GISAID already provides the public with open access to data in a transparent way.
 
-Please see `~/data/README.md` for more information.
+Please see `~/data/README.md` for further instructions.
 
 ## Workflows
 This section will describe the collected bioinformatics workflows. Currently, only the code from the reference repository will be benchmarked for the prototype benchmark workflow.
@@ -26,6 +26,6 @@ This section will summarize the performance evaluations of each benchamrk. Possi
 ## References
 Chandra, R., Bansal, C., Kang, M., Blau, T., Agarwal, V., Singh, P., Wilson, L. O. W., & Vasan, S. (2023). Unsupervised machine learning framework for discriminating major variants of concern during COVID-19. *PLOS ONE, 18(5),* e0285719. https://doi.org/10.1371/journal.pone.0285719. Reference repository at [ai-covariants/analysis-mutations](https://github.com/ai-covariants/analysis-mutations).
 
-GISAID. (2012). FAQ. https://gisaid.org/help/faq/
+GISAID. (2012). *FAQ.* https://gisaid.org/help/faq/
 
 Kessler, N., Bonte, A., Albaum, S. P., Mäder, P., Messmer, M., Goesmann, A., Niehaus, K., Langenkämper, G., & Nattkemper, T. W. (2015). Learning to Classify Organic and Conventional Wheat – A Machine Learning Driven Approach Using the MeltDB 2.0 Metabolomics Analysis Platform. *Frontiers in Bioengineering and Biotechnology, 3.* https://www.frontiersin.org/articles/10.3389/fbioe.2015.00035

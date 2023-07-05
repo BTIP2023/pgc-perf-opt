@@ -50,3 +50,6 @@ rsconnect/
 
 # README and RMarkdown previews
 **/README.html
+
+# GISAID Data
+data/GISAID/
