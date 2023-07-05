@@ -20,9 +20,6 @@ pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
 pacman::p_load(ape, kmer)
 
 # LOAD DATA ################################################
-
-# WORK WITH DATA ###########################################
-
 #Function computes the kmer of given length 
 kmer_df = function(filePath,variant,k){
   kmer = read.FASTA(filePath)
@@ -31,6 +28,11 @@ kmer_df = function(filePath,variant,k){
   kmer_df1 = data.frame(kmer3, target)
   return(kmer_df1)
 }
+
+# WORK WITH DATA ###########################################
+
+
+
 
 #Different lengths of kmers to be used 
 kmer_list = list(3,5,7)
