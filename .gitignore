@@ -54,5 +54,10 @@ rsconnect/
 # GISAID Data
 data/GISAID/
 
+<<<<<<< HEAD
 # JetBrains
 .idea
+=======
+# Presentation libraries
+presentations/presentation-template/presentation_files/libs/
+>>>>>>> 6c3af0e (added presentation template and README file)

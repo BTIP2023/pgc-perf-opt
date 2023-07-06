@@ -1,0 +1,215 @@
+---
+title: "PGC Internship 2023 - Research Topics"
+author: "[Mentor] Mark Joseph Garrovillas, RCh"
+date: last-modified
+institution: "Core Facility for Bioinformatics"
+format: 
+  revealjs:
+    date-format: long
+    slide-number: c/t
+    width: 1920
+    height: 1080
+    theme: [default, custom.scss]
+    navigation-mode: vertical
+    controls-layout: bottom-right
+    controls-tutorial: true
+    preview-links: auto
+    slide-level: 3
+    multiplex: true
+    chalkboard: 
+      boardmarker-width: 5
+    search:
+    transition: slide
+    background-transition: fade
+    transition-speed: slow
+title-slide-attributes:
+      data-background-image: presentation_files/img/PGCTitleSlideDark.svg
+      data-background-size: cover
+      data-background-color: "#5E205E"
+      transition: slide
+      background-transition: fade
+      transition-speed: slow
+---
+
+# BACKGROUND AND RATIONALE - Part 1{background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Bioinformatics workflows may not be optimized for performance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::: r-stack
+![](presentation_files/img/Bioinformatics-workflow.jpg){.fragment fig-align="center" height=80% width=80%}
+
+![](presentation_files/img/waiting-l-ch-S3jgTJ91pio-unsplash.jpg){.fragment fig-align="center" height=80% width=80%}
+:::
+
+## This research will investigate two contributing factors affecting performance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+
+::: {.fragment fragment-index=1}
+1) R and Python computing acceleration using optimal linear algebra libraries (BLAS/LAPACK) such as those provided by the reference implementation, openblas, ATLAS, Apple Accelerate (ARM), AMD BLISS, Intel MKL and usage of other computing frameworks such as OpenCL
+:::
+
+![](presentation_files/img/linear-algebra.jpg){.fragment fragment-index=2 fig-align="center" height=100% width=100%}
+::::
+
+:::: {.column width="50%"}
+
+::: {.fragment fragment-index=3}
+2) Software patches deployed as mitigations to Meltdown (CVE-2017-5754) and Spectre (CVE-2017-5753 and CVE-2017-5715) vulnerabilities which are known to impact processor computing performance  
+:::
+
+![](presentation_files/img/spectre_meltdown.png){.fragment fragment-index=4 fig-align="center" height=80% width=80%}
+::::
+:::::
+
+### Acceleration by linear algebra libraries can significantly reduce computational time in R {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+
+::: r-stack
+![](presentation_files/img/rblas_speedup.png){.fragment fig-align="center" height=150% width=150%}
+
+![](presentation_files/img/elapsed-time-of-tests-openblas-622118.png){.fragment fig-align="center" height=100% width=100%}
+
+![](presentation_files/img/r-benchmark-25-622118.png){.fragment fig-align="center" height=100% width=100%}
+:::
+
+### Acceleration by linear algebra libraries can significantly reduce computational time in Python {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::: r-stack
+
+![](presentation_files/img/04-numpy-architecture.png){.fragment fig-align="center" height=100% width=100%}
+
+![](presentation_files/img/numpy_blas.png){.fragment fig-align="center" height=70% width=70%}
+
+![](presentation_files/img/heig_bench_plot.png){.fragment fig-align="center" height=100% width=100%}
+
+![](presentation_files/img/numpy_blas_mkl.jfif){.fragment fig-align="center" height=100% width=100%}
+
+
+:::
+
+
+### There has been documented performance regressions when running MAFFT Alignment benchmark test as part of the Phoronix Test Suite with Spectre/Metltdown Mitigations {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+
+![](presentation_files/img/phoronix-mafft.svg){.fragment fig-align="center" height=60% width=60%}
+
+### There are other performance regressions noted with other tests of the Phoronix Test Suite with Spectre/Metltdown Mitigations {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::: r-stack
+![](presentation_files/img/phoronix-context.png){.fragment fig-align="center" height=100% width=100%}
+
+![](presentation_files/img/phoronix-mean.png){.fragment fig-align="center" height=100% width=100%}
+:::
+
+# BACKGROUND AND RATIONALE - Part 2{background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Replicate an unsupervised machine learning framework for discriminating major variants of concern during COVID-19 and apply to PH data in GISAID {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::: r-stack
+
+![](presentation_files/img/journal.pone.0285719.PNG){.fragment fig-align="center" height=100% width=100%}
+
+![](presentation_files/img/journal.pone.0285719.g001a.PNG){.fragment fig-align="center" height=100% width=100%}
+
+![](presentation_files/img/journal.pone.0285719.g001b.PNG){.fragment fig-align="center" height=100% width=100%}
+
+:::
+
+## Visualization 1: Discriminate the COVID19 major variants of concern from k-mer data using Principal Components Analysis, Uniform Manifold Approximation and Projection (UMAP) and t-Stochastic Network Embedding (t-SNE) {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::: r-stack
+
+![](presentation_files/img/journal.pone.0285719.g004a.PNG){.fragment fig-align="center" height=80% width=80%}
+
+![](presentation_files/img/journal.pone.0285719.g004b.PNG){.fragment fig-align="center" height=200% width=200%}
+
+![](presentation_files/img/journal.pone.0285719.g004c.PNG){.fragment fig-align="center" height=200% width=200%}
+
+:::
+
+
+## Visualization 2: Cluster by Dendograms the major variants from k-mer data using agglomerative nesting (AGNES) {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::: r-stack
+
+![](presentation_files/img/journal.pone.0285719.g006.PNG){.fragment fig-align="center" height=70% width=70%}
+
+![](presentation_files/img/journal.pone.0285719.g007.PNG){.fragment fig-align="center" height=70% width=70%}
+
+:::
+
+
+# Research Problems {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+
+## Research Problems {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::: {.panel-tabset}
+
+### Option 1
+
+Use same workflow for different objectives. The workflow is both in R and Python.
+
+- replicate an unsupervised machine learning framework for discriminating major variants of concern during COVID-19 and apply to PH data in GISAID
+
+- benchmarking the same workflow with different linear algebra library implementations
+
+- benchmarking the same workflow with and without spectre and meltdown vulnerability mitigations
+
+
+### Option 2
+
+Use different workflow for the different objectives:
+
+- replicate an unsupervised machine learning framework for discriminating major variants of concern during COVID-19 and apply to PH data in GISAID
+
+- benchmarking a bioinformatics workflow with different linear algebra library implementations in R or python
+
+- benchmarking a bioinformatics workflow with and without spectre and meltdown vulnerability mitigations in R, python or command-line scripts
+
+:::
+
+# Research Output {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## Research Output {data-iframe="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+As a minimum, HTML slides output (Rmarkdown or Jupyter) with interactive graphs :)
+
+```{r out.width="1800px", out.height="900px", fig.cap="An interactive graph"}
+#| echo: true
+
+load(file="presentation_files/clustering-variant.RData")
+ggp
+```
+
+
+# References {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## References {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+- Research Article:
+
+  - <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0285719>
+
+- Web Articles:
+
+  - <https://www.r-bloggers.com/2008/06/speed-up-r-make-r-run-faster/>
+  - <https://www.intel.com/content/www/us/en/developer/articles/technical/performance-comparison-of-openblas-and-intel-math-kernel-library-in-r.html>
+  - <https://superfastpython.com/numpy-blas-lapack-libraries/>
+  - <https://www.numbercrunch.de/blog/2016/03/boosting-numpy-with-mkl/>
+  - <https://www.pugetsystems.com/labs/hpc/how-to-use-mkl-with-amd-ryzen-and-threadripper-cpu-s-effectively-for-python-numpy-and-other-applications-1637/>
+  - <https://livebook.manning.com/book/fast-python/chapter-4/v-3/209>
+  - <https://www.phoronix.com/review/linux50-spectre-meltdown>
+  - <https://towardsdatascience.com/is-your-numpy-optimized-for-speed-c1d2b2ba515>
+  - <https://www.capitalone.com/tech/machine-learning/accelerating-python-with-hardware-optimized-computing/>
+
+## References {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+- Image Sources:
+  - <https://images.unsplash.com/photo-1685716851721-7e1419f2db18?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1632&q=80>
+  - <https://blog.westerndigital.com/wp-content/uploads/2017/06/Bioinformatics-workflow.jpg>
+  - <https://i.ytimg.com/vi/0WDhKCPtbng/maxresdefault.jpg>
+  - <https://web.archive.org/web/20180620212658/https://danielmiessler.com/images/Screen-Shot-2018-01-05-at-08.29.00.png>
