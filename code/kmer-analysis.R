@@ -97,7 +97,7 @@ rm(metaData)
 seed = 10         # seed for random number generator
 sampleSize = 500
 set.seed(seed)
-idxs <- sample(1:sampleSize, sampleSize, replace = FALSE)
+idxs <- sample(1:nrow(metaDataAll), sampleSize, replace = FALSE)
 set.seed(NULL)  # reset seed (rest of code is true random)
 fastaAll <- fastaAll[idxs]
 metaDataAll <- metaDataAll[idxs,]
@@ -140,6 +140,7 @@ for (k in kmer_list) {
   kmer_df <- cbind(kmer_df, metaDataAll)
   
   # Write to a csv file in data/kmers
+  # Only write if file don't already exist
   outputName <- sprintf("kmer_%d.csv", k)
   write.csv(kmer_df, paste('data/kmers', outputName, sep='/'))
 }
