@@ -92,7 +92,7 @@ rm(fasta)
 rm(metaData)
 
 # At this point, fastaAll and metaDataAll contains the needed data
-# Now do random sampling
+# Now do random sampling of <sampleSize> samples
 
 sampleSize = 500
 idxs <- sample(1:M, sampleSize, replace = FALSE)

@@ -6,10 +6,10 @@ For data obtained from GISAID, only **accession numbers** will be included in th
 
 > GISAID does not promote the release of data to databases where access to data is anonymous and the rights of the submitter are relinquished.  GISAID already provides the public with open access to data in a transparent way.
 
-All GISAID data are stored in `~/data/GISAID`, but the contents won't be committed (via `.gitignore`).
+All GISAID data are stored in `data/GISAID`, but the contents won't be committed (via `.gitignore`).
 
 ### GISAID Directory Usage
-To devs: To use the GISAID directory, open the Google Drive folder shared by the mentor, and then navigate to `data/GISAID/datasets`. Copy the contents of that (`.fasta` and `.tsv`) into your local repo's `~/data/GISAID/datasets`. The aforementioned directory has to be updated every time there's a change in the data.
+To devs: To use the GISAID directory, open the Google Drive folder shared by the mentor, and then navigate to `data/GISAID`. Copy the contents of that (`.tar` files) into your local repo's `data/GISAID`. The aforementioned directory has to be updated every time there's a change in the data.
 
 ---
 ## References
