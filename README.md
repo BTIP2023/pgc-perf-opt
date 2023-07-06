@@ -1,5 +1,5 @@
 # pgc-perf-opt
-A project to benchmark the performance of bioinformatics workflows according to the status of Spectre/Meltdown patches and the choice of linear algebra libraries.
+A project to benchmark the performance of an unsupervised machine learning bioinformatic workflows according to the status of Spectre/Meltdown patches and the choice of linear algebra libraries.
 
 ## Data
 This section will describe characteristics of the data such as sources, size, and format. These will motivate the upcoming data importation, sanitation, visualization, and analysis. Different data configurations may also be used in different benchmarks.
@@ -21,6 +21,9 @@ Pilot code may also be written for more novel workflows. For instance, see [this
 
 ## Results
 This section will summarize the performance evaluations of each benchamrk. Possibly, results from novel bioinformatics workflows or benchmark approaches may also be discussed here.
+
+## Presentations
+This section will contain directories for the research proposal presentations, research updates and the final research presentation.
 
 ---
 ## References
