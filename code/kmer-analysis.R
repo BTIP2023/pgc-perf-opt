@@ -95,7 +95,7 @@ rm(metaData)
 # Now do random sampling
 
 sampleSize = 500
-idxs <- sample(1:M, 500, replace = FALSE)
+idxs <- sample(1:M, sampleSize, replace = FALSE)
 fastaAll <- fastaAll[idxs]
 metaDataAll <- metaDataAll[idxs,]
 
@@ -107,8 +107,8 @@ drop_idxs <- which(is.na(metaDataAll), arr.ind=TRUE)[,1]
 drop_idxs <- unique(drop_idxs)
 drop_idxs
 
-fastaAll <- fastaAll[is.na(pmatch(1:500, drop_idxs))]
-metaDataAll <- metaDataAll[is.na(pmatch(1:500, drop_idxs)),]
+fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs))]
+metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs)),]
 
 # At this point, fastaAll and metaDataAll are sanitized and 1:1
 
