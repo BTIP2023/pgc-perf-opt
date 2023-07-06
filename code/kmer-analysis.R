@@ -77,7 +77,7 @@ for (i in 1:nfiles) {
     dplyr::mutate(year = lubridate::year(date),
                   month = lubridate::month(date),
                   day = lubridate::day(date),
-                  variant = variant)
+                  variant = as.character(variant))
   
   metaData$length <- as.integer(metaData$length)
   metaData$age <- as.integer(metaData$age)
@@ -94,21 +94,27 @@ rm(metaData)
 # At this point, fastaAll and metaDataAll contains the needed data
 # Now do random sampling of <sampleSize> samples
 
+seed = 10         # seed for random number generator
 sampleSize = 500
+set.seed(seed)
 idxs <- sample(1:M, sampleSize, replace = FALSE)
+set.seed(NULL)  # reset seed (rest of code is true random)
 fastaAll <- fastaAll[idxs]
 metaDataAll <- metaDataAll[idxs,]
 
 # Drop rows with NA values and type mismatches
-# For dropping, get the idxs of the dropped rows and also drop them to in fastaAll
-drop_idxs <- which(is.na(metaDataAll), arr.ind=TRUE)[,1]
-# drop_idxs <- c(drop_idxs, as.vector(which(is.numeric(metaDataAll$sex))))
-# drop_idxs <- c(drop_idxs, which(!(metaDataAll$sex %vin% list("Male", "Female"))))
-drop_idxs <- unique(drop_idxs)
-drop_idxs
+# For dropping, get the idxs of the dropped rows and also drop them in fastaAll
+drop_idxs1 <- which(is.na(metaDataAll), arr.ind=TRUE)[,1]
+drop_idxs2 <- c(which(is.numeric(metaDataAll$sex)),
+                which(!(metaDataAll$sex %vin% list("Male", "Female"))))
+drop_idxs1 <- unique(drop_idxs1)
+drop_idxs2 <- unique(drop_idxs2)
 
-fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs))]
-metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs)),]
+fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs1))]
+fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs2))]
+
+metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs1)),]
+metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs2)),]
 
 # At this point, fastaAll and metaDataAll are sanitized and 1:1
 
@@ -127,8 +133,11 @@ kmer <- function(fasta, metaData, k){
 }
 
 # WORK WITH DATA ###########################################
+kmer_list = list(3,5,7)
 
-
+for (k in kmer_list) {
+  
+}
 
 # CLEAN UP #################################################
 
