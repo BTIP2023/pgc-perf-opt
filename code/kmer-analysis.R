@@ -94,7 +94,7 @@ rm(metaData)
 
 # At this point, fastaAll and metaDataAll contains the needed data
 # Now do random sampling of <sampleSize> samples
-
+# TODO: Stratified sampling, add that 
 seed = 10         # seed for random number generator
 sampleSize = 500
 set.seed(seed)
@@ -102,6 +102,9 @@ idxs <- sample(1:nrow(metaDataAll), sampleSize, replace = FALSE)
 set.seed(NULL)  # reset seed (rest of code is true random)
 fastaAll <- fastaAll[idxs]
 metaDataAll <- metaDataAll[idxs,]
+# metaDataAll <- metaDataAll %>%
+#   group_by(Level) %>%
+#   sample_n(size = 10)
 
 # Drop rows with NA values and type mismatches
 # For dropping, get the idxs of the dropped rows and also drop them in fastaAll
