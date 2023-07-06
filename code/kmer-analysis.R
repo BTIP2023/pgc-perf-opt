@@ -94,12 +94,7 @@ rm(metaData)
 # At this point, fastaAll and metaDataAll contains the needed data
 # Now do random sampling
 
-M <- length(fastaAll)
-N <- nrow(metaDataAll)
-# Guard condition, M == N
-if (M != N) {
-  print("Warning: size of fasta != metaData")
-}
+sampleSize = 500
 idxs <- sample(1:M, 500, replace = FALSE)
 fastaAll <- fastaAll[idxs]
 metaDataAll <- metaDataAll[idxs,]
@@ -114,6 +109,8 @@ drop_idxs
 
 fastaAll <- fastaAll[is.na(pmatch(1:500, drop_idxs))]
 metaDataAll <- metaDataAll[is.na(pmatch(1:500, drop_idxs)),]
+
+# At this point, fastaAll and metaDataAll are sanitized and 1:1
 
 # Returns a data frame of kmers
 kmer <- function(fasta, metaData, k){
