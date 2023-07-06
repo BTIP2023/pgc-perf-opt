@@ -107,18 +107,11 @@ metaDataAll <- metaDataAll[idxs,]
 drop_idxs1 <- which(is.na(metaDataAll), arr.ind=TRUE)[,1]
 drop_idxs2 <- c(which(is.numeric(metaDataAll$sex)),
                 which(!(metaDataAll$sex %vin% list("Male", "Female"))))
-# drop_idxs3 <- which(lengths(fastaAll) == 0)
-drop_idxs1 <- unique(drop_idxs1)
-drop_idxs2 <- unique(drop_idxs2)
-# drop_idxs3 <- unique(drop_idxs3)
+drop_idxs3 <- which(lengths(fastaAll) == 0)
+drop_idxs <- unique(c(drop_idxs1, drop_idxs2, drop_idxs3))
 
-fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs1))]
-fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs2))]
-# fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs3))]
-
-metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs1)),]
-metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs2)),]
-# metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs3)),]
+fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs))]
+metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs)),]
 
 # At this point, fastaAll and metaDataAll are sanitized and 1:1
 
