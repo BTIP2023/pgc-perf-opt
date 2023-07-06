@@ -130,32 +130,33 @@ kmer <- function(fasta, metaData, k){
 }
 
 # WORK WITH DATA ###########################################
-kmer_list = list(3)
+kmer_list = list(3,5,7)
 
 for (k in kmer_list) {
   kmers <- kcount(fastaAll, k = k)
   kmer_df <- data.frame(kmers)
   
-  print(dim(kmer_df))
-  print(dim(metaDataAll))
+  # Append meta
+  kmer_df <- cbind(kmer_df, metaDataAll)
   
-  # # Append meta
-  # kmer_df <- cbind(kmer_df, metaData)
+  # Write to a csv file in data/kmers
+  outputName <- sprintf("kmer_%d.csv", k)
+  write.csv(kmer_df, paste('data/kmers', outputName, sep='/'))
 }
 
 # CLEAN UP #################################################
 
 # Clear environment
-# rm(list = ls())
+rm(list = ls())
 
 # Clear packages
-# p_unload(all)  # Remove all add-ons
-# detach("package:datasets", unload = TRUE)  # For base
+p_unload(all)  # Remove all add-ons
+detach("package:datasets", unload = TRUE)  # For base
 
 # Clear plots but only if there IS a plot
 # while (!is.null(dev.list())) dev.off()
 
 # Clear console
-# cat("\014")  # ctrl+L
+cat("\014")  # ctrl+L
 
 # Clear mind :)
