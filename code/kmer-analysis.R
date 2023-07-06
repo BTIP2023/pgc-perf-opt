@@ -97,7 +97,7 @@ rm(metaData)
 seed = 10         # seed for random number generator
 sampleSize = 500
 set.seed(seed)
-idxs <- sample(1:M, sampleSize, replace = FALSE)
+idxs <- sample(1:sampleSize, sampleSize, replace = FALSE)
 set.seed(NULL)  # reset seed (rest of code is true random)
 fastaAll <- fastaAll[idxs]
 metaDataAll <- metaDataAll[idxs,]
@@ -107,14 +107,18 @@ metaDataAll <- metaDataAll[idxs,]
 drop_idxs1 <- which(is.na(metaDataAll), arr.ind=TRUE)[,1]
 drop_idxs2 <- c(which(is.numeric(metaDataAll$sex)),
                 which(!(metaDataAll$sex %vin% list("Male", "Female"))))
+# drop_idxs3 <- which(lengths(fastaAll) == 0)
 drop_idxs1 <- unique(drop_idxs1)
 drop_idxs2 <- unique(drop_idxs2)
+# drop_idxs3 <- unique(drop_idxs3)
 
 fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs1))]
 fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs2))]
+# fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs3))]
 
 metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs1)),]
 metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs2)),]
+# metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs3)),]
 
 # At this point, fastaAll and metaDataAll are sanitized and 1:1
 
@@ -133,10 +137,17 @@ kmer <- function(fasta, metaData, k){
 }
 
 # WORK WITH DATA ###########################################
-kmer_list = list(3,5,7)
+kmer_list = list(3)
 
 for (k in kmer_list) {
+  kmers <- kcount(fastaAll, k = k)
+  kmer_df <- data.frame(kmers)
   
+  print(dim(kmer_df))
+  print(dim(metaDataAll))
+  
+  # # Append meta
+  # kmer_df <- cbind(kmer_df, metaData)
 }
 
 # CLEAN UP #################################################
