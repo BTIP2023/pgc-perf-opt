@@ -114,6 +114,7 @@ fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs))]
 metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs)),]
 
 # At this point, fastaAll and metaDataAll are sanitized and 1:1
+# write.FASTA(fastaAll, 'data/fastaAll.fasta')
 
 # Returns a data frame of kmers
 kmer <- function(fasta, metaData, k){
