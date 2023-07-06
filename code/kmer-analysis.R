@@ -59,8 +59,9 @@ for (i in 1:nfiles) {
   tsvPath <- paste(extractPath, tsvs[i], sep='/')
   variant <- str_match(fastaPath, pattern = '(?<=-).*(?=\\/)')
   if (variant %vin% omicron_sub) {
-    variant <- 'omicron_sub'
+    variant <- 'Omicron Sub'
   }
+  variant <- str_to_title(variant)
   print(paste("Reading", fastaPath))
   print(paste("Reading", tsvPath))
   
@@ -134,6 +135,7 @@ kmer <- function(fasta, metaData, k){
 kmer_list = list(3,5,7)
 
 for (k in kmer_list) {
+  print(sprintf("Performing %d-mer analysis...", k))
   kmers <- kcount(fastaAll, k = k)
   kmer_df <- data.frame(kmers)
   
@@ -141,9 +143,10 @@ for (k in kmer_list) {
   kmer_df <- cbind(kmer_df, metaDataAll)
   
   # Write to a csv file in data/kmers
-  # Only write if file don't already exist
-  outputName <- sprintf("kmer_%d.csv", k)
-  write.csv(kmer_df, paste('data/kmers', outputName, sep='/'))
+  # Rewrites file if it already exists
+  outputDir <- paste('data/kmers', sprintf("kmer_%d.csv", k), sep='/')
+  print(paste("Writing kmer data to", outputDir))
+  write.csv(kmer_df, outputDir)
 }
 
 # CLEAN UP #################################################
