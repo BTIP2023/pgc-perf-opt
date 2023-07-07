@@ -57,7 +57,8 @@ data/GISAID/
 # JetBrains and RStudio workspace
 .idea
 
-# Presentation libraries
+# Presentation libraries and others
 presentations/presentation-template/presentation_files/libs/
 presentations/research-updates-1/presentation_files/libs/
+presentations/research-updates-1/*.html
 
