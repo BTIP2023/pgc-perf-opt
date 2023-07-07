@@ -63,6 +63,8 @@ title-slide-attributes:
 
 ## Burndown chart was created to keep track of the team's progress {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
+![](presentation_files/img/burndown.svg){.fragment fig-align="center" height=60% width=60%}
+
 # Progress Report - Software familiarization {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
 
@@ -96,21 +98,54 @@ title-slide-attributes:
 
 ## Data set randomizer was created for test runs {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
+![](presentation_files/img/data-randomizer.png){.fragment fig-align="center" height=70% width=70%}
+
 ## kmer analysis was successfully performed on PH SARS-CoV-2 sequence data {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ![](presentation_files/img/kmer-data.png){.fragment fig-align="center" height=70% width=70%}
 
 ## PCA plots were generated from the k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
+::::: {.columns}
 
+:::: {.column width="33%"}
+![](presentation_files/img/pca-kmer-3.png){.fragment fig-align="center" height=100% width=100%}
+::::
+
+:::: {.column width="33%"}
+![](presentation_files/img/pca-kmer-5.png){.fragment fig-align="center" height=100% width=100%}
+::::
+
+:::: {.column width="33%"}
+![](presentation_files/img/pca-kmer-7.png){.fragment fig-align="center" height=100% width=100%}
+::::
+
+:::::
+
+## PCA plots were generated from the k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/pca-combined.png){.fragment fig-align="center" height=40% width=40%}
 
 ## tSNE plots were generated from k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-
+![](presentation_files/img/tsne-3.png){.fragment fig-align="center" height=40% width=40%}
 
 
 ## UMAP plots were generated from k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
+::::: {.columns}
 
+:::: {.column width="33%"}
+![](presentation_files/img/umap-3.png){.fragment fig-align="center" height=120% width=120%}
+::::
+
+:::: {.column width="33%"}
+![](presentation_files/img/umap-5.png){.fragment fig-align="center" height=120% width=120%}
+::::
+
+:::: {.column width="33%"}
+![](presentation_files/img/umap-7.png){.fragment fig-align="center" height=120% width=120%}
+::::
+
+:::::
 
 ## Variant-specific dendograms were generated from the k-mer analysis results {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
