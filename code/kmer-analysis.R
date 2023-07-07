@@ -92,6 +92,10 @@ for (i in 1:nfiles) {
 rm(fasta)
 rm(metaData)
 
+# Save sample of metaDataAll and fastaAll for comparison
+fastaCopy <- fastaAll
+metaCopy <- metaDataAll
+
 # At this point, fastaAll and metaDataAll contains the needed data
 # Now do random sampling of <sampleSize> samples
 # TODO: Stratified sampling
@@ -99,11 +103,14 @@ seed = 10         # seed for random number generator
 sampleSize = 100  # sample size per stratum
 set.seed(seed)
 
+# Note: append row names to column for fasta sampling
+# Drop before exporting!
 metaGrouped <- metaDataAll %>%
-  dplyr::group_by(variant)
+  dplyr::group_by(variant) %>%
+  tibble::rownames_to_column()
 
-droppedVariants <- filter(metaGrouped, n() < sampleSize)
-metaGrouped <- filter(metaGrouped, n() >= sampleSize) %>%
+droppedVariants <- filter(metaGrouped, n() < sampleSize, .preserve = TRUE)
+metaGrouped <- filter(metaGrouped, n() >= sampleSize, .preserve = TRUE) %>%
   sample_n(sampleSize)
 metaDataAll <- bind_rows(metaGrouped, droppedVariants)
 
@@ -112,8 +119,8 @@ rm(metaGrouped)
 
 set.seed(NULL)  # reset seed (rest of code is true random)
 
+idxs <- as.integer(metaDataAll$rowname)
 fastaAll <- fastaAll[idxs]
-metaDataAll <- metaDataAll[idxs,]
 
 # Drop rows with NA values and type mismatches
 # For dropping, get the idxs of the dropped rows and also drop them in fastaAll
