@@ -95,6 +95,7 @@ rm(metaData)
 
 # May put merging of fastaAll and metaDataAll here
 
+
 # At this point, fastaAll and metaDataAll contains the needed data
 # Now do stratified random sampling of <sampleSize> samples
 seed = 10         # seed for random number generator
@@ -131,7 +132,7 @@ drop_idxs2 <- c(which(is.numeric(metaDataAll$sex)),
 drop_idxs3 <- which(lengths(fastaAll) == 0)
 drop_idxs <- unique(c(drop_idxs1, drop_idxs2, drop_idxs3))
 
-fastaAll <- fastaAll[is.na(pmatch(1:nrow(fastaAll), drop_idxs))]
+fastaAll <- fastaAll[is.na(pmatch(1:length(fastaAll), drop_idxs))]
 metaDataAll <- metaDataAll[is.na(pmatch(1:nrow(metaDataAll), drop_idxs)),]
 
 # At this point, fastaAll and metaDataAll are sanitized and 1:1
@@ -162,9 +163,9 @@ for (k in kmer_list) {
   # Append meta
   kmer_df <- cbind(kmer_df, metaDataAll)
   
-  # Write to a csv file in data/kmers-updated
+  # Write to a csv file in data/kmers
   # Rewrites file if it already exists
-  outputDir <- paste('data/kmers-updated', sprintf("kmer_%d.csv", k), sep='/')
+  outputDir <- paste('data/kmers', sprintf("kmer_%d.csv", k), sep='/')
   print(paste("Writing kmer data to", outputDir))
   write.csv(kmer_df, outputDir)
 }
