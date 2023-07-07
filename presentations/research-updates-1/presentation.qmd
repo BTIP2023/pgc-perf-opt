@@ -33,8 +33,8 @@ title-slide-attributes:
 
 # Performance Evaluation and Optimization of an Unsupervised Machine Learning Workflow for Discriminating Major COVID-19 Variants of Concern in the Philippines{background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Can we use PH Data from GISAID using the same pipeline? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-![](presentation_files/img/gisaid.png){.fragment fig-align="center" height=80% width=80%}
+## Modification of the pipeline to better visualize different SARS-CoV-2 Variants in the PH {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/variants.jpg){.fragment fig-align="center" height=50% width=50%}
 
 ## Which linear algebra library implementation (BLAS,LAPACK,OpenCL,IntelMLK) gives the most optimal runtime for the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/linear-algebra.jpg){.fragment fig-align="center" height=60% width=60%}
@@ -104,48 +104,40 @@ title-slide-attributes:
 
 ![](presentation_files/img/kmer-data.png){.fragment fig-align="center" height=70% width=70%}
 
-## PCA plots were generated from the k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## PCA plots were generated from the k-mer (k=3) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/pca-3.html" width=700px height=500px></iframe>
 
-::::: {.columns}
+## PCA plots were generated from the k-mer (k=5) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/pca-5.html" width=700px height=500px></iframe>
 
-:::: {.column width="33%"}
-![](presentation_files/img/pca-kmer-3.png){.fragment fig-align="center" height=100% width=100%}
-::::
+## PCA plots were generated from the k-mer (k=5) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/pca-7.html" width=700px height=500px></iframe>
 
-:::: {.column width="33%"}
-![](presentation_files/img/pca-kmer-5.png){.fragment fig-align="center" height=100% width=100%}
-::::
-
-:::: {.column width="33%"}
-![](presentation_files/img/pca-kmer-7.png){.fragment fig-align="center" height=100% width=100%}
-::::
-
-:::::
 
 ## PCA plots were generated from the k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-![](presentation_files/img/pca-combined.png){.fragment fig-align="center" height=40% width=40%}
+<iframe src="presentation_files/img/pca-combined.html" width=700px height=500px></iframe>
 
-## tSNE plots were generated from k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-![](presentation_files/img/tsne-3.png){.fragment fig-align="center" height=40% width=40%}
+## tSNE plots were generated from k-mer (k=3) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+<iframe src="presentation_files/img/tsne-3.html" width=1400px height=1000px></iframe>
+
+## tSNE plots were generated from k-mer (k=5) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+<iframe src="presentation_files/img/tsne-5.html" width=1400px height=1000px></iframe>
+
+## tSNE plots were generated from k-mer (k=7) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+<iframe src="presentation_files/img/tsne-7.html" width=1400px height=1000px></iframe>
 
 
-## UMAP plots were generated from k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## UMAP plots were generated from k-mer (k=3) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/umap-3.html" width=1400px height=1000px></iframe>
 
-::::: {.columns}
+## UMAP plots were generated from k-mer (k=5) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/umap-5.html" width=1400px height=1000px></iframe>
 
-:::: {.column width="33%"}
-![](presentation_files/img/umap-3.png){.fragment fig-align="center" height=120% width=120%}
-::::
-
-:::: {.column width="33%"}
-![](presentation_files/img/umap-5.png){.fragment fig-align="center" height=120% width=120%}
-::::
-
-:::: {.column width="33%"}
-![](presentation_files/img/umap-7.png){.fragment fig-align="center" height=120% width=120%}
-::::
-
-:::::
+## UMAP plots were generated from k-mer (k=7) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/umap-7.html" width=1400px height=1000px></iframe>
 
 ## Variant-specific dendograms were generated from the k-mer analysis results {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
@@ -160,13 +152,14 @@ ggp
 ## Future Plans {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
 
 - Goals for Next Week
-  - Create stratified random sampling algorithm that takes at most 50 samples per variant
+  - Create stratified random sampling algorithm that takes samples per variant
   - Create dendograms that separate PH data according to region
   - Benchmark Workflow with Spectre and Meltdown Patches Enabled vs. Disabled in Intel Core/AMD Ryzen processors and Windows/Linux OS 
   - Benchmark Computations using OpenBLAS/ATLAS/AMD BLISS/ Intel MKL
   
 - Future Goals
   - Document and Analyze Benchmarking Results
+  - Port entire pipeline into R
   - Scale up Data and Run in HPC
 
 # References {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
