@@ -50,20 +50,21 @@ title-slide-attributes:
 
 ## Trello board was created to visualize the workflow of the team {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-::: r-stack
-
-![](presentation_files/img/trello-1.png){.fragment fig-align="center" height=90% width=90%}
-
-![](presentation_files/img/trello-2.png){.fragment fig-align="center" height=100% width=100%}
-:::
+![](presentation_files/img/trello-1.png){.fragment fig-align="center" height=60% width=60%}
 
 ## Github repository was created to store all code to be used in the study {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-![](presentation_files/img/github.png){.fragment fig-align="center" height=100% width=100%}
+![](presentation_files/img/github.png){.fragment fig-align="center" height=60% width=60%}
+
+## Github repository was created to store all code to be used in the study {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/git-branches.png){.fragment fig-align="center" height=100% width=100%}
 
 ## Burndown chart was created to keep track of the team's progress {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-![](presentation_files/img/burndown.svg){.fragment fig-align="center" height=60% width=60%}
+<iframe src="https://docs.google.com/spreadsheets/d/1e_8Idq3GNALJlM27_xZwYv2O2Rsih5MytwXbmZ9c7TI/edit#gid=196745742" width=1260px height=900px></iframe>
+
+[//]: ![](presentation_files/img/burndown.svg){.fragment fig-align="center" height=60% width=60%}
 
 # Progress Report - Software familiarization {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
@@ -105,17 +106,17 @@ title-slide-attributes:
 ![](presentation_files/img/kmer-data.png){.fragment fig-align="center" height=70% width=70%}
 
 ## PCA plots were generated from the k-mer (k=3) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-<iframe src="presentation_files/img/pca-3.html" width=700px height=500px></iframe>
+<iframe src="presentation_files/img/pca-kmer-3.html" width=1260px height=900px></iframe>
 
 ## PCA plots were generated from the k-mer (k=5) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-<iframe src="presentation_files/img/pca-5.html" width=700px height=500px></iframe>
+<iframe src="presentation_files/img/pca-kmer-5.html" width=1260px height=900px></iframe>
 
 ## PCA plots were generated from the k-mer (k=5) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-<iframe src="presentation_files/img/pca-7.html" width=700px height=500px></iframe>
+<iframe src="presentation_files/img/pca-kmer-7.html" width=1260px height=900px></iframe>
 
 
 ## PCA plots were generated from the k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-<iframe src="presentation_files/img/pca-combined.html" width=700px height=500px></iframe>
+<iframe src="presentation_files/img/pca-combined.html" width=1260px height=900px></iframe>
 
 ## tSNE plots were generated from k-mer (k=3) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
