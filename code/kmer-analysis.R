@@ -14,7 +14,7 @@ library(pacman)
 # First call are standard packages for the project
 pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
                ggvis, httr, lubridate, plotly, psych,
-               rio, rmarkdown, shiny, 
+               rio, rmarkdown, shiny,
                stringr, tidyr, tidyverse)
 # Second call are file-specific packages
 pacman::p_load(ape, kmer, readr, lubridate, stringr, validate)
@@ -94,17 +94,26 @@ rm(metaData)
 
 # At this point, fastaAll and metaDataAll contains the needed data
 # Now do random sampling of <sampleSize> samples
-# TODO: Stratified sampling, add that 
+# TODO: Stratified sampling
 seed = 10         # seed for random number generator
-sampleSize = 500
+sampleSize = 100  # sample size per stratum
 set.seed(seed)
-idxs <- sample(1:nrow(metaDataAll), sampleSize, replace = FALSE)
+
+metaGrouped <- metaDataAll %>%
+  dplyr::group_by(variant)
+
+droppedVariants <- filter(metaGrouped, n() < sampleSize)
+metaGrouped <- filter(metaGrouped, n() >= sampleSize) %>%
+  sample_n(sampleSize)
+metaDataAll <- bind_rows(metaGrouped, droppedVariants)
+
+rm(droppedVariants)
+rm(metaGrouped)
+
 set.seed(NULL)  # reset seed (rest of code is true random)
+
 fastaAll <- fastaAll[idxs]
 metaDataAll <- metaDataAll[idxs,]
-# metaDataAll <- metaDataAll %>%
-#   group_by(Level) %>%
-#   sample_n(size = 10)
 
 # Drop rows with NA values and type mismatches
 # For dropping, get the idxs of the dropped rows and also drop them in fastaAll
