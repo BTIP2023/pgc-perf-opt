@@ -1,0 +1,184 @@
+---
+title: "Research Updates 1"
+author: "Mark Joseph Garrovillas, RCh, Brylle Joshua Logroño, John Matthew Felices, Yenzy Urson Hebron"
+date: "July 06 2023"
+institution: "Core Facility for Bioinformatics"
+format: 
+  revealjs:
+    date-format: long
+    slide-number: c/t
+    width: 1920
+    height: 1080
+    theme: [default, custom.scss]
+    navigation-mode: vertical
+    controls-layout: bottom-right
+    controls-tutorial: true
+    preview-links: auto
+    slide-level: 3
+    multiplex: true
+    chalkboard: 
+      boardmarker-width: 5
+    search:
+    transition: slide
+    background-transition: fade
+    transition-speed: slow
+title-slide-attributes:
+      data-background-image: presentation_files/img/PGCTitleSlideDark.svg
+      data-background-size: cover
+      data-background-color: "#5E205E"
+      transition: slide
+      background-transition: fade
+      transition-speed: slow
+---
+
+# Performance Evaluation and Optimization of an Unsupervised Machine Learning Workflow for Discriminating Major COVID-19 Variants of Concern in the Philippines{background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Can we use PH Data from GISAID using the same pipeline? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/gisaid.png){.fragment fig-align="center" height=80% width=80%}
+
+## Which linear algebra library implementation (BLAS,LAPACK,OpenCL,IntelMLK) gives the most optimal runtime for the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/linear-algebra.jpg){.fragment fig-align="center" height=60% width=60%}
+
+## Does processor vulnerability mitigations (Spectre and Meltdown) significantly affect the runtime of the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/spectre_meltdown.png){.fragment fig-align="center" height=60% width=60%}
+
+
+## The sample pipeline discriminates between COVID19 variants using an unsupervised machine learning framework {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/journal.pone.0285719.png){.fragment fig-align="center" height=40% width=40%}
+
+# Progress Report - Project Management {background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Trello board was created to visualize the workflow of the team {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::: r-stack
+
+![](presentation_files/img/trello-1.png){.fragment fig-align="center" height=90% width=90%}
+
+![](presentation_files/img/trello-2.png){.fragment fig-align="center" height=100% width=100%}
+:::
+
+## Github repository was created to store all code to be used in the study {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/github.png){.fragment fig-align="center" height=100% width=100%}
+
+## Burndown chart was created to keep track of the team's progress {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/burndown.svg){.fragment fig-align="center" height=60% width=60%}
+
+# Progress Report - Software familiarization {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+
+## Team members attended this week's random talks on git, docker, and HPC access {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="islow"}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+![](presentation_files/img/git.png){.fragment fig-align="center" height=60% width=60%}
+::::
+
+:::: {.column width="50%"}
+![](presentation_files/img/docker.webp){.fragment fig-align="center" height=60% width=60%}
+::::
+
+:::::
+
+# Progress Report - Workflow Replication {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## SARS-CoV-2 genomes were downloaded from GISAID {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/data-download.png){.fragment fig-align="center" height=70% width=70%}
+
+## Entries containing errors in the metadata were removed {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/data-errors.png){.fragment fig-align="center" height=30% width=30%}
+
+## Reference code was made more reproducible {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/code-cleanup.png){.fragment fig-align="center" height=70% width=70%}
+
+## Data set randomizer was created for test runs {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/data-randomizer.png){.fragment fig-align="center" height=70% width=70%}
+
+## kmer analysis was successfully performed on PH SARS-CoV-2 sequence data {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/kmer-data.png){.fragment fig-align="center" height=70% width=70%}
+
+## PCA plots were generated from the k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::::: {.columns}
+
+:::: {.column width="33%"}
+![](presentation_files/img/pca-kmer-3.png){.fragment fig-align="center" height=100% width=100%}
+::::
+
+:::: {.column width="33%"}
+![](presentation_files/img/pca-kmer-5.png){.fragment fig-align="center" height=100% width=100%}
+::::
+
+:::: {.column width="33%"}
+![](presentation_files/img/pca-kmer-7.png){.fragment fig-align="center" height=100% width=100%}
+::::
+
+:::::
+
+## PCA plots were generated from the k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/pca-combined.png){.fragment fig-align="center" height=40% width=40%}
+
+## tSNE plots were generated from k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/tsne-3.png){.fragment fig-align="center" height=40% width=40%}
+
+
+## UMAP plots were generated from k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::::: {.columns}
+
+:::: {.column width="33%"}
+![](presentation_files/img/umap-3.png){.fragment fig-align="center" height=120% width=120%}
+::::
+
+:::: {.column width="33%"}
+![](presentation_files/img/umap-5.png){.fragment fig-align="center" height=120% width=120%}
+::::
+
+:::: {.column width="33%"}
+![](presentation_files/img/umap-7.png){.fragment fig-align="center" height=120% width=120%}
+::::
+
+:::::
+
+## Variant-specific dendograms were generated from the k-mer analysis results {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+```{r out.width="1800px", out.height="900px", fig.cap="Dendogram of SARS-CoV-2 Variants"}
+
+load(file="presentation_files/clustering-variant.RData")
+ggp
+```
+
+# Next Steps {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## Future Plans {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
+
+- Goals for Next Week
+  - Create stratified random sampling algorithm that takes at most 50 samples per variant
+  - Create dendograms that separate PH data according to region
+  - Benchmark Workflow with Spectre and Meltdown Patches Enabled vs. Disabled in Intel Core/AMD Ryzen processors and Windows/Linux OS 
+  - Benchmark Computations using OpenBLAS/ATLAS/AMD BLISS/ Intel MKL
+  
+- Future Goals
+  - Document and Analyze Benchmarking Results
+  - Scale up Data and Run in HPC
+
+# References {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## References {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+- Research Article:
+
+  - <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0285719>
+
+- Image Sources:
+  - <https://i.ytimg.com/vi/0WDhKCPtbng/maxresdefault.jpg>
+  - <https://web.archive.org/web/20180620212658/https://danielmiessler.com/images/Screen-Shot-2018-01-05-at-08.29.00.png>
+  - <https://www.docker.com/wp-content/uploads/2022/03/vertical-logo-monochromatic.png>
+  - <https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/1280px-Git-logo.svg.png>
