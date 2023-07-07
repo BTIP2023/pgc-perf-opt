@@ -54,6 +54,7 @@ nfiles <- length(fastas)
 fastaAll <- data.frame()
 metaDataAll <- data.frame()
 
+# TODO: Alternative approach: append fasta list as column to metadata
 for (i in 1:nfiles) {
   fastaPath <- paste(extractPath, fastas[i], sep='/')
   tsvPath <- paste(extractPath, tsvs[i], sep='/')
@@ -92,13 +93,10 @@ for (i in 1:nfiles) {
 rm(fasta)
 rm(metaData)
 
-# Save sample of metaDataAll and fastaAll for comparison
-fastaCopy <- fastaAll
-metaCopy <- metaDataAll
+# May put merging of fastaAll and metaDataAll here
 
 # At this point, fastaAll and metaDataAll contains the needed data
-# Now do random sampling of <sampleSize> samples
-# TODO: Stratified sampling
+# Now do stratified random sampling of <sampleSize> samples
 seed = 10         # seed for random number generator
 sampleSize = 100  # sample size per stratum
 set.seed(seed)
@@ -109,8 +107,9 @@ metaGrouped <- metaDataAll %>%
   dplyr::group_by(variant) %>%
   tibble::rownames_to_column()
 
-droppedVariants <- filter(metaGrouped, n() < sampleSize, .preserve = TRUE)
-metaGrouped <- filter(metaGrouped, n() >= sampleSize, .preserve = TRUE) %>%
+# Do not preserve grouping structure (below only) to avoid NULL groups
+droppedVariants <- filter(metaGrouped, n() < sampleSize)
+metaGrouped <- filter(metaGrouped, n() >= sampleSize) %>%
   sample_n(sampleSize)
 metaDataAll <- bind_rows(metaGrouped, droppedVariants)
 
@@ -122,6 +121,8 @@ set.seed(NULL)  # reset seed (rest of code is true random)
 idxs <- as.integer(metaDataAll$rowname)
 fastaAll <- fastaAll[idxs]
 
+metaDataAll = subset(metaDataAll, select = -c(rowname) )  # drop rowname column
+
 # Drop rows with NA values and type mismatches
 # For dropping, get the idxs of the dropped rows and also drop them in fastaAll
 drop_idxs1 <- which(is.na(metaDataAll), arr.ind=TRUE)[,1]
@@ -130,8 +131,8 @@ drop_idxs2 <- c(which(is.numeric(metaDataAll$sex)),
 drop_idxs3 <- which(lengths(fastaAll) == 0)
 drop_idxs <- unique(c(drop_idxs1, drop_idxs2, drop_idxs3))
 
-fastaAll <- fastaAll[is.na(pmatch(1:sampleSize, drop_idxs))]
-metaDataAll <- metaDataAll[is.na(pmatch(1:sampleSize, drop_idxs)),]
+fastaAll <- fastaAll[is.na(pmatch(1:nrow(fastaAll), drop_idxs))]
+metaDataAll <- metaDataAll[is.na(pmatch(1:nrow(metaDataAll), drop_idxs)),]
 
 # At this point, fastaAll and metaDataAll are sanitized and 1:1
 # write.FASTA(fastaAll, 'data/fastaAll.fasta')
@@ -161,9 +162,9 @@ for (k in kmer_list) {
   # Append meta
   kmer_df <- cbind(kmer_df, metaDataAll)
   
-  # Write to a csv file in data/kmers
+  # Write to a csv file in data/kmers-updated
   # Rewrites file if it already exists
-  outputDir <- paste('data/kmers', sprintf("kmer_%d.csv", k), sep='/')
+  outputDir <- paste('data/kmers-updated', sprintf("kmer_%d.csv", k), sep='/')
   print(paste("Writing kmer data to", outputDir))
   write.csv(kmer_df, outputDir)
 }
