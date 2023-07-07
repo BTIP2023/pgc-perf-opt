@@ -32,7 +32,7 @@ dendrogram_create = function(filePath)
   # normalize data to values from 0 to 1 
   numeric_data_norm <- numeric_data %>%
     select(sample_name, everything()) %>%
-    pivot_longer(cols = 2:"TTT", values_to = 'value', names_to = 'type') %>%
+    pivot_longer(cols = 2:"TTTTTTT", values_to = 'value', names_to = 'type') %>%
     group_by(type) %>%
     mutate(value_norm = (value-min(value))/(max(value)-min(value))) %>% # normalize data to values 0–1
     select(sample_name, value_norm) %>%
@@ -70,7 +70,7 @@ dendrogram_create = function(filePath)
   #   select(-row_id)
   # species_color <- as.character(color_list$color)
   # names(species_color) <- color_list$.
-  variant_color <- c('alpha' = '#AA00AA', 'beta' = '#0000AA', 'gamma' = '#00AA00','delta'='#00AAAA','omicron'='#FFFF55')
+  variant_color <- c('Alpha' = '#AA00AA', 'Beta' = '#0000AA', 'Gamma' = '#00AA00','Delta'='#00AAAA','Omicron'='#FFFF55')
 
   p <- ggplot() +
     geom_segment(data = dendrogram_segments,
@@ -88,7 +88,7 @@ dendrogram_create = function(filePath)
   
 }
 
-dendrogram_create('data/kmers/kmer_3.csv')
+dendrogram_create('data/kmers/kmer_7.csv')
 
 # CLEAN UP #################################################
 
