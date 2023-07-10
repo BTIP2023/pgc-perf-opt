@@ -13,7 +13,9 @@ library(pacman)
 pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
                ggvis, httr, lubridate, plotly, psych,
                rio, rmarkdown, shiny, 
-               stringr, tidyr, tidyverse)
+               stringr, tidyr, tidyverse,
+               umap, plotly, htmlwidgets, factoextra,
+               scales, Rtsne, webshot)
 # Second call are file-specific packages
 # pacman::p_load()
 
