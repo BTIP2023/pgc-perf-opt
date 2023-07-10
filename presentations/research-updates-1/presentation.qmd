@@ -106,13 +106,13 @@ title-slide-attributes:
 ![](presentation_files/img/kmer-data.png){.fragment fig-align="center" height=70% width=70%}
 
 ## PCA plots were generated from the k-mer (k=3) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-<iframe src="presentation_files/img/pca-kmer-3.html" width=1260px height=900px></iframe>
+<iframe src="presentation_files/img/pca-3.html" width=1260px height=900px></iframe>
 
 ## PCA plots were generated from the k-mer (k=5) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-<iframe src="presentation_files/img/pca-kmer-5.html" width=1260px height=900px></iframe>
+<iframe src="presentation_files/img/pca-5.html" width=1260px height=900px></iframe>
 
-## PCA plots were generated from the k-mer (k=5) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-<iframe src="presentation_files/img/pca-kmer-7.html" width=1260px height=900px></iframe>
+## PCA plots were generated from the k-mer (k=7) analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/pca-7.html" width=1260px height=900px></iframe>
 
 
 ## PCA plots were generated from the k-mer analysis results {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
@@ -144,7 +144,7 @@ title-slide-attributes:
 
 ```{r out.width="1800px", out.height="900px", fig.cap="Dendogram of SARS-CoV-2 Variants"}
 
-load(file="presentation_files/clustering-variant.RData")
+load(file="presentation_files/clustering-region.RData")
 ggp
 ```
 

@@ -15,7 +15,7 @@ pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
                rio, rmarkdown, shiny, 
                stringr, tidyr, tidyverse)
 # Second call are file-specific packages
-pacman::p_load(ggdendro, RColorBrewer, reader, cluster,
+pacman::p_load(ggdendro, RColorBrewer, readr, cluster,
                dendextend, colorspace)
 
 # WORK WITH DATA ###########################################
@@ -43,6 +43,7 @@ dendrogram_create = function(filePath)
   model <- agnes(numeric_data_norm, metric = "euclidean",method="single")
   dendrogram <- as.dendrogram(model)
   plot(dendrogram)
+  
   # extract dendrogram segment data
   dendrogram_data <- dendro_data(dendrogram)
   dendrogram_segments <- dendrogram_data$segments # contains all dendrogram segment data
@@ -84,8 +85,13 @@ dendrogram_create = function(filePath)
   ggp <- ggplotly(p)
   ggp
   
+  # Saves dendogram as an RData file in the presentation 1 assests folder
   save(ggp, file = file.path('presentations/research-updates-1/presentation_files/', "clustering-variant.RData"))
   
+  #Saves dendogram as an RData file and PNG in the results folder
+  save(ggp, file = file.path('results/dendogram/', 'clustering-variant.RData'))
+  ggsave(p, file = file.path('results/dendogram/', 'clustering-variant.png'))
+
 }
 
 dendrogram_create('data/kmers/kmer_7.csv')
