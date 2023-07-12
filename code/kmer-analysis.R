@@ -1,4 +1,3 @@
-# Reference: https://github.com/ai-covariants/analysis-mutations
 # File: kmer-analysis.R
 
 # INSTALL AND LOAD PACKAGES ################################
@@ -17,7 +16,11 @@ pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
                rio, rmarkdown, shiny,
                stringr, tidyr, tidyverse)
 # Second call are file-specific packages
-pacman::p_load(ape, kmer, readr, lubridate, stringr, validate)
+pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn)
+
+# Note: gsubfn is used to destructure more than one return value
+
+source('code/preprocess.R') # equiv to JS require of the aux R script
 
 # LOAD DATA ################################################
 # Assumption: tar filename format is country-variant-etc.
@@ -25,117 +28,20 @@ pacman::p_load(ape, kmer, readr, lubridate, stringr, validate)
 # If data/GISAID/datasets already exist, do not do this routine
 # Note: Each tar = {tsv, fasta}
 
-# GISAID data path from root
-dataPath <- 'data/GISAID'
-# GISAID data extraction path after getting untarred
-extractPath <- 'data/GISAID/datasets'
+# Note: All paths are relative to project root. 
 
-if (dir.exists(extractPath)) {
-  print("GISAID data already extracted from tar archives.")
-} else {
-  tars <- list.files(dataPath, pattern = '.+\\.tar')
-  for (fileName in tars) {
-    subdir <- str_match(fileName, pattern='[^-]+-[^-]+')
-    print(paste("Extracting to:", subdir))
-    untar(paste(dataPath, fileName, sep='/'),
-          exdir = paste(extractPath, subdir, sep='/'),
-          verbose = FALSE)
-  }
-}
+# Get fastaAll and metaDataAll from sourced preprocess() function,
+# preprocess() defaults to seed = 10 or stratSize = 100 if not provided.
+# This function performs:
+# 1. Data parsing and augmentation
+# 2. Stratified random sampling
+# 3. Sanitation
+list[fastaAll, metaDataAll] <- preprocess('data/GISAID', 'data/GISAID/datasets',
+                                          seed = 10, stratSize = 100)
 
-# Merge all extracted fasta and tsv files
-# fasta contains sequence, while tsv contains meta
-omicron_sub = c('ba275', 'xbb', 'xbb_1.5', 'xbb_1.16', 'xbb1.91')
+# At this point, fastaAll and metaDataAll are SR sampled, sanitized, and 1:1
 
-fastas <- list.files(extractPath, recursive = TRUE, pattern = '.+\\.fasta')
-tsvs <- list.files(extractPath, recursive = TRUE, pattern = '.+\\.tsv')
-nfiles <- length(fastas)
-
-fastaAll <- data.frame()
-metaDataAll <- data.frame()
-
-# TODO: Alternative approach: append fasta list as column to metadata
-for (i in 1:nfiles) {
-  fastaPath <- paste(extractPath, fastas[i], sep='/')
-  tsvPath <- paste(extractPath, tsvs[i], sep='/')
-  variant <- str_match(fastaPath, pattern = '(?<=-).*(?=\\/)')
-  if (variant %vin% omicron_sub) {
-    variant <- 'Omicron Sub'
-  }
-  variant <- str_to_title(variant)
-  print(paste("Reading", fastaPath))
-  print(paste("Reading", tsvPath))
-  
-  # Merge fasta file with accumulator
-  fasta <- read.FASTA(fastaPath)
-  fastaAll <- c(fastaAll, fasta)
-  
-  # Merge metaData file with accumulator
-  # Defer sanitation after random sampling so fasta and metaData maintains 1:1
-  metaData <- as.data.frame(read_tsv(tsvPath,
-                                     col_select = c(1,5,10,11,12,14,16,17,19)))
-  # Not removing raw date as I believe it is useful for sorting or can be parsed on an as needed basis
-  metaData <- metaData %>%
-    dplyr::mutate(year = lubridate::year(date),
-                  month = lubridate::month(date),
-                  day = lubridate::day(date),
-                  variant = as.character(variant))
-  
-  metaData$length <- as.integer(metaData$length)
-  metaData$age <- as.integer(metaData$age)
-  metaData$year <- as.integer(metaData$year)
-  metaData$month <- as.integer(metaData$month)
-  metaData$day <- as.integer(metaData$day)
-  
-  metaDataAll <- bind_rows(metaDataAll, metaData)
-}
-
-rm(fasta)
-rm(metaData)
-
-# May put merging of fastaAll and metaDataAll here
-
-
-# At this point, fastaAll and metaDataAll contains the needed data
-# Now do stratified random sampling of <sampleSize> samples
-seed = 10         # seed for random number generator
-sampleSize = 100  # sample size per stratum
-set.seed(seed)
-
-# Note: append row names to column for fasta sampling
-# Drop before exporting!
-metaGrouped <- metaDataAll %>%
-  dplyr::group_by(variant) %>%
-  tibble::rownames_to_column()
-
-# Do not preserve grouping structure (below only) to avoid NULL groups
-droppedVariants <- filter(metaGrouped, n() < sampleSize)
-metaGrouped <- filter(metaGrouped, n() >= sampleSize) %>%
-  sample_n(sampleSize)
-metaDataAll <- bind_rows(metaGrouped, droppedVariants)
-
-rm(droppedVariants)
-rm(metaGrouped)
-
-set.seed(NULL)  # reset seed (rest of code is true random)
-
-idxs <- as.integer(metaDataAll$rowname)
-fastaAll <- fastaAll[idxs]
-
-metaDataAll = subset(metaDataAll, select = -c(rowname) )  # drop rowname column
-
-# Drop rows with NA values and type mismatches
-# For dropping, get the idxs of the dropped rows and also drop them in fastaAll
-drop_idxs1 <- which(is.na(metaDataAll), arr.ind=TRUE)[,1]
-drop_idxs2 <- c(which(is.numeric(metaDataAll$sex)),
-                which(!(metaDataAll$sex %vin% list("Male", "Female"))))
-drop_idxs3 <- which(lengths(fastaAll) == 0)
-drop_idxs <- unique(c(drop_idxs1, drop_idxs2, drop_idxs3))
-
-fastaAll <- fastaAll[is.na(pmatch(1:length(fastaAll), drop_idxs))]
-metaDataAll <- metaDataAll[is.na(pmatch(1:nrow(metaDataAll), drop_idxs)),]
-
-# At this point, fastaAll and metaDataAll are sanitized and 1:1
+# Consider below if we still want an intermediate fasta file
 # write.FASTA(fastaAll, 'data/fastaAll.fasta')
 
 # Returns a data frame of kmers
