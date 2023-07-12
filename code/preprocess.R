@@ -18,7 +18,7 @@ pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
                rio, rmarkdown, shiny,
                stringr, tidyr, tidyverse)
 # Second call are file-specific packages
-pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn)
+pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr)
 
 # Note: gsubfn is used to destructure more than one return value
 
@@ -36,7 +36,8 @@ pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn)
 # 2. Stratified random sampling
 # 3. Sanitation
 preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
-                       country_exposure = 'Philippines') {
+                       country_exposure = 'Philippines',
+                       write_fastacsv = FALSE) {
   # dataPath is GISAID data path
   # extractPath is GISAID data extraction path after getting untarred
   if (dir.exists(extractPath)) {
@@ -74,11 +75,16 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
     print(paste("Reading", fastaPath))
     print(paste("Reading", tsvPath))
     
-    # Merge fasta file with accumulator
-    fasta <- read.FASTA(fastaPath)
+    # Parse then merge fasta file with accumulator
+    # Optimization: If write_fasta == TRUE, then use seqinr, else use ape.
+    if (write_fastacsv) {
+      fasta <- seqinr::read.fasta(fastaPath)
+    } else {
+      fasta <- ape::read.FASTA(fastaPath)
+    }
     fastaAll <- c(fastaAll, fasta)
     
-    # Merge metaData file with accumulator
+    # Parse then merge metaData file with accumulator
     # Defer sanitation after random sampling so fasta and metaData maintains 1:1
     metaData <- as.data.frame(read_tsv(tsvPath,
                                        col_select = c(1,5,10,11,12,14,16,17,19)))
@@ -174,6 +180,18 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
     'Region X (Northern Mindanao)' ~ 'Northern Mindanao',
     .default = metaDataAll$division_exposure
   )
+  
+  # Lines below creates intermediate fastaAll.fasta and metaDataAll.csv in data
+  # Optimization: Check job order if want to write fasta and csv
+  if (write_fastacsv) {
+    print("Writing generated fasta and csv files to data...")
+    seqinr::write.fasta(fastaAll, names(fastaAll), 'data/fastaAll.fasta',
+                        forceDNAtolower = FALSE)
+    write.csv(metaDataAll, 'data/metaDataAll.csv')
+    
+    # Refetch fastaAll data using ape::read.FASTA to optimize for kmer analysis
+    fastaAll <- read.FASTA('data/fastaAll.fasta')
+  }
   
   list(fastaAll, metaDataAll)
 }

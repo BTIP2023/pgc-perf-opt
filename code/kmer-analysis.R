@@ -16,7 +16,7 @@ pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
                rio, rmarkdown, shiny,
                stringr, tidyr, tidyverse)
 # Second call are file-specific packages
-pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn)
+pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr)
 
 # Note: gsubfn is used to destructure more than one return value
 
@@ -37,14 +37,14 @@ source('code/preprocess.R')
 # 1. Data parsing and augmentation
 # 2. Stratified random sampling
 # 3. Sanitation
+# Note: write_fastacsv = TRUE is significantly faster but doesn't
+# generate FASTA and CSV files in data.
 list[fastaAll, metaDataAll] <- preprocess('data/GISAID', 'data/GISAID/datasets',
                                           seed = 10, stratSize = 100,
-                                          country_exposure = 'Philippines')
+                                          country_exposure = 'Philippines',
+                                          write_fastacsv = TRUE)
 
 # At this point, fastaAll and metaDataAll are SR sampled, sanitized, and 1:1
-
-# Consider line below if we still want an intermediate fasta file
-# write.FASTA(fastaAll, 'data/fastaAll.fasta')
 
 # DEF LOCAL FUNCTIONS ###########################################
 
@@ -94,5 +94,8 @@ detach("package:datasets", unload = TRUE)  # For base
 
 # Clear console
 cat("\014")  # ctrl+L
+
+# Clear memory
+gc()
 
 # Clear mind :)
