@@ -67,3 +67,6 @@ data/interm/*.csv
 data/interm/*.fasta
 data/kmers/*.csv
 data/kmers/*.fasta
+
+# Local Files YH
+backup/
