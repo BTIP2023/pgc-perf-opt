@@ -62,7 +62,7 @@ dendrogram_create = function(filePath,image_name)
   # count number of unique variables
   color_count <- length(unique(unique_vars$.))
   # get RColorBrewer palette
-  get_palette <- colorRampPalette(brewer.pal(n = 8, name = 'Set1'))
+  get_palette <- colorRampPalette(brewer.pal(n = 12, name = 'Paired'))
   # produce RColorBrewer palette based on number of unique variables in metadata:
   palette <- get_palette(color_count) %>% 
     as.data.frame() %>%

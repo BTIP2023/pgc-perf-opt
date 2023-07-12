@@ -71,7 +71,7 @@ dendrogram_create = function(filePath)
   #   select(-row_id)
   # species_color <- as.character(color_list$color)
   # names(species_color) <- color_list$.
-  variant_color <- c('Alpha' = '#AA00AA', 'Beta' = '#0000AA', 'Gamma' = '#00AA00','Delta'='#00AAAA','Omicron'='#FFFF55')
+  variant_color <- brewer.pal(n = 6, name = 'Paired')
 
   p <- ggplot() +
     geom_segment(data = dendrogram_segments,
@@ -85,7 +85,7 @@ dendrogram_create = function(filePath)
   ggp <- ggplotly(p)
   ggp
   
-  # Saves dendogram as an RData file in the presentation 1 assests folder
+  # Saves dendogram as an RData file in the presentation 1 assets folder
   save(ggp, file = file.path('presentations/research-updates-1/presentation_files/', "clustering-variant.RData"))
   
   #Saves dendogram as an RData file and PNG in the results folder
