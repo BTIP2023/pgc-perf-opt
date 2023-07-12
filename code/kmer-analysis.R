@@ -16,12 +16,14 @@ pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
                rio, rmarkdown, shiny,
                stringr, tidyr, tidyverse)
 # Second call are file-specific packages
-pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr)
+pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr,
+               benchmarke)
 
 # Note: gsubfn is used to destructure more than one return value
 
-# Load preprocess() function
-source('code/preprocess.R') 
+# LOAD SOURCES #############################################
+source('code/preprocess.R')
+source('code/helper.R')
 
 # LOAD DATA ################################################
 # Assumption: tar filename format is country-variant-etc.
@@ -32,17 +34,13 @@ source('code/preprocess.R')
 # Note: All paths are relative to project root. 
 
 # Get fastaAll and metaDataAll from sourced preprocess() function,
-# preprocess() defaults to seed = 10 or stratSize = 100 if not provided.
-# This function performs:
-# 1. Data parsing and augmentation
-# 2. Stratified random sampling
-# 3. Sanitation
-# Note: write_fastacsv = TRUE is significantly faster but doesn't
-# generate FASTA and CSV files in data.
+# But first, set seed and stratSize.
+seed <- 10
+stratSize <- 100
 list[fastaAll, metaDataAll] <- preprocess('data/GISAID', 'data/GISAID/datasets',
-                                          seed = 10, stratSize = 5000,
+                                          seed = seed, stratSize = stratSize,
                                           country_exposure = 'Philippines',
-                                          write_fastacsv = TRUE)
+                                          write_fastacsv = FALSE)
 
 # At this point, fastaAll and metaDataAll are SR sampled, sanitized, and 1:1
 
@@ -67,6 +65,11 @@ kmer_list = list(3,5,7)
 
 for (k in kmer_list) {
   print(sprintf("Performing %d-mer analysis...", k))
+  # Write parameters used to text file
+  # TODO: Add runtime log capability to paramsLog for benchmarking
+  paramsLog(output_path = 'data/kmers/params.txt',
+            paramString = sprintf("seed = %d, stratSize = %d", seed, stratSize))
+  
   kmers <- kcount(fastaAll, k = k)
   kmer_df <- data.frame(kmers)
   

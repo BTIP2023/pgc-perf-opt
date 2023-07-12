@@ -22,6 +22,9 @@ pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr)
 
 # Note: gsubfn is used to destructure more than one return value
 
+# LOAD SOURCES ################################
+source('code/helper.R')
+
 # LOAD DATA ################################################
 # Assumption: tar filename format is country-variant-etc.
 # Extract GISAID tars to data/GISAID/datasets/country-variant
@@ -185,6 +188,11 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
   # Optimization: Check job order if want to write fasta and csv
   if (write_fastacsv) {
     print("Writing generated fasta and csv files to data...")
+    
+    # Write parameters used to text file
+    paramsLog(output_path = 'data/interm/params.txt',
+              paramString = sprintf("seed = %d, stratSize = %d", seed, stratSize))
+
     seqinr::write.fasta(fastaAll, names(fastaAll), 'data/fastaAll.fasta')
     write.csv(metaDataAll, 'data/metaDataAll.csv')
     
