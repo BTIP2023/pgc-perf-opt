@@ -78,7 +78,7 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
     # Parse then merge fasta file with accumulator
     # Optimization: If write_fasta == TRUE, then use seqinr, else use ape.
     if (write_fastacsv) {
-      fasta <- seqinr::read.fasta(fastaPath)
+      fasta <- seqinr::read.fasta(fastaPath, forceDNAtolower = FALSE)
     } else {
       fasta <- ape::read.FASTA(fastaPath)
     }
@@ -185,8 +185,7 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
   # Optimization: Check job order if want to write fasta and csv
   if (write_fastacsv) {
     print("Writing generated fasta and csv files to data...")
-    seqinr::write.fasta(fastaAll, names(fastaAll), 'data/fastaAll.fasta',
-                        forceDNAtolower = FALSE)
+    seqinr::write.fasta(fastaAll, names(fastaAll), 'data/fastaAll.fasta')
     write.csv(metaDataAll, 'data/metaDataAll.csv')
     
     # Refetch fastaAll data using ape::read.FASTA to optimize for kmer analysis

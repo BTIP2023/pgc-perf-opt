@@ -40,7 +40,7 @@ source('code/preprocess.R')
 # Note: write_fastacsv = TRUE is significantly faster but doesn't
 # generate FASTA and CSV files in data.
 list[fastaAll, metaDataAll] <- preprocess('data/GISAID', 'data/GISAID/datasets',
-                                          seed = 10, stratSize = 100,
+                                          seed = 10, stratSize = 5000,
                                           country_exposure = 'Philippines',
                                           write_fastacsv = TRUE)
 
