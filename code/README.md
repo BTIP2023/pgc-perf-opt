@@ -16,7 +16,7 @@ Python/Jupyter codebase. Refer to the list below for prerequisite Python package
 - scikit-learn=1.2.2
 - matplotlib=3.7.1
 - umap-learn=0.5.3
-- plotly-5.15.0)
+- plotly=5.15.0
 - python-kaleido=0.1.0
 - seaborn=0.12.2
 - pip (optional)
@@ -55,9 +55,20 @@ Note that any new package will have to be added to the environment.
 This approach to package management in Python will be maintained
 while a container for the project is still being set up.
 
-## Remarks on kmer-analysis.R
-* `seed` variable is there for reproducibility of random values. You may set this.
-* You may also set `sampleSize` to desired number of random samples.
-* This code outputs the generated kmers with metadata to `data/kmers`. 
-* Note: warnings that appear (parsing errors due to conflicting column types and values,
+## Data Parsing, Preprocessing, and k-mer Analysis
+Generation of the data to be fed into the dimensionality reduction and results analysis
+workflow is handled by `kmer-analysis.R` which sources `preprocess.R` and `helper.R`.
+
+In kmer-analysis.R, the following parameters may be set:
+- `seed` for reproducibility of random values.
+- `stratSize` for number of samples per variant.
+- `write_fastacsv` for turning fasta and csv writeback on or off.
+
+This code outputs intermediate files (`fastaAll.fasta` and metaDataAll.csv`) to `data/interm`, and
+finally outputs the generated k-mers augmented with metadata to `data/kmers`. These files have
+been .gitignored because their sizes exceed the Github limit, and because of the Github cap on LFS bandwidth.
+
+Note: Warnings that appear (parsing errors due to conflicting column types and values,
 and NAs due to type coercion) can be ignored as these are handled in the code.
+
+**TODO: Update this README once main pipeline has been established wherein kmer-analysis.R is also just another source.**
