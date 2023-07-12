@@ -16,8 +16,7 @@ pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes,
                rio, rmarkdown, shiny,
                stringr, tidyr, tidyverse)
 # Second call are file-specific packages
-pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr,
-               benchmarke)
+pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr)
 
 # Note: gsubfn is used to destructure more than one return value
 
@@ -37,10 +36,11 @@ source('code/helper.R')
 # But first, set seed and stratSize.
 seed <- 10
 stratSize <- 100
+write_fastacsv <- TRUE
 list[fastaAll, metaDataAll] <- preprocess('data/GISAID', 'data/GISAID/datasets',
                                           seed = seed, stratSize = stratSize,
                                           country_exposure = 'Philippines',
-                                          write_fastacsv = FALSE)
+                                          write_fastacsv = write_fastacsv)
 
 # At this point, fastaAll and metaDataAll are SR sampled, sanitized, and 1:1
 

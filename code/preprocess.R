@@ -193,8 +193,8 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
     paramsLog(output_path = 'data/interm/params.txt',
               paramString = sprintf("seed = %d, stratSize = %d", seed, stratSize))
 
-    seqinr::write.fasta(fastaAll, names(fastaAll), 'data/fastaAll.fasta')
-    write.csv(metaDataAll, 'data/metaDataAll.csv')
+    seqinr::write.fasta(fastaAll, names(fastaAll), 'data/interm/fastaAll.fasta')
+    write.csv(metaDataAll, 'data/interm/metaDataAll.csv')
     
     # Refetch fastaAll data using ape::read.FASTA to optimize for kmer analysis
     fastaAll <- read.FASTA('data/fastaAll.fasta')

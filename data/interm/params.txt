@@ -11,3 +11,29 @@ Total Physical Memory:     14,188 MB
 seed = 10, stratSize = 100
 ------
 
+2023-07-12 21:48:57.543091
+OS Name:                   Microsoft Windows 11 Home Single Language
+OS Version:                10.0.22621 N/A Build 22621
+Registered Owner:          YSHebron
+System Manufacturer:       LENOVO
+System Model:              82K2
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
+Total Physical Memory:     14,188 MB
+seed = 10, stratSize = 100
+------
+
+2023-07-12 21:52:09.213534
+OS Name:                   Microsoft Windows 11 Home Single Language
+OS Version:                10.0.22621 N/A Build 22621
+Registered Owner:          YSHebron
+System Manufacturer:       LENOVO
+System Model:              82K2
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
+Total Physical Memory:     14,188 MB
+seed = 10, stratSize = 100
+------
+
