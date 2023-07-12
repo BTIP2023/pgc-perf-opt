@@ -1,4 +1,6 @@
-# File: kmer-analysis.R
+# File: preprocess.R
+# Supports: code/kmer-analysis.R
+# Generates fastaAll and metaDataAll from raw GISAID data
 
 # INSTALL AND LOAD PACKAGES ################################
 
@@ -33,7 +35,8 @@ pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn)
 # 1. Data parsing and augmentation
 # 2. Stratified random sampling
 # 3. Sanitation
-preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100) {
+preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
+                       country_exposure = 'Philippines') {
   # dataPath is GISAID data path
   # extractPath is GISAID data extraction path after getting untarred
   if (dir.exists(extractPath)) {
@@ -86,6 +89,7 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100) {
                     day = lubridate::day(date),
                     variant = as.character(variant))
     
+    # NAs introduced by coercion will be dropped later
     metaData$length <- as.integer(metaData$length)
     metaData$age <- as.integer(metaData$age)
     metaData$year <- as.integer(metaData$year)
@@ -98,6 +102,13 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100) {
   rm(fasta)
   rm(metaData)
   
+  # Addon: Filter by country_exposure
+  drop_idxs <- which(metaDataAll$country != country_exposure)
+  fastaAll <- fastaAll[is.na(pmatch(1:length(fastaAll), drop_idxs))]
+  metaDataAll <- metaDataAll[is.na(pmatch(1:nrow(metaDataAll), drop_idxs)),]
+  
+  rm(drop_idxs)
+  
   # At this point, fastaAll and metaDataAll contains the needed data
   # Now do stratified random sampling of <sampleSize> samples
   # seed = 10         # seed for random number generator
@@ -105,7 +116,7 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100) {
   set.seed(seed)
   
   # Note: append row names to column for fasta sampling
-  # Drop before exporting!
+  # Drop rowname col before exporting!
   metaGrouped <- metaDataAll %>%
     dplyr::group_by(variant) %>%
     tibble::rownames_to_column()
@@ -124,7 +135,8 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100) {
   idxs <- as.integer(metaDataAll$rowname)
   fastaAll <- fastaAll[idxs]
   
-  metaDataAll = subset(metaDataAll, select = -c(rowname) )  # drop rowname column
+  # drop rowname column
+  metaDataAll = subset(metaDataAll, select = -c(rowname) )  
   
   # Drop rows with NA values and type mismatches
   # For dropping, get the idxs of the dropped rows and also drop them in fastaAll
@@ -134,10 +146,34 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100) {
   drop_idxs3 <- which(lengths(fastaAll) == 0)
   drop_idxs <- unique(c(drop_idxs1, drop_idxs2, drop_idxs3))
   
+  # Dropping below is analogoues to select inverse
+  # pmatch creates matches, val for match and NA for no match
+  # We only take those without matches, i.e. those that won't be
+  # dropped.
   fastaAll <- fastaAll[is.na(pmatch(1:length(fastaAll), drop_idxs))]
   metaDataAll <- metaDataAll[is.na(pmatch(1:nrow(metaDataAll), drop_idxs)),]
   
   # At this point, data has been stratified and randomly sampled
+  
+  # Addon: Fix regions
+  metaDataAll$division_exposure <- case_match(
+    metaDataAll$division_exposure,
+    'Bicol' ~ 'Bicol Region',
+    'Calabarzon' ~ 'CALABARZON',
+    'Mimaropa' ~ 'MIMAROPA',
+    'National Capital Region' ~ 'NCR',
+    'Cordillera Administrative Region' ~ 'CAR',
+    'Ilocos' ~ 'Ilocos Region',
+    'Davao' ~ 'Davao Region',
+    'Bangsamoro Autonomous Region in Muslim Mindanao' ~ 'BARMM',
+    'Autonomous Region In Muslim Mindanao(ARMM)' ~ 'BARMM',
+    'Soccsksargen' ~ 'SOCCSKARGEN',
+    'Zamboanga' ~ 'Zamboanga Peninsula',
+    'Region IV-A' ~ 'CALABARZON',
+    'Region XII (Soccsksargen)' ~ 'SOCCSKARGEN',
+    'Region X (Northern Mindanao)' ~ 'Northern Mindanao',
+    .default = metaDataAll$division_exposure
+  )
   
   list(fastaAll, metaDataAll)
 }
