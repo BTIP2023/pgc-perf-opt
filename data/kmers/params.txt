@@ -1,4 +1,4 @@
-2023-07-12 18:27:59.082655
+2023-07-12 22:21:44.585456
 OS Name:                   Microsoft Windows 11 Home Single Language
 OS Version:                10.0.22621 N/A Build 22621
 Registered Owner:          YSHebron
@@ -8,84 +8,7 @@ System Type:               x64-based PC
 Processor(s):              1 Processor(s) Installed.
                            [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
 Total Physical Memory:     14,188 MB
-seed = 10, stratSize = 100
-------
-
-2023-07-12 21:44:53.734592
-OS Name:                   Microsoft Windows 11 Home Single Language
-OS Version:                10.0.22621 N/A Build 22621
-Registered Owner:          YSHebron
-System Manufacturer:       LENOVO
-System Model:              82K2
-System Type:               x64-based PC
-Processor(s):              1 Processor(s) Installed.
-                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
-Total Physical Memory:     14,188 MB
-seed = 10, stratSize = 100
-------
-
-2023-07-12 21:45:02.431339
-OS Name:                   Microsoft Windows 11 Home Single Language
-OS Version:                10.0.22621 N/A Build 22621
-Registered Owner:          YSHebron
-System Manufacturer:       LENOVO
-System Model:              82K2
-System Type:               x64-based PC
-Processor(s):              1 Processor(s) Installed.
-                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
-Total Physical Memory:     14,188 MB
-seed = 10, stratSize = 100
-------
-
-2023-07-12 21:45:11.823353
-OS Name:                   Microsoft Windows 11 Home Single Language
-OS Version:                10.0.22621 N/A Build 22621
-Registered Owner:          YSHebron
-System Manufacturer:       LENOVO
-System Model:              82K2
-System Type:               x64-based PC
-Processor(s):              1 Processor(s) Installed.
-                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
-Total Physical Memory:     14,188 MB
-seed = 10, stratSize = 100
-------
-
-2023-07-12 21:49:03.977908
-OS Name:                   Microsoft Windows 11 Home Single Language
-OS Version:                10.0.22621 N/A Build 22621
-Registered Owner:          YSHebron
-System Manufacturer:       LENOVO
-System Model:              82K2
-System Type:               x64-based PC
-Processor(s):              1 Processor(s) Installed.
-                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
-Total Physical Memory:     14,188 MB
-seed = 10, stratSize = 100
-------
-
-2023-07-12 21:49:15.92069
-OS Name:                   Microsoft Windows 11 Home Single Language
-OS Version:                10.0.22621 N/A Build 22621
-Registered Owner:          YSHebron
-System Manufacturer:       LENOVO
-System Model:              82K2
-System Type:               x64-based PC
-Processor(s):              1 Processor(s) Installed.
-                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
-Total Physical Memory:     14,188 MB
-seed = 10, stratSize = 100
-------
-
-2023-07-12 21:49:21.492871
-OS Name:                   Microsoft Windows 11 Home Single Language
-OS Version:                10.0.22621 N/A Build 22621
-Registered Owner:          YSHebron
-System Manufacturer:       LENOVO
-System Model:              82K2
-System Type:               x64-based PC
-Processor(s):              1 Processor(s) Installed.
-                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
-Total Physical Memory:     14,188 MB
+timestamp = 20230712222116249
 seed = 10, stratSize = 100
 ------
 

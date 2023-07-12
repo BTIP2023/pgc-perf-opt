@@ -16,3 +16,9 @@ paramsLog <- function(output_path, paramString) {
                '------\n'), output_path, append=TRUE)
   close(fileConn)
 }
+
+timeString <- function() {
+  ret <- gsub('[.:-]|\\s', '', as.character(Sys.time()))
+  ret <- substring(ret, 1, nchar(ret)-3)
+  return(ret)
+}

@@ -62,13 +62,10 @@ kmer <- function(fasta, metaData, k){
 
 # WORK WITH DATA ###########################################
 kmer_list = list(3,5,7)
+stamp <- timeString() # get timestamp for file suffix
 
 for (k in kmer_list) {
   print(sprintf("Performing %d-mer analysis...", k))
-  # Write parameters used to text file
-  # TODO: Add runtime log capability to paramsLog for benchmarking
-  paramsLog(output_path = 'data/kmers/params.txt',
-            paramString = sprintf("seed = %d, stratSize = %d", seed, stratSize))
   
   kmers <- kcount(fastaAll, k = k)
   kmer_df <- data.frame(kmers)
@@ -78,10 +75,18 @@ for (k in kmer_list) {
   
   # Write to a csv file in data/kmers
   # Rewrites file if it already exists
-  outputDir <- paste('data/kmers', sprintf("kmer_%d.csv", k), sep='/')
+  outputDir <- paste('data/kmers',
+                     sprintf("kmer_%d_%s.csv", k, stamp),
+                     sep='/')
   print(paste("Writing kmer data to", outputDir))
   write.csv(kmer_df, outputDir)
 }
+
+# Write parameters used to text file
+# TODO: Add runtime log capability to paramsLog for benchmarking
+paramsLog(output_path = 'data/kmers/params.txt',
+          paramString = sprintf("timestamp = %s\nseed = %d, stratSize = %d",
+                                stamp, seed, stratSize))
 
 # CLEAN UP #################################################
 

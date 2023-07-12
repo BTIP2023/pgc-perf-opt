@@ -71,4 +71,12 @@ been .gitignored because their sizes exceed the Github limit, and because of the
 Note: Warnings that appear (parsing errors due to conflicting column types and values,
 and NAs due to type coercion) can be ignored as these are handled in the code.
 
-**TODO: Update this README once main pipeline has been established wherein kmer-analysis.R is also just another source.**
+### Note on Generated Files
+The generated files are timestamped and persistent (not overwritten). Because
+they can be huge, especially for large stratSize, keep an eye on their space usage
+and prune old and unused generated files in `data/interm` and `data/kmers`.
+
+## TODOs
+- [] Update this README once main pipeline has been established wherein kmer-analysis.R is also just another source.
+- [] Add auto-pruner for old generated files (might do timestamp arithmetic)
+- [] Add auto-setter to latest generated files in `dim-reduce.R` and similar files.
