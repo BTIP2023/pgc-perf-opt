@@ -1,0 +1,197 @@
+---
+title: "Research Updates 2"
+author: "<b>Project Lead:</b> Mark Joseph Garrovillas, RCh </br> <b>Interns:</b> Brylle Joshua Logroño, John Matthew Felices, Yenzy Urson Hebron"
+date: "July 14 2023"
+institution: "Core Facility for Bioinformatics"
+format: 
+  revealjs:
+    date-format: long
+    slide-number: c/t
+    width: 1920
+    height: 1080
+    theme: [default, custom.scss]
+    navigation-mode: vertical
+    controls-layout: bottom-right
+    controls-tutorial: true
+    preview-links: auto
+    slide-level: 3
+    multiplex: true
+    chalkboard: 
+      boardmarker-width: 5
+    search:
+    transition: slide
+    background-transition: fade
+    transition-speed: slow
+title-slide-attributes:
+      data-background-image: presentation_files/img/PGCTitleSlideDark.svg
+      data-background-size: cover
+      data-background-color: "#5E205E"
+      transition: slide
+      background-transition: fade
+      transition-speed: slow
+---
+
+# Performance Evaluation and Optimization of an Unsupervised Machine Learning Workflow for Discriminating Major COVID-19 Variants of Concern in the Philippines{background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Modification of the pipeline to better visualize different SARS-CoV-2 Variants in the PH {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/variants.jpg){.fragment fig-align="center" height=50% width=50%}
+
+## The sample pipeline discriminates between COVID19 variants using an unsupervised machine learning framework {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/journal.pone.0285719.png){.fragment fig-align="center" height=40% width=40%}
+
+## Which linear algebra library implementation (BLAS,LAPACK,OpenCL,IntelMLK) gives the most optimal runtime for the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/linear-algebra.jpg){.fragment fig-align="center" height=60% width=60%}
+
+## Does processor vulnerability mitigations (Spectre and Meltdown) significantly affect the runtime of the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/spectre_meltdown.png){.fragment fig-align="center" height=60% width=60%}
+
+# Progress Report - Overview {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## The team's trello board gives an overview of the team's progress {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/trello.png){.fragment fig-align="center" height=70% width=70%}
+
+## The burndown chart shows if the team is on track to finish the project on time {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="https://docs.google.com/spreadsheets/d/1e_8Idq3GNALJlM27_xZwYv2O2Rsih5MytwXbmZ9c7TI/edit#gid=0" width=1800px height=900px></iframe>
+
+## The burndown chart shows if the team is on track to finish the project on time {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="https://docs.google.com/spreadsheets/d/1e_8Idq3GNALJlM27_xZwYv2O2Rsih5MytwXbmZ9c7TI/edit#gid=196745742" width=1800px height=900px></iframe>
+
+# Progress Report - Workflow Replication {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## Stratified random sampler was created to ensure variants were equally represented in the data sets {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/stratified_sampler.png){.fragment fig-align="center" height=900px width=900px}
+
+## Region metadata entries were cleaned of duplicate regions{data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/region_cleanup.png){.fragment fig-align="center" height=70% width=70%}
+
+## Region-specific dendograms were generated from the k-mer analysis results {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+```{r out.width="1800px", out.height="900px", fig.cap="Dendogram of SARS-CoV-2 Variants"}
+
+load(file="presentation_files/clustering-region.RData")
+ggp
+```
+
+# Progress Report - Porting to R {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## Dimensional reduction analysis was ported from Python into R  {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+![](presentation_files/img/python.png){.fragment fig-align="center" height=60% width=60%}
+::::
+
+:::: {.column width="50%"}
+![](presentation_files/img/r-port.png){.fragment fig-align="center" height=60% width=60%}
+::::
+
+:::::
+
+## PCA plots (k=3) generated after porting to R were similar to those previously generated in Python {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
+
+```{r out.width="1800px", out.height="900px", fig.cap="PCA plot of 3-mers"}
+
+load(file="presentation_files/pca-3.RData")
+fig
+```
+
+## PCA plots (k=5) generated after porting to R were similar to those previously generated in Python {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
+
+```{r out.width="1800px", out.height="900px", fig.cap="PCA plot of 5-mers"}
+
+load(file="presentation_files/pca-5.RData")
+fig
+```
+
+
+## PCA plots (k=7) generated after porting to R were similar to those previously generated in Python  {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
+
+```{r out.width="1800px", out.height="900px", fig.cap="PCA plot of 7-mers"}
+
+load(file="presentation_files/pca-7.RData")
+fig
+```
+
+
+## tSNE plots (k=3) generated after porting to R were similar to those previously generated in Python {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
+
+```{r out.width="1800px", out.height="900px", fig.cap="tSNE plot of 3-mers"}
+
+load(file="presentation_files/umap-3.RData")
+fig
+```
+
+## tSNE plots (k=5) generated after porting to R were similar to those previously generated in Python {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
+
+```{r out.width="1800px", out.height="900px", fig.cap="tSNE plot of 5-mers"}
+
+load(file="presentation_files/umap-5.RData")
+fig
+```
+
+
+## tSNE plots (k=7) generated after porting to R were similar to those previously generated in Python {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
+
+```{r out.width="1800px", out.height="900px", fig.cap="tSNE plot of 7-mers"}
+
+load(file="presentation_files/umap-7.RData")
+fig
+```
+
+## UMAP plots (k=3) generated after porting to R were similar to those previously generated in Python {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
+
+```{r out.width="1800px", out.height="900px", fig.cap="UMAP plot of 3-mers"}
+
+load(file="presentation_files/umap-3.RData")
+fig
+```
+
+## UMAP plots (k=5) generated after porting to R were similar to those previously generated in Python {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
+
+```{r out.width="1800px", out.height="900px", fig.cap="UMAP plot of 5-mers"}
+
+load(file="presentation_files/umap-5.RData")
+fig
+```
+
+
+## UMAP plots (k=7) generated after porting to R were similar to those previously generated in Python {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
+
+```{r out.width="1800px", out.height="900px", fig.cap="UMAP plot of 7-mers"}
+
+load(file="presentation_files/umap-7.RData")
+fig
+```
+
+
+# Progress Report - Container Creation for Benchmarking{background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+# Next Steps {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## Future Plans {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
+
+- Goals for Next Week
+  - Benchmark Workflow with Spectre and Meltdown Patches Enabled vs. Disabled in Intel Core/AMD Ryzen processors and Windows/Linux OS 
+  - Benchmark Computations using OpenBLAS/ATLAS/AMD BLISS/ Intel MKL
+  
+- Future Goals
+  - Document and Analyze Benchmarking Results
+  - Scale up Data and Run in HPC
+
+# References {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## References {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+- Research Article:
+
+  - <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0285719>
+
+- Image Sources:
+  - <https://i.ytimg.com/vi/0WDhKCPtbng/maxresdefault.jpg>
+  - <https://web.archive.org/web/20180620212658/https://danielmiessler.com/images/Screen-Shot-2018-01-05-at-08.29.00.png>
+  - <https://www.docker.com/wp-content/uploads/2022/03/vertical-logo-monochromatic.png>
+  - <https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/1280px-Git-logo.svg.png>

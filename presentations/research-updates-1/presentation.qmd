@@ -142,11 +142,6 @@ title-slide-attributes:
 
 ## Variant-specific dendograms were generated from the k-mer analysis results {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-```{r out.width="1800px", out.height="900px", fig.cap="Dendogram of SARS-CoV-2 Variants"}
-
-load(file="presentation_files/clustering-region.RData")
-ggp
-```
 
 # Next Steps {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
