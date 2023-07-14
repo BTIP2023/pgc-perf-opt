@@ -196,9 +196,9 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
                                     stamp, seed, stratSize))
 
     seqinr::write.fasta(fastaAll, names(fastaAll),
-                        sprintf('data/interm/fastaAll_%s.fasta', timeString()))
+                        sprintf('data/interm/fastaAll_%s.fasta', stamp))
     write.csv(metaDataAll,
-              sprintf('data/interm/metaDataAll_%s.csv', timeString()))
+              sprintf('data/interm/metaDataAll_%s.csv', stamp))
     
     # Refetch fastaAll data using ape::read.FASTA to optimize for kmer analysis
     fastaAll <- read.FASTA('data/interm/fastaAll.fasta')
