@@ -40,7 +40,7 @@ source('code/helper.R')
 # 3. Sanitation
 preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
                        country_exposure = 'Philippines',
-                       write_fastacsv = FALSE) {
+                       write_fastacsv = FALSE, stamp) {
   # dataPath is GISAID data path
   # extractPath is GISAID data extraction path after getting untarred
   if (dir.exists(extractPath)) {
@@ -187,21 +187,27 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
   # Lines below creates intermediate fastaAll.fasta and metaDataAll.csv in data
   # Optimization: Check job order if want to write fasta and csv
   if (write_fastacsv) {
-    print("Writing generated fasta and csv files to data...")
+    print("Writing generated fasta and csv files to data/interm/...")
     
-    # Write parameters used to text file
-    stamp <- timeString()
-    paramsLog(output_path = 'data/interm/params.txt',
+    # Write parameters used to log file
+    paramsLog(output_path = 'data/interm/log.txt',
               paramString = sprintf("timestamp = %s\nseed = %d, stratSize = %d",
                                     stamp, seed, stratSize))
-
+    
+    print(paste("Writing intermediate fasta to",
+                sprintf('data/interm/fastaAll_%s.fasta', stamp)))
+    
     seqinr::write.fasta(fastaAll, names(fastaAll),
                         sprintf('data/interm/fastaAll_%s.fasta', stamp))
+    
+    print(paste("Writing intermediate fasta to",
+                sprintf('data/interm/metaDataAll_%s.csv', stamp)))
+    
     write.csv(metaDataAll,
               sprintf('data/interm/metaDataAll_%s.csv', stamp))
     
     # Refetch fastaAll data using ape::read.FASTA to optimize for kmer analysis
-    fastaAll <- read.FASTA('data/interm/fastaAll.fasta')
+    fastaAll <- read.FASTA(sprintf('data/interm/fastaAll_%s.fasta', stamp))
   }
   
   list(fastaAll, metaDataAll)

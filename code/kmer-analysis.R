@@ -23,24 +23,23 @@ pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr)
 # LOAD SOURCES #############################################
 source('code/preprocess.R')
 source('code/helper.R')
+stamp <- timeString()     # get timestamp for file suffix
 
 # LOAD DATA ################################################
-# Assumption: tar filename format is country-variant-etc.
-# Extract GISAID tars to data/GISAID/datasets/country-variant
-# If data/GISAID/datasets already exist, do not do this routine
-# Note: Each tar = {tsv, fasta}
-
 # Note: All paths are relative to project root. 
 
-# Get fastaAll and metaDataAll from sourced preprocess() function,
-# But first, set seed and stratSize.
+### SET THESE PARAMETERS ###
 seed <- 10
 stratSize <- 100
+country_exposure <- 'Philippines'
 write_fastacsv <- TRUE
+
+# Get fastaAll and metaDataAll from sourced preprocess() function
 list[fastaAll, metaDataAll] <- preprocess('data/GISAID', 'data/GISAID/datasets',
                                           seed = seed, stratSize = stratSize,
-                                          country_exposure = 'Philippines',
-                                          write_fastacsv = write_fastacsv)
+                                          country_exposure = country_exposure,
+                                          write_fastacsv = write_fastacsv,
+                                          stamp = stamp)
 
 # At this point, fastaAll and metaDataAll are SR sampled, sanitized, and 1:1
 
@@ -62,7 +61,6 @@ kmer <- function(fasta, metaData, k){
 
 # WORK WITH DATA ###########################################
 kmer_list = list(3,5,7)
-stamp <- timeString() # get timestamp for file suffix
 
 for (k in kmer_list) {
   print(sprintf("Performing %d-mer analysis...", k))
@@ -84,7 +82,7 @@ for (k in kmer_list) {
 
 # Write parameters used to text file
 # TODO: Add runtime log capability to paramsLog for benchmarking
-paramsLog(output_path = 'data/kmers/params.txt',
+paramsLog(output_path = 'data/kmers/log.txt',
           paramString = sprintf("timestamp = %s\nseed = %d, stratSize = %d",
                                 stamp, seed, stratSize))
 
