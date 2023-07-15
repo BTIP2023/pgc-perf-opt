@@ -1,0 +1,58 @@
+/*-- scss:defaults --*/
+/*
+$theme-darkblue: #01364C;
+$theme-blue: #99D9DD;
+$theme-white: #F7F8F9;
+$theme-yellow: #F4BA02;
+
+$body-bg: $theme-darkblue;
+$body-color: $theme-white;
+$link-color: $theme-blue;
+$presentation-heading-color: lighten($theme-blue, 15%);
+*/
+@import url('https://fonts.googleapis.com/css2?family=Lexend+Deca&display=swap');
+
+$presentation-heading-font: 'Lexend Deca Regular', sans-serif;
+$mainFont: 'Lexend Deca Regular', sans-serif;
+/*-- scss:rules --*/
+
+.reveal .slide-number {
+  color: $link-color;
+}
+/*
+.reveal .footer {
+  font-size: 0.35em !important;
+  text-align: right !important;
+}
+*/
+.reveal .slides section .fragment.semi-fade-out {
+	opacity: 1;
+	visibility: inherit;
+
+	&.visible {
+		opacity: 0.25;
+		visibility: inherit;
+	}
+}
+
+.sectionhead {
+  font-size: 1em;
+  text-align: center;
+  color: $presentation-heading-color;
+  font-family: $presentation-heading-font;
+  background-color: $body-bg;
+  margin: 1px;
+  padding: 20px 20px 20px 20px;
+  width: 120px;
+  border-left: 10px solid;
+}
+
+.blackbox {
+  color: #000000;
+  background-color: transparent;
+  margin: 1px;
+  padding: 5px 2px 5px 2px;
+  height: 205px;
+  border: 2px solid;
+}
+

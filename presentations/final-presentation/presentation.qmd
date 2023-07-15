@@ -1,0 +1,85 @@
+---
+title: "Performance Evaluation and Optimization of an Unsupervised Machine Learning Workflow for Discriminating Major COVID-19 Variants of Concern in the Philippines"
+author: "<b>Project Lead:</b> Mark Joseph Garrovillas, RCh </br> <b>Interns:</b> Brylle Joshua Logroño, John Matthew Felices, Yenzy Urson Hebron"
+date: "July 28 2023"
+institution: "Core Facility for Bioinformatics"
+format: 
+  revealjs:
+    date-format: long
+    slide-number: c/t
+    width: 1920
+    height: 1080
+    theme: [default, custom.scss]
+    navigation-mode: vertical
+    controls-layout: bottom-right
+    controls-tutorial: true
+    preview-links: auto
+    slide-level: 3
+    multiplex: true
+    chalkboard: 
+      boardmarker-width: 5
+    search:
+    transition: slide
+    background-transition: fade
+    transition-speed: slow
+title-slide-attributes:
+      data-background-image: presentation_files/img/PGCTitleSlideDark.svg
+      data-background-size: cover
+      data-background-color: "#5E205E"
+      transition: slide
+      background-transition: fade
+      transition-speed: slow
+---
+
+# Background of the Study {background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Bioinformatics pipelines
+
+## Linear Algebra libraries
+
+## Processor vulnerability mitigations
+
+
+# Objectives of the Study {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## Improvement of a sample pipeline that discriminates between COVID19 variants using an unsupervised machine learning framework {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/journal.pone.0285719.png){.fragment fig-align="center" height=40% width=40%}
+
+## Which linear algebra library implementation (BLAS,LAPACK,OpenCL,IntelMLK) gives the most optimal runtime for the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/linear-algebra.jpg){.fragment fig-align="center" height=60% width=60%}
+
+## Does processor vulnerability mitigations (Spectre and Meltdown) significantly affect the runtime of the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/spectre_meltdown.png){.fragment fig-align="center" height=60% width=60%}
+
+# Workflow Overview {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+# Workflow Improvments {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## Entries with erroneous metadata entries were filtered from the data set {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## A stratified random sampler was utilized to create smaller data sets for code testing {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Dimensional reduction analysis (PCA, tSNE, and UMAP) was refactored from Python to R {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+
+# Improved Workflow Benchmarking {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## Linux-based container was created to standardize environment for benchmarking across different systems {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+# Conclusion {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+# Recommendations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+# References {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## References {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+- Research Article:
+
+  - <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0285719>
+
+- Image Sources:
+  - <https://i.ytimg.com/vi/0WDhKCPtbng/maxresdefault.jpg>
+  - <https://web.archive.org/web/20180620212658/https://danielmiessler.com/images/Screen-Shot-2018-01-05-at-08.29.00.png>
+  - <https://www.docker.com/wp-content/uploads/2022/03/vertical-logo-monochromatic.png>
+  - <https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/1280px-Git-logo.svg.png>
