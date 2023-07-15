@@ -90,20 +90,22 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
     # Parse then merge metaData file with accumulator
     # Defer sanitation after random sampling so fasta and metaData maintains 1:1
     metaData <- as.data.frame(read_tsv(tsvPath,
-                                       col_select = c(1,5,10,11,12,14,16,17,19)))
-    # Not removing raw date as I believe it is useful for sorting or can be parsed on an as needed basis
+                                       col_select = c(1,5,10,11,12,16,17,19)))
+    # Not removing raw date as I believe it is useful for sorting or can be
+    # parsed on an as needed basis. Dropped year, month, day: just extract
+    # them from the date using lubridate:{year,month,day}(date).
     metaData <- metaData %>%
-      dplyr::mutate(year = lubridate::year(date),
-                    month = lubridate::month(date),
-                    day = lubridate::day(date),
-                    variant = as.character(variant))
+      dplyr::mutate(variant = as.character(variant))
     
-    # NAs introduced by coercion will be dropped later
-    metaData$length <- as.integer(metaData$length)
+    # NAs introduced by coercion will be dropped later because dropping
+    # metadata rows must be consistent with dropping fasta entries for
+    # the reason that efficient df columns with lists are not well-supported
+    # in R. Tibbles on the other hand reduce efficiency and compatibility.
+    # Also, using tibbles add another need to extract the fasta from the tibble
+    # for later use (and for writeback), and rowwise operations in tibbles
+    # are said to be slow.
     metaData$age <- as.integer(metaData$age)
-    metaData$year <- as.integer(metaData$year)
-    metaData$month <- as.integer(metaData$month)
-    metaData$day <- as.integer(metaData$day)
+    metaData$sex <- as.character(metaData$sex)
     
     metaDataAll <- bind_rows(metaDataAll, metaData)
   }
@@ -183,6 +185,13 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
     'Region X (Northern Mindanao)' ~ 'Northern Mindanao',
     .default = metaDataAll$division_exposure
   )
+  
+  # Addon: Add age_group
+  # Age group reference: https://www.statcan.gc.ca/en/concepts/definitions/age2
+  metaDataAll <- metaDataAll %>%
+    dplyr::mutate(age_group = cut(age, breaks=c(0,14,24,64,500),
+                                  include.lowest=T,
+                                  labels=c('0-14', '15-24', '25-64', '65+')))
   
   # Lines below creates intermediate fastaAll.fasta and metaDataAll.csv in data
   # Optimization: Check job order if want to write fasta and csv
