@@ -8,6 +8,17 @@ but this is already managed in-line using `pacman`, an R package manager.
 Thus, the R code already handles all the prerequisite package installations
 by itself.
 
+**ATTN:** In LINUX SYSTEMS, there are installation dependencies on some fairly
+major packages. tidyverse, httr and odbc require installations at the command
+line before they can be installed in R. Run these to install the required elements:
+```bash
+# do these before running any script in `code/`!
+sudo apt update -y
+sudo apt install -y libssl-dev libcurl4-openssl-dev unixodbc-dev libxml2-dev \
+libmariadb-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev \
+libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+```
+
 ### Python/Conda/Jupyter
 In contrast, a development environment must be manually set up for the project's
 Python/Jupyter codebase. Refer to the list below for prerequisite Python packages:

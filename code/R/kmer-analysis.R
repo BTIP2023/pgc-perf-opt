@@ -2,20 +2,34 @@
 
 # INSTALL AND LOAD PACKAGES ################################
 
-library(datasets)  # Load base packages manually
+library(datasets)  # Sample datasets for testing
 
 # Installs pacman ("package manager") if needed
 if (!require("pacman"))
   install.packages("pacman", repos = "https://cran.case.edu")
 library(pacman)
 
+### ATTN: IN LINUX SYSTEMS, CONSULT README FOR ADDITIONAL PREREQUISITES
+### BEFORE RUNNING ANY SCRIPT. ISSUE: tidyverse installation.
+### This cannot be scripted because this requires sudo priveleges.
+
+# Install xml2 in advance to prep for tidyverse installation.
+if (!require("xml2"))
+  install.packages("xml2", dependencies = T, INSTALL_opts = c("--no-lock"))
+library(xml2)
+
 # Use pacman to load add-on packages as desired
-# First call are standard packages for the project
+# First p_load call are standard packages for the project
 pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
                ggvis, httr, lubridate, plotly, psych,
-               rio, rmarkdown, shiny,
+               rio, markdown, rmarkdown, shiny, remotes,
                stringr, tidyr, tidyverse)
-# Second call are file-specific packages
+
+# remotes is used to install specifc versions of R packages
+# We solely use it to install knitr 1.42 to render our presentations.
+install_version("knitr", version = "1.42", repos = "http://cran.us.r-project.org")
+
+# Second p_load call are file-specific packages
 pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr)
 
 # Note: gsubfn is used to destructure more than one return value
