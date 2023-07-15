@@ -13,21 +13,20 @@ library(pacman)
 ### BEFORE RUNNING ANY SCRIPT. ISSUE: tidyverse installation.
 ### This cannot be scripted because this requires sudo priveleges.
 
-# Install xml2 in advance to prep for tidyverse installation.
-if (!require("xml2"))
-  install.packages("xml2", dependencies = T, INSTALL_opts = c("--no-lock"))
-library(xml2)
+# Install xml2 in advance to prep for tidyverse installation in Linux.
+# Note that in Windows RStudio, this is installed by default.
+# If you're getting xml2 errors on Windows, you broke something lol.
+if (pacman::p_detectOS() == 'Linux' & !pacman::p_loaded(xml2)) {
+  install.packages('xml2', dependencies = T, INSTALL_opts = c("--no-lock"))
+  pacman::p_load(xml2)
+}
 
 # Use pacman to load add-on packages as desired
 # First p_load call are standard packages for the project
 pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
                ggvis, httr, lubridate, plotly, psych,
-               rio, markdown, rmarkdown, shiny, remotes,
+               rio, markdown, rmarkdown, shiny,
                stringr, tidyr, tidyverse)
-
-# remotes is used to install specifc versions of R packages
-# We solely use it to install knitr 1.42 to render our presentations.
-install_version("knitr", version = "1.42", repos = "http://cran.us.r-project.org")
 
 # Second p_load call are file-specific packages
 pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr)
