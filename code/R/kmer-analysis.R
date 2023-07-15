@@ -21,8 +21,8 @@ pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr)
 # Note: gsubfn is used to destructure more than one return value
 
 # LOAD SOURCES #############################################
-source('code/preprocess.R')
-source('code/helper.R')
+source('code/R/preprocess.R')
+source('code/R/helper.R')
 stamp <- timeString()     # get timestamp for file suffix
 
 # LOAD DATA ################################################

@@ -78,5 +78,5 @@ and prune old and unused generated files in `data/interm` and `data/kmers`.
 
 ## TODOs
 - [ ] Update this README once main pipeline has been established wherein kmer-analysis.R is also just another source.
-- [ ] Add auto-pruner for old generated files (might do timestamp arithmetic)
-- [ ] Add auto-setter to latest generated files in `dim-reduce.R` and similar files.
+- [x] Add auto-pruner for old generated files (might do timestamp arithmetic)
+- [x] Add auto-setter to latest generated files in `dim-reduce.R` and similar files.

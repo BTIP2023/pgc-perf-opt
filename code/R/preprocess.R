@@ -23,7 +23,7 @@ pacman::p_load(ape, kmer, readr, lubridate, stringr, validate, gsubfn, seqinr)
 # Note: gsubfn is used to destructure more than one return value
 
 # LOAD SOURCES ################################
-source('code/helper.R')
+source('code/R/helper.R')
 
 # LOAD DATA ################################################
 # Assumption: tar filename format is country-variant-etc.
