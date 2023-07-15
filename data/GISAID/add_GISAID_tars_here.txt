@@ -1,0 +1,3 @@
+Please see instructions in `data/README.md`.
+
+Essentially, please add the GISAID tar archives in this directory.

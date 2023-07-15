@@ -52,7 +52,8 @@ rsconnect/
 **/README.html
 
 # GISAID Data
-data/GISAID/
+data/GISAID/*
+!data/GISAID/add_GISAID_tars_here.txt
 
 # JetBrains and RStudio workspace
 .idea
