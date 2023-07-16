@@ -217,7 +217,8 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
                 sprintf('data/interm/metaDataAll_%s.csv', stamp)))
     
     write.csv(metaDataAll,
-              sprintf('data/interm/metaDataAll_%s.csv', stamp))
+              sprintf('data/interm/metaDataAll_%s.csv', stamp),
+              row.names = FALSE)
     
     # Refetch fastaAll data using ape::read.FASTA to optimize for kmer analysis
     fastaAll <- read.FASTA(sprintf('data/interm/fastaAll_%s.fasta', stamp))
