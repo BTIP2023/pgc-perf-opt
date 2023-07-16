@@ -80,3 +80,6 @@ data/kmers/log.txt
 
 # Local Files YH
 backup/
+
+# VSCode files
+tempCodeRunnerFile.R
