@@ -67,49 +67,51 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
   fastaAll <- data.frame()
   metaDataAll <- data.frame()
   
-  for (i in 1:nfiles) {
-    fastaPath <- paste(extractPath, fastas[i], sep='/')
-    tsvPath <- paste(extractPath, tsvs[i], sep='/')
-    variant <- str_match(fastaPath, pattern = '(?<=-).*(?=\\/)')
-    if (variant %vin% omicron_sub) {
-      variant <- 'Omicron Sub'
+  suppressWarnings({
+    for (i in 1:nfiles) {
+      fastaPath <- paste(extractPath, fastas[i], sep='/')
+      tsvPath <- paste(extractPath, tsvs[i], sep='/')
+      variant <- str_match(fastaPath, pattern = '(?<=-).*(?=\\/)')
+      if (variant %vin% omicron_sub) {
+        variant <- 'Omicron Sub'
+      }
+      variant <- str_to_title(variant)
+      print(paste("Reading", fastaPath))
+      print(paste("Reading", tsvPath))
+      
+      # Parse then merge fasta file with accumulator
+      # Optimization: If write_fasta == TRUE, then use seqinr, else use ape.
+      if (write_fastacsv) {
+        fasta <- seqinr::read.fasta(fastaPath, forceDNAtolower = FALSE)
+      } else {
+        fasta <- ape::read.FASTA(fastaPath)
+      }
+      fastaAll <- c(fastaAll, fasta)
+      
+      # Parse then merge metaData file with accumulator
+      # Defer sanitation after random sampling so fasta and metaData maintains 1:1
+      metaData <- as.data.frame(read_tsv(tsvPath,
+                                         col_select = c(1,5,10,11,12,16,17,19)))
+      # Not removing raw date as I believe it is useful for sorting or can be
+      # parsed on an as needed basis. Dropped year, month, day: just extract
+      # them from the date using lubridate:{year,month,day}(date).
+      metaData <- metaData %>%
+        dplyr::mutate(variant = as.character(variant))
+      
+      # NAs introduced by coercion will be dropped later because dropping
+      # metadata rows must be consistent with dropping fasta entries for
+      # the reason that efficient df columns with lists are not well-supported
+      # in R. Tibbles on the other hand reduce efficiency and compatibility.
+      # Also, using tibbles add another need to extract the fasta from the tibble
+      # for later use (and for writeback), and rowwise operations in tibbles
+      # are said to be slow.
+      metaData$age <- as.integer(metaData$age)
+      metaData$sex <- as.character(metaData$sex)
+      
+      metaDataAll <- bind_rows(metaDataAll, metaData)
     }
-    variant <- str_to_title(variant)
-    print(paste("Reading", fastaPath))
-    print(paste("Reading", tsvPath))
-    
-    # Parse then merge fasta file with accumulator
-    # Optimization: If write_fasta == TRUE, then use seqinr, else use ape.
-    if (write_fastacsv) {
-      fasta <- seqinr::read.fasta(fastaPath, forceDNAtolower = FALSE)
-    } else {
-      fasta <- ape::read.FASTA(fastaPath)
-    }
-    fastaAll <- c(fastaAll, fasta)
-    
-    # Parse then merge metaData file with accumulator
-    # Defer sanitation after random sampling so fasta and metaData maintains 1:1
-    metaData <- as.data.frame(read_tsv(tsvPath,
-                                       col_select = c(1,5,10,11,12,16,17,19)))
-    # Not removing raw date as I believe it is useful for sorting or can be
-    # parsed on an as needed basis. Dropped year, month, day: just extract
-    # them from the date using lubridate:{year,month,day}(date).
-    metaData <- metaData %>%
-      dplyr::mutate(variant = as.character(variant))
-    
-    # NAs introduced by coercion will be dropped later because dropping
-    # metadata rows must be consistent with dropping fasta entries for
-    # the reason that efficient df columns with lists are not well-supported
-    # in R. Tibbles on the other hand reduce efficiency and compatibility.
-    # Also, using tibbles add another need to extract the fasta from the tibble
-    # for later use (and for writeback), and rowwise operations in tibbles
-    # are said to be slow.
-    metaData$age <- as.integer(metaData$age)
-    metaData$sex <- as.character(metaData$sex)
-    
-    metaDataAll <- bind_rows(metaDataAll, metaData)
-  }
-  
+  })
+
   rm(fasta)
   rm(metaData)
   
@@ -186,12 +188,13 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
     .default = metaDataAll$division_exposure
   )
   
-  # Addon: Add age_group
+  # Addon: Add age_group, adjacent to age column
   # Age group reference: https://www.statcan.gc.ca/en/concepts/definitions/age2
   metaDataAll <- metaDataAll %>%
     dplyr::mutate(age_group = cut(age, breaks=c(0,14,24,64,500),
                                   include.lowest=T,
-                                  labels=c('0-14', '15-24', '25-64', '65+')))
+                                  labels=c('0-14', '15-24', '25-64', '65+')),
+                  .after = age)
   
   # Lines below creates intermediate fastaAll.fasta and metaDataAll.csv in data
   # Optimization: Check job order if want to write fasta and csv
@@ -199,7 +202,7 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
     print("Writing generated fasta and csv files to data/interm/...")
     
     # Write parameters used to log file
-    paramsLog(output_path = 'data/interm/log.txt',
+    paramsLog(outputDir = 'data/interm', filename = 'log.txt',
               paramString = sprintf("timestamp = %s\nseed = %d, stratSize = %d",
                                     stamp, seed, stratSize))
     
@@ -209,7 +212,7 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
     seqinr::write.fasta(fastaAll, names(fastaAll),
                         sprintf('data/interm/fastaAll_%s.fasta', stamp))
     
-    print(paste("Writing intermediate fasta to",
+    print(paste("Writing intermediate metadata to",
                 sprintf('data/interm/metaDataAll_%s.csv', stamp)))
     
     write.csv(metaDataAll,

@@ -16,7 +16,8 @@ library(pacman)
 # Install xml2 in advance to prep for tidyverse installation in Linux.
 # Note that in Windows RStudio, this is installed by default.
 # If you're getting xml2 errors on Windows, you broke something lol.
-if (pacman::p_detectOS() == 'Linux' & !pacman::p_loaded(xml2)) {
+# Ref: https://medium.com/@jamie84mclaughlin/installing-r-and-the-tidyverse-on-ubuntu-20-04-60170020649b
+if (pacman::p_detectOS() == 'Linux' & !pacman::p_exists(xml2, local=T)) {
   install.packages('xml2', dependencies = T, INSTALL_opts = c("--no-lock"))
   pacman::p_load(xml2)
 }
@@ -95,7 +96,7 @@ for (k in kmer_list) {
 
 # Write parameters used to text file
 # TODO: Add runtime log capability to paramsLog for benchmarking
-paramsLog(output_path = 'data/kmers/log.txt',
+paramsLog(outputDir = 'data/kmers', filename = 'log.txt',
           paramString = sprintf("timestamp = %s\nseed = %d, stratSize = %d",
                                 stamp, seed, stratSize))
 
@@ -112,9 +113,9 @@ detach("package:datasets", unload = TRUE)  # For base
 # while (!is.null(dev.list())) dev.off()
 
 # Clear console
-cat("\014")  # ctrl+L
+# cat("\014")  # ctrl+L
 
 # Clear memory
 gc()
 
-# Clear mind :)
+print("Operation completed successfully!")

@@ -17,7 +17,11 @@ sudo apt update -y
 sudo apt install -y libssl-dev libcurl4-openssl-dev unixodbc-dev libxml2-dev \
 libmariadb-dev libfontconfig1-dev libharfbuzz-dev libfribidi-dev \
 libfreetype6-dev libpng-dev libtiff5-dev libjpeg-dev
+sudo apt install -y lsb-core
 ```
+
+Reference on Linux tidyverse Issue:
+https://medium.com/@jamie84mclaughlin/installing-r-and-the-tidyverse-on-ubuntu-20-04-60170020649b
 
 ### Python/Conda/Jupyter
 In contrast, a development environment must be manually set up for the project's
