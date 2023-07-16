@@ -21,7 +21,7 @@ paramsLog <- function(outputDir, filename, paramString) {
     cpuinfo <- system('WMIC CPU Get DeviceID,NumberOfCores,NumberOfLogicalProcessors',
                       intern = TRUE)
     cpuinfo <- cpuinfo[-length(cpuinfo)]
-    specs <- paste(systeminfo, cpuinfo)
+    specs <- c(systeminfo, cpuinfo)
     write_lines(c(as.character(Sys.time()), specs, paramString,
                   '------\n'), output_path, append=TRUE)
   } else if (pacman::p_detectOS() == 'Linux') {
