@@ -118,4 +118,4 @@ detach("package:datasets", unload = TRUE)  # For base
 # Clear memory
 gc()
 
-print("Operation completed successfully!")
+print("Operations completed successfully!")
