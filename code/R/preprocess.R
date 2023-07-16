@@ -67,6 +67,7 @@ preprocess <- function(dataPath, extractPath, seed = 10, stratSize = 100,
   fastaAll <- data.frame()
   metaDataAll <- data.frame()
   
+  # warnings suppressed for data parsing, but handled cleanly so don't worry
   suppressWarnings({
     for (i in 1:nfiles) {
       fastaPath <- paste(extractPath, fastas[i], sep='/')
