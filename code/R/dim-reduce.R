@@ -29,7 +29,7 @@ save_plot <- function(method, k, p, is3D=FALSE) {
   # Note: 3D plots are plot_ly objects, 2D plots are ggplot objects.
   if (is3D) {
     # Save plot_ly obj. as PNG
-    save_image(p, filename) # To Fix: Using Kaleido to save image does not work
+    save_image(p, paste0(results_path, filename))
   } else {
     # Save as PNG
     ggsave(filename, p, results_path, device = "png", width=5, height=5, dpi = 300, bg = "white")
@@ -103,7 +103,7 @@ screeplot <- function(pca_df) {
 }
 
 indiv <- function(pca_df) {
-  fviz_pca_ind(pca_df,
+  p <- fviz_pca_ind(pca_df,
                col.ind = "cos2", # Color by the quality of representation
                gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
                repel = TRUE,     # Avoid text overlapping
@@ -140,8 +140,8 @@ biplot <- function(pca_df) {
   # Create biplot of individuals and variables (using ggbiplot)
   p <- ggbiplot(pca_df, obs.scale = 1, var.scale = 1,
                 groups = target, ellipse = TRUE, circle = TRUE) +
-    scale_color_discrete(name = '') +
-    theme(legend.direction = 'horizontal', legend.position = 'top')
+                scale_color_discrete(name = '') +
+                theme(legend.direction = 'horizontal', legend.position = 'top')
   
   # Save plot as PNG and HTML
   save_plot("biplot", k, p)
@@ -280,7 +280,7 @@ df <- read.csv(paste0(data_path, "kmer_", k, ".csv"))
 # Define t-SNE and UMAP parameters
 tsne_seed <- 0
 tsne_perplexity <- 40
-tsne_max_iter <- 300
+tsne_max_iter <- 1000
 tsne_initial_dims <- 50
 umap_seed <- 0
 umap_n_neighbors <- 15
