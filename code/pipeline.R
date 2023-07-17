@@ -3,24 +3,6 @@
 # for convenient runs and benchmarks.
 # This will source functions from code/R/
 
-# SET PARAMETERS ###########################################
-# pipeline.R general parameters
-seed <- 1234
-stamp <- get_time()
-
-# TODO: Params for until which step of the pipeline should be run.
-# TODO: Which pipeline step is to be solely performed (for dev).
-
-# preprocess.R::preprocess() parameters
-data_path <- "data/GISAID"
-extract_path <- "data/GISAID/datasets"
-strat_size <- 100
-country_exposure <- "Philippines"
-write_fastacsv <- TRUE
-
-# kmer-analysis.R::get_kmers() parameters
-kmer_list <- c(3, 5, 7)
-
 # INSTALL AND LOAD PACKAGES ################################
 
 # Installs pacman ("package manager") if needed
@@ -56,6 +38,24 @@ pacman::p_load(dplyr, GGally, ggplot2, ggthemes, ggvis,
 source("code/R/preprocess.R")
 source("code/R/helper.R")
 source("code/R/kmer-analysis.R")
+
+# SET PARAMETERS ###########################################
+# pipeline.R general parameters
+seed <- 1234
+stamp <- get_time()
+
+# TODO: Params for until which step of the pipeline should be run.
+# TODO: Which pipeline step is to be solely performed (for dev).
+
+# preprocess.R::preprocess() parameters
+data_path <- "data/GISAID"
+extract_path <- "data/GISAID/datasets"
+strat_size <- 100
+country_exposure <- "Philippines"
+write_fastacsv <- TRUE
+
+# kmer-analysis.R::get_kmers() parameters
+kmer_list <- c(3, 5, 7)
 
 # RUN PIPELINE #############################################
 
