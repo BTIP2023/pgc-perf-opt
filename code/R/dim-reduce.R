@@ -52,7 +52,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
       decreasing = TRUE
     )]
 
-    df <- read.csv(paste0(data_path, sorted_strings[1]))
+    df <- read.csv(paste(data_path, sorted_strings[1], sep = "/"))
 
     return(df)
   }
@@ -65,7 +65,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     # Note: 3D plots are plot_ly objects, 2D plots are ggplot objects.
     if (is_3d) {
       # Save plot_ly obj. as PNG
-      save_image(p, paste0(results_path, filename))
+      save_image(p, paste(results_path, filename, sep = "/"))
     } else {
       # Save as PNG
       ggsave(filename, p, results_path,
@@ -77,7 +77,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     }
 
     # Save as HTML
-    html_file <- paste0(results_path, method, "-", k, ".html")
+    html_file <- paste0(results_path, "/", method, "-", k, ".html")
     htmlwidgets::saveWidget(p, file = html_file, selfcontained = TRUE)
   }
 
