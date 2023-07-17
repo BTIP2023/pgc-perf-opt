@@ -41,6 +41,7 @@ pacman::p_load(dplyr, GGally, ggplot2, ggthemes, ggvis,
 source("code/R/preprocess.R")
 source("code/R/helper.R")
 source("code/R/kmer-analysis.R")
+source("code/R/dim-reduce.R")
 
 # SET PARAMETERS ###########################################
 # pipeline.R general parameters
@@ -60,6 +61,20 @@ write_fastacsv <- TRUE
 # kmer-analysis.R::get_kmers() parameters
 kmer_list <- c(3, 5, 7)
 
+# dim-reduce.R::dim_reduce() parameters
+k <- 3 # Valid values are 3, 5, 7
+data_path <- "./data/kmers/"
+results_path <- "./results/dim-reduce/R/"
+tsne_seed <- 0
+tsne_perplexity <- 40
+tsne_max_iter <- 1000
+tsne_initial_dims <- 50
+umap_seed <- 0
+umap_n_neighbors <- 15
+umap_metric <- "euclidean"
+umap_min_dist <- 0.1
+col_name <- "variant"
+
 # RUN PIPELINE #############################################
 
 # Step 1: preprocess()
@@ -75,5 +90,10 @@ list[fasta_all, metadata_all] <- preprocess(data_path, extract_path, seed,
 get_kmers(fasta_all, metadata_all, kmer_list, stamp)
 
 # Step 3: ...
+
+# Step n: dim_reduce()
+dim_reduce(k, data_path, results_path, tsne_seed, tsne_perplexity, 
+           tsne_max_iter, tsne_initial_dims, umap_seed, umap_n_neighbors, 
+           umap_metric, umap_min_dist, col_name)
 
 print("Operations completed successfully!")
