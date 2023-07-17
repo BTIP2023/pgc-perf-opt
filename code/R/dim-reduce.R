@@ -15,6 +15,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function to search and read the CSV file
   read_kmer_csv <- function(data_path, k) {
+    print("Reading CSV file...")
     # Get the list of files matching the pattern
     file_pattern <- paste0("kmer_", k, "_", ".*\\.csv$")
     file_list <- list.files(
@@ -64,6 +65,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for pre-processing and scaling of data
   pre_process <- function(data, col_name) {
+    print("Pre-processing and scaling data...")
     # Extract year from date column
     # (This is needed for labeling of points in 3D plots)
     df$year <- format(as.Date(df$date), "%Y")
@@ -89,12 +91,14 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function that performs PCA
   pca_fn <- function(x) {
+    print("Performing PCA...")
     pca_df <- prcomp(x, center = TRUE)
     return(pca_df)
   }
 
   # Function for 2D PCA plot
   pca_plot <- function(pca_df, data, k) {
+    print("Generating 2D PCA plot...")
     p <- autoplot(pca_df, data = data, colour = col_name) +
       scale_color_brewer(palette = "Set1")
 
@@ -104,6 +108,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for 3D PCA plot
   pca_3d <- function(pca_df, df, col_name) {
+    print("Generating 3D PCA plot...")
     pc <- as.data.frame(pca_df$x[, 1:3])
 
     # Use plot_ly for 3D visualization
@@ -125,6 +130,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   }
 
   screeplot <- function(pca_df) {
+    print("Generating scree plot...")
     p <- fviz_eig(pca_df,
       xlab = "Number of Principal Components"
     )
@@ -134,6 +140,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   }
 
   indiv <- function(pca_df) {
+    print("Generating graph of individuals...")
     p <- fviz_pca_ind(pca_df,
       col.ind = "cos2", # Color by the quality of representation
       gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
@@ -148,6 +155,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   }
 
   vars <- function(pca_df) {
+    print("Generating graph of variables...")
     p <- fviz_pca_ind(pca_df,
       col.ind = "contrib", # Color by contributions to the PC
       gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
@@ -162,6 +170,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   }
 
   biplot <- function(pca_df) {
+    print("Generating biplot...")
     # # [Old method] Create biplot of individuals and variables
     # p <- fviz_pca_biplot(pca_df,
     #                 col.var = "#2E9FDF", # Variables color
@@ -182,6 +191,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function that performs t-SNE (Rtsne library)
   rtsne_fn <- function(pca_results, tsne_dims) {
+    print("Performing t-SNE...")
     set.seed(tsne_seed)
     tsne_df <- Rtsne(pca_results,
       dims = tsne_dims, perplexity = tsne_perplexity,
@@ -203,6 +213,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function that performs t-SNE (tsne library)
   tsne_fn <- function(pca_results, tsne_dims) {
+    print("Performing t-SNE...")
     set.seed(tsne_seed)
     if (tsne_dims == 2) {
       tsne_df <- tsne(pca_results,
@@ -226,6 +237,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for 2D t-SNE plot
   tsne_plot <- function(tsne_df, target, k, is_tsne) {
+    print("Generating 2D t-SNE plot...")
     if (is_tsne) {
       df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], target = target)
     } else {
@@ -245,6 +257,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for 3D t-SNE plot
   tsne_3d <- function(tsne_df, df, col_name) {
+    print("Generating 3D t-SNE plot...")
     final <- cbind(data.frame(tsne_df), df[[col_name]])
     p <- plot_ly(final,
       x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
@@ -265,6 +278,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function that performs UMAP
   umap_fn <- function(x, umap_dims) {
+    print("Performing UMAP...")
     umap_df <- umap(x,
       n_components = umap_dims, n_neighbors = umap_n_neighbors,
       metric = umap_metric, min_dist = umap_min_dist,
@@ -275,6 +289,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for 2D UMAP plot
   umap_plot <- function(umap_df, target, k) {
+    print("Generating 2D UMAP plot...")
     emb <- umap_df$layout
 
     x_o <- emb[, 1]
@@ -297,6 +312,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for 3D UMAP plot
   umap_3d <- function(umap_df, df, col_name) {
+    print("Generating 3D UMAP plot...")
     final <- cbind(data.frame(umap_df[["layout"]]), df[[col_name]])
     p <- plot_ly(final,
       x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",

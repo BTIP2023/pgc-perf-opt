@@ -32,7 +32,7 @@ pacman::p_load(dplyr, GGally, ggplot2, ggthemes, ggvis,
                rio, markdown, rmarkdown, shiny,
                stringr, tidyr, tidyverse,
                ape, kmer, readr, validate, gsubfn, seqinr,
-               umap, htmlwidgets, factoextra, scales,
+               umap, htmlwidgets, factoextra, scales, ggbiplot,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools)
 install_github("vqv/ggbiplot", upgrade = FALSE)
 
@@ -66,8 +66,8 @@ write_fastacsv <- TRUE
 # kmer-analysis.R::get_kmers() parameters
 
 # dim-reduce.R::dim_reduce() parameters
-data_path_kmers <- "data/kmers/"
-results_path_dimreduce <- "results/dim-reduce/R/"
+data_path_kmers <- "data/kmers"
+results_path_dimreduce <- "results/dim-reduce/R"
 tsne_perplexity <- 40
 tsne_max_iter <- 1000
 tsne_initial_dims <- 50
