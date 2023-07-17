@@ -95,7 +95,11 @@ preprocess <- function(data_path, extract_path,
 
   rm(fasta)
   rm(metaData)
-  
+
+  # Print out total samples beforehand to guide future strat_size.
+  print(paste("Total number of samples in complete, unpruned data:",
+              nrow(metadata_all)))
+
   # Addon: Filter by country_exposure.
   drop_idxs <- which(metadata_all$country != country_exposure)
   fasta_all <- fasta_all[is.na(pmatch(1:length(fasta_all), drop_idxs))]

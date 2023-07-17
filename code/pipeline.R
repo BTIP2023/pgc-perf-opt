@@ -25,6 +25,8 @@ if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
 }
 
 # Use pacman to load add-on packages as desired.
+# TODO: Remove redundancies in dependencies. E.g., dplyr and ggplot2
+# is already a dependency of tidyverse.
 pacman::p_load(dplyr, GGally, ggplot2, ggthemes, ggvis,
                httr, lubridate, plotly, psych,
                rio, markdown, rmarkdown, shiny,

@@ -7,12 +7,12 @@ FROM rocker/tidyverse:4.3.1
 
 # Add CUDA support to rocker/tidyverse:4.3.1
 # Layers:
-# - rocker/ml
-# - rocker/cuda
-# - rocker/r-ver
+# - rocker/ml:4.3.1
+# - rocker/cuda:4.3.1
+# - rocker/r-ver:4.3.1
 FROM rocker/ml:4.3.1
 
-
+RUN apt update && apt install -y 
 
 COPY . /app
 WORKDIR /app/code/R
