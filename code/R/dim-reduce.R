@@ -21,7 +21,8 @@ pacman::p_load(
 )
 
 # Hide warnings
-options(warn = -1) # Address open issue in plot_ly: warning 'bar' objects don't have these attributes: 'mode'
+options(warn = -1) # Address open issue in plot_ly: warning 'bar' objects
+# don't have these attributes: 'mode'
 
 # -----Functions-----
 
@@ -35,64 +36,73 @@ get_time <- function(string) {
 read_kmer_csv <- function(data_path, k) {
   # Get the list of files matching the pattern
   file_pattern <- paste0("kmer_", k, "_", ".*\\.csv$")
-  file_list <- list.files(path = data_path, pattern = file_pattern, full.names = FALSE)
+  file_list <- list.files(
+    path = data_path, pattern = file_pattern,
+    full.names = FALSE
+  )
 
   # Check if any files are found
   if (length(file_list) == 0) {
     message("No files found for k = ", k)
     return(NULL)
   }
-  
+
   # Sort the strings based on the timestamp in descending order
-  sorted_strings <- file_list[order(sapply(file_list, get_time), decreasing = TRUE)]
-  
+  sorted_strings <- file_list[order(sapply(file_list, get_time),
+    decreasing = TRUE
+  )]
+
   df <- read.csv(paste0(data_path, sorted_strings[1]))
 
   return(df)
 }
 
 # Function for saving 2D plots as PNG and HTML
-save_plot <- function(method, k, p, is3D=FALSE) {
+save_plot <- function(method, k, p, is_3d = FALSE) {
   # File name for saving
   filename <- paste0(method, "-", k, ".png")
-  
+
   # Note: 3D plots are plot_ly objects, 2D plots are ggplot objects.
-  if (is3D) {
+  if (is_3d) {
     # Save plot_ly obj. as PNG
     save_image(p, paste0(results_path, filename))
   } else {
     # Save as PNG
-    ggsave(filename, p, results_path, device = "png", width=5, height=5, dpi = 300, bg = "white")
+    ggsave(filename, p, results_path,
+      device = "png", width = 5, height = 5,
+      dpi = 300, bg = "white"
+    )
     # Convert ggplot object to ggplotly
     p <- ggplotly(p)
   }
-  
+
   # Save as HTML
-  htmlFile <- paste0(results_path, method, "-", k, ".html")
-  htmlwidgets::saveWidget(p, file = htmlFile, selfcontained = TRUE)
+  html_file <- paste0(results_path, method, "-", k, ".html")
+  htmlwidgets::saveWidget(p, file = html_file, selfcontained = TRUE)
 }
 
-# Function for pre-processing and scaling of data 
+# Function for pre-processing and scaling of data
 pre_process <- function(data, col_name) {
-  # Extract year from date column (This is needed for labeling of points in 3D plots)
+  # Extract year from date column
+  # (This is needed for labeling of points in 3D plots)
   df$year <- format(as.Date(df$date), "%Y")
-  
+
   # Determine the columns to use (drop metadata, retain k-mers)
   slice_col <- which(colnames(data) == "strain")
   x <- data[, 2:(slice_col - 1)]
   target <- data[[col_name]]
-  
+
   # Check for columns that have zero variance for PCA
   non_zero_var_cols <- apply(x, 2, var) > 0
   x <- x[, non_zero_var_cols]
-  
+
   if (ncol(x) < 2) {
     stop("Insufficient columns with non-zero variance for PCA.")
   }
-  
+
   # Scale data
   x <- scale(x)
-  
+
   return(list(x = x, target = target))
 }
 
@@ -104,8 +114,9 @@ pca_fn <- function(x) {
 
 # Function for 2D PCA plot
 pca_plot <- function(pca_df, data, k) {
-  p <- autoplot(pca_df, data = data, colour = col_name) + scale_color_brewer(palette = "Set1")
-  
+  p <- autoplot(pca_df, data = data, colour = col_name) +
+    scale_color_brewer(palette = "Set1")
+
   # Save plot as PNG and HTML
   save_plot("pca", k, p)
 }
@@ -113,52 +124,58 @@ pca_plot <- function(pca_df, data, k) {
 # Function for 3D PCA plot
 pca_3d <- function(pca_df, df, col_name) {
   pc <- as.data.frame(pca_df$x[, 1:3])
-  
+
   # Use plot_ly for 3D visualization
-  p <- plot_ly(pc, x = ~PC1, y = ~PC2, z = ~PC3, type = "scatter3d", mode = "markers", color = df[[col_name]], 
-               text = paste("Variant: ", df$variant, "<br>",
-                            "Sex: ", df$sex, "<br>",
-                            "Division Exposure: ", df$division_exposure, "<br>",
-                            "Year: ", format(as.Date(df$date), "%Y"), "<br>",
-                            "Strain: ", df$strain, "<br>",
-                            "Pangolin Lineage: ", df$pangolin_lineage))
-  
+  p <- plot_ly(pc,
+    x = ~PC1, y = ~PC2, z = ~PC3, type = "scatter3d",
+    mode = "markers", color = df[[col_name]],
+    text = paste(
+      "Variant: ", df$variant, "<br>",
+      "Sex: ", df$sex, "<br>",
+      "Division Exposure: ", df$division_exposure, "<br>",
+      "Year: ", format(as.Date(df$date), "%Y"), "<br>",
+      "Strain: ", df$strain, "<br>",
+      "Pangolin Lineage: ", df$pangolin_lineage
+    )
+  )
+
   # Save plot as PNG and HTML
-  save_plot("3d-pca", k, p, is3D=TRUE)
+  save_plot("3d-pca", k, p, is_3d = TRUE)
 }
 
 screeplot <- function(pca_df) {
   p <- fviz_eig(pca_df,
-                xlab = "Number of Principal Components")
-  
+    xlab = "Number of Principal Components"
+  )
+
   # Save plot as PNG and HTML
   save_plot("screeplot", k, p)
 }
 
 indiv <- function(pca_df) {
   p <- fviz_pca_ind(pca_df,
-               col.ind = "cos2", # Color by the quality of representation
-               gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-               repel = TRUE,     # Avoid text overlapping
-               label = list(ind = list(label = "Quality of Representation")),
-               xlab = "PC1",
-               ylab = "PC2"
+    col.ind = "cos2", # Color by the quality of representation
+    gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+    repel = TRUE, # Avoid text overlapping
+    label = list(ind = list(label = "Quality of Representation")),
+    xlab = "PC1",
+    ylab = "PC2"
   )
-  
+
   # Save plot as PNG and HTML
   save_plot("indivgraph", k, p)
 }
 
 vars <- function(pca_df) {
   p <- fviz_pca_ind(pca_df,
-                    col.ind = "contrib", # Color by contributions to the PC
-                    gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-                    repel = TRUE,        # Avoid text overlapping
-                    label = list(ind = list(label = "Contribution to PC")),
-                    xlab = "PC1",
-                    ylab = "PC2"
+    col.ind = "contrib", # Color by contributions to the PC
+    gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+    repel = TRUE, # Avoid text overlapping
+    label = list(ind = list(label = "Contribution to PC")),
+    xlab = "PC1",
+    ylab = "PC2"
   )
-  
+
   # Save plot as PNG and HTML
   save_plot("vargraph", k, p)
 }
@@ -169,30 +186,37 @@ biplot <- function(pca_df) {
   #                 col.var = "#2E9FDF", # Variables color
   #                 col.ind = "#696969"  # Individuals color
   # )
-  
+
   # Create biplot of individuals and variables (using ggbiplot)
-  p <- ggbiplot(pca_df, obs.scale = 1, var.scale = 1,
-                groups = target, ellipse = TRUE, circle = TRUE) +
-                scale_color_discrete(name = '') +
-                theme(legend.direction = 'horizontal', legend.position = 'top')
-  
+  p <- ggbiplot(pca_df,
+    obs.scale = 1, var.scale = 1,
+    groups = target, ellipse = TRUE, circle = TRUE
+  ) +
+    scale_color_discrete(name = "") +
+    theme(legend.direction = "horizontal", legend.position = "top")
+
   # Save plot as PNG and HTML
   save_plot("biplot", k, p)
 }
 
 # Function that performs t-SNE (Rtsne library)
-Rtsne_fn <- function(pca_results, tsne_dims) {
+rtsne_fn <- function(pca_results, tsne_dims) {
   set.seed(tsne_seed)
-  tsne_df <- Rtsne(pca_results, dims = tsne_dims, perplexity = tsne_perplexity, max_iter = tsne_max_iter, check_duplicate = FALSE, pca = FALSE)
+  tsne_df <- Rtsne(pca_results,
+    dims = tsne_dims, perplexity = tsne_perplexity,
+    max_iter = tsne_max_iter, check_duplicate = FALSE,
+    pca = FALSE
+  )
   return(tsne_df)
 }
 
 # Function that includes visualization for each t-SNE iteration
 ecb <- function(x) {
-  epoc_df <- data.frame(x,target = df[[col_name]])
-  
-  plt <- ggplot(epoc_df,aes(x = X1, y = X2,label = target,color = target)) + geom_text()
-  
+  epoc_df <- data.frame(x, target = df[[col_name]])
+
+  plt <- ggplot(epoc_df, aes(x = X1, y = X2, label = target, color = target)) +
+    geom_text()
+
   print(plt)
 }
 
@@ -200,11 +224,22 @@ ecb <- function(x) {
 tsne_fn <- function(pca_results, tsne_dims) {
   set.seed(tsne_seed)
   if (tsne_dims == 2) {
-    tsne_df <- tsne(pca_results, k = tsne_dims, initial_dims = tsne_initial_dims, perplexity = tsne_perplexity, max_iter = tsne_max_iter, epoch_callback = ecb)
+    tsne_df <- tsne(pca_results,
+      k = tsne_dims,
+      initial_dims = tsne_initial_dims,
+      perplexity = tsne_perplexity,
+      max_iter = tsne_max_iter,
+      epoch_callback = ecb
+    )
   } else {
-    tsne_df <- tsne(pca_results, k = tsne_dims, initial_dims = tsne_initial_dims, perplexity = tsne_perplexity, max_iter = tsne_max_iter)
+    tsne_df <- tsne(pca_results,
+      k = tsne_dims,
+      initial_dims = tsne_initial_dims,
+      perplexity = tsne_perplexity,
+      max_iter = tsne_max_iter
+    )
   }
-  
+
   return(tsne_df)
 }
 
@@ -222,7 +257,7 @@ tsne_plot <- function(tsne_df, target, k, is_tsne) {
     ylab("TSNE-2D-2") +
     labs(color = "Label") +
     scale_color_brewer(palette = "Set1")
-  
+
   # Save plot as PNG and HTML
   save_plot("tsne", k, p)
 }
@@ -230,39 +265,51 @@ tsne_plot <- function(tsne_df, target, k, is_tsne) {
 # Function for 3D t-SNE plot
 tsne_3d <- function(tsne_df, df, col_name) {
   final <- cbind(data.frame(tsne_df), df[[col_name]])
-  p <- plot_ly(final, x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers", color = ~df[[col_name]], 
-               text = paste("Variant: ", df$variant, "<br>",
-                            "Sex: ", df$sex, "<br>",
-                            "Division Exposure: ", df$division_exposure, "<br>",
-                            "Year: ", format(as.Date(df$date), "%Y"), "<br>",
-                            "Strain: ", df$strain, "<br>",
-                            "Pangolin Lineage: ", df$pangolin_lineage))
-  
+  p <- plot_ly(final,
+    x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
+    color = ~ df[[col_name]],
+    text = paste(
+      "Variant: ", df$variant, "<br>",
+      "Sex: ", df$sex, "<br>",
+      "Division Exposure: ", df$division_exposure, "<br>",
+      "Year: ", format(as.Date(df$date), "%Y"), "<br>",
+      "Strain: ", df$strain, "<br>",
+      "Pangolin Lineage: ", df$pangolin_lineage
+    )
+  )
+
   # Save plot as PNG and HTML
-  save_plot("3d-tsne", k, p, is3D=TRUE)
+  save_plot("3d-tsne", k, p, is_3d = TRUE)
 }
 
 # Function that performs UMAP
 umap_fn <- function(x, umap_dims) {
-  umap_df <- umap(x, n_components = umap_dims, n_neighbors = umap_n_neighbors, metric = umap_metric, min_dist = umap_min_dist, random_state = umap_seed)
+  umap_df <- umap(x,
+    n_components = umap_dims, n_neighbors = umap_n_neighbors,
+    metric = umap_metric, min_dist = umap_min_dist,
+    random_state = umap_seed
+  )
   return(umap_df)
 }
 
 # Function for 2D UMAP plot
 umap_plot <- function(umap_df, target, k) {
   emb <- umap_df$layout
-  
-  X_o <- emb[, 1]
-  Y_o <- emb[, 2]
-  
+
+  x_o <- emb[, 1]
+  y_o <- emb[, 2]
+
   # Create ggplot object
-  p <- ggplot(data = as.data.frame(emb), aes(x = X_o, y = Y_o, color = target)) +
+  p <- ggplot(
+    data = as.data.frame(emb),
+    aes(x = x_o, y = y_o, color = target)
+  ) +
     geom_point() +
     xlab("UMAP_1") +
     ylab("UMAP_2") +
     labs(color = "Label") +
     scale_color_brewer(palette = "Set1")
-  
+
   # Save plot as PNG and HTML
   save_plot("umap", k, p)
 }
@@ -270,21 +317,28 @@ umap_plot <- function(umap_df, target, k) {
 # Function for 3D UMAP plot
 umap_3d <- function(umap_df, df, col_name) {
   final <- cbind(data.frame(umap_df[["layout"]]), df[[col_name]])
-  p <- plot_ly(final, x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers", color = ~df[[col_name]], 
-               text = paste("Variant: ", df$variant, "<br>",
-                            "Sex: ", df$sex, "<br>",
-                            "Division Exposure: ", df$division_exposure, "<br>",
-                            "Year: ", format(as.Date(df$date), "%Y"), "<br>",
-                            "Strain: ", df$strain, "<br>",
-                            "Pangolin Lineage: ", df$pangolin_lineage))
-  
-  p <- p %>% add_markers() 
-  p <- p %>% layout(scene = list(xaxis = list(title = '0'), 
-                                 yaxis = list(title = '1'), 
-                                 zaxis = list(title = '2'))) 
-  
+  p <- plot_ly(final,
+    x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
+    color = ~ df[[col_name]],
+    text = paste(
+      "Variant: ", df$variant, "<br>",
+      "Sex: ", df$sex, "<br>",
+      "Division Exposure: ", df$division_exposure, "<br>",
+      "Year: ", format(as.Date(df$date), "%Y"), "<br>",
+      "Strain: ", df$strain, "<br>",
+      "Pangolin Lineage: ", df$pangolin_lineage
+    )
+  )
+
+  p <- p %>% add_markers()
+  p <- p %>% layout(scene = list(
+    xaxis = list(title = "0"),
+    yaxis = list(title = "1"),
+    zaxis = list(title = "2")
+  ))
+
   # Save plot as PNG and HTML
-  save_plot("3d-umap", k, p, is3D=TRUE)
+  save_plot("3d-umap", k, p, is_3d = TRUE)
 }
 
 # -----END of Functions-----
@@ -294,7 +348,7 @@ umap_3d <- function(umap_df, df, col_name) {
 # -----START-----
 
 # Set k for k-mer analysis (Valid values: 3, 5, 7)
-k <- 7
+k <- 3
 
 # Set paths
 data_path <- "./data/kmers/"
@@ -357,18 +411,20 @@ biplot(pca_df)
 # Perform t-SNE via 'Rtsne' library using PCA results (in 2 dimensions)
 # # Note: Uncomment the next two line to use Rtsne; otherwise, comment them
 is_tsne <- FALSE
-tsne_df <- Rtsne_fn(pca_df$x, 2)
+tsne_df <- rtsne_fn(pca_df$x, 2)
 
 # Generate 2D t-SNE plot
 tsne_plot(tsne_df, target, k, is_tsne)
 
 # Generate 3D t-SNE plot (runs t-SNE again in 3 dimensions)
-# # Note: Uncomment the two succeeding lines to use tsne; otherwise, comment them
+# # Note: Uncomment the two succeeding lines to use tsne;
+# # otherwise, comment them
 # tsne_df <- tsne_fn(pca_df$x, 3)
 # tsne_3d(tsne_df, df, col_name)
 
-# # Note: Uncomment the two succeeding lines to use Rtsne; otherwise, comment them
-tsne_df <- Rtsne_fn(pca_df$x, 3)
+# # Note: Uncomment the two succeeding lines to use Rtsne;
+# # otherwise, comment them
+tsne_df <- rtsne_fn(pca_df$x, 3)
 tsne_3d(tsne_df$Y, df, col_name)
 
 # Perform UMAP (in 2 dimensions)
