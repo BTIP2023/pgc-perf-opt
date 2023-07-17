@@ -1,8 +1,6 @@
 dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
                        tsne_max_iter, tsne_initial_dims, umap_seed,
                        umap_n_neighbors, umap_metric, umap_min_dist, col_name) {
-
-
   # Hide warnings
   options(warn = -1) # Address open issue in plot_ly: warning 'bar' objects
   # don't have these attributes: 'mode'
