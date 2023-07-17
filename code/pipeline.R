@@ -4,10 +4,11 @@
 # This will source functions from code/R/
 
 # INSTALL AND LOAD PACKAGES ################################
+options(repos = "https://cloud.r-project.org/")
 
 # Installs pacman ("package manager") if needed
 if (!require("pacman"))
-  install.packages("pacman", repos = "https://cran.case.edu")
+  install.packages("pacman")
 library(pacman)
 
 ### ATTN: IN LINUX SYSTEMS, CONSULT README FOR ADDITIONAL PREREQUISITES
