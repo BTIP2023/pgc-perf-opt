@@ -1,16 +1,14 @@
 # escape=`
 
-# Dockerfile for GPU performance side objective.
+# Main objective: Perf eval/opt wrt Spectre/Meltdown CPU patches.
 
-# Base Image: rocker/ml:4.3.1
-# Adds CUDA support to rocker/tidyverse:4.3.1
+# Base Image: rocker/tidyverse:4.3.1
+# Slim image for benchmarking and developing R workflows.
 # Image stack:
-# - rocker/ml:4.3.1
-# - rocker/cuda:4.3.1
-# - rocker/tidyverse:4.3.1 (implicit)
-# - rocker/rstudio:4.3.1 (implicit)
+# - rocker/tidyverse:4.3.1
+# - rocker/rstudio:4.3.1
 # - rocker/r-ver:4.3.1
-FROM rocker/ml:4.3.1
+FROM rocker/tidyverse:4.3.1
 
 ### Python
 # This also already includes Python 3.10.6 with base packages via python3.
