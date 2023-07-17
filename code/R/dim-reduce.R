@@ -1,9 +1,13 @@
+# Load Source
+source("code/R/kmer-analysis.R")
+
 # Install and load the required packages
 if (!require(pacman)) {
   install.packages("pacman")
 }
 pacman::p_load(
   tidyverse,
+  lubridate,
   umap,
   plotly,
   htmlwidgets,
@@ -20,6 +24,32 @@ pacman::p_load(
 options(warn = -1) # Address open issue in plot_ly: warning 'bar' objects don't have these attributes: 'mode'
 
 # -----Functions-----
+
+# Function to extract the timestamp
+get_time <- function(string) {
+  parts <- strsplit(string, "_")[[1]]
+  as.numeric(gsub(".csv", "", parts[3]))
+}
+
+# Function to search and read the CSV file
+read_kmer_csv <- function(data_path, k) {
+  # Get the list of files matching the pattern
+  file_pattern <- paste0("kmer_", k, "_", ".*\\.csv$")
+  file_list <- list.files(path = data_path, pattern = file_pattern, full.names = FALSE)
+
+  # Check if any files are found
+  if (length(file_list) == 0) {
+    message("No files found for k = ", k)
+    return(NULL)
+  }
+  
+  # Sort the strings based on the timestamp in descending order
+  sorted_strings <- file_list[order(sapply(file_list, get_time), decreasing = TRUE)]
+  
+  df <- read.csv(paste0(data_path, sorted_strings[1]))
+
+  return(df)
+}
 
 # Function for saving 2D plots as PNG and HTML
 save_plot <- function(method, k, p, is3D=FALSE) {
@@ -44,6 +74,9 @@ save_plot <- function(method, k, p, is3D=FALSE) {
 
 # Function for pre-processing and scaling of data 
 pre_process <- function(data, col_name) {
+  # Extract year from date column (This is needed for labeling of points in 3D plots)
+  df$year <- format(as.Date(df$date), "%Y")
+  
   # Determine the columns to use (drop metadata, retain k-mers)
   slice_col <- which(colnames(data) == "strain")
   x <- data[, 2:(slice_col - 1)]
@@ -86,7 +119,7 @@ pca_3d <- function(pca_df, df, col_name) {
                text = paste("Variant: ", df$variant, "<br>",
                             "Sex: ", df$sex, "<br>",
                             "Division Exposure: ", df$division_exposure, "<br>",
-                            "Year: ", df$year, "<br>",
+                            "Year: ", format(as.Date(df$date), "%Y"), "<br>",
                             "Strain: ", df$strain, "<br>",
                             "Pangolin Lineage: ", df$pangolin_lineage))
   
@@ -201,7 +234,7 @@ tsne_3d <- function(tsne_df, df, col_name) {
                text = paste("Variant: ", df$variant, "<br>",
                             "Sex: ", df$sex, "<br>",
                             "Division Exposure: ", df$division_exposure, "<br>",
-                            "Year: ", df$year, "<br>",
+                            "Year: ", format(as.Date(df$date), "%Y"), "<br>",
                             "Strain: ", df$strain, "<br>",
                             "Pangolin Lineage: ", df$pangolin_lineage))
   
@@ -241,7 +274,7 @@ umap_3d <- function(umap_df, df, col_name) {
                text = paste("Variant: ", df$variant, "<br>",
                             "Sex: ", df$sex, "<br>",
                             "Division Exposure: ", df$division_exposure, "<br>",
-                            "Year: ", df$year, "<br>",
+                            "Year: ", format(as.Date(df$date), "%Y"), "<br>",
                             "Strain: ", df$strain, "<br>",
                             "Pangolin Lineage: ", df$pangolin_lineage))
   
@@ -264,7 +297,7 @@ umap_3d <- function(umap_df, df, col_name) {
 k <- 7
 
 # Set paths
-data_path <- "./data/archive/"
+data_path <- "./data/kmers/"
 
 results_path <- "./results/dim-reduce/R/"
 
@@ -274,8 +307,8 @@ if (!dir.exists(results_path)) {
   dir.create(results_path, recursive = TRUE)
 }
 
-# Loading the data file
-df <- read.csv(paste0(data_path, "kmer_", k, ".csv"))
+# Search and read the CSV file
+df <- read_kmer_csv(data_path, k)
 
 # Define t-SNE and UMAP parameters
 tsne_seed <- 0
@@ -349,5 +382,3 @@ umap_df <- umap_fn(x, 3)
 umap_3d(umap_df, df, col_name)
 
 # -----END-----
-
-
