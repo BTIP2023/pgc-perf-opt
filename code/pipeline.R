@@ -106,6 +106,16 @@ if (!benchmark_mode) {
                umap_seed = seed, umap_n_neighbors,
                umap_metric, umap_min_dist, col_name = target_col)
   }
+  
+  #Step 4: AGNES Clustering by Variant
+  for (k in kmer_list) {
+    dendrogram_create_variant(k, data_path_kmers, results_path_agnes)
+  }
+  
+  #Step 5: AGNES Clustering by Region
+  for (k in kmer_list){
+    dendrogram_create_region(k, data_path_kmers, results_path_agnes)
+  }
 } else {
   # Initialize benchmark results collector, write to log later
   benchmark_results = list()
@@ -150,16 +160,6 @@ if (!benchmark_mode) {
     unit = "seconds",
     control = list(order = "inorder", warmup = 2L)
   )
-}
-
-#Step 4: AGNES Clustering by Variant
-for (k in kmer_list) {
-  dendrogram_create_variant(k, data_path_kmers, results_path_agnes)
-}
-
-#Step 5: AGNES Clustering by Region
-for (k in kmer_list){
-  dendrogram_create_region(k, data_path_kmers, results_path_agnes)
 }
 
 print("All operations completed successfully!")
