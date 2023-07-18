@@ -1,5 +1,4 @@
-# Reference: https://github.com/ai-covariants/analysis-mutations
-# File: kmer-analysis.R
+# File: clustering-variant.R
 
 # INSTALL AND LOAD PACKAGES ################################
 library(datasets)  # Load base packages manually
@@ -19,9 +18,35 @@ pacman::p_load(ggdendro, RColorBrewer, readr, cluster,
                dendextend, colorspace)
 
 # WORK WITH DATA ###########################################
-dendrogram_create = function(filePath)
+
+dendrogram_create = function(k, data_path, results_path)
 {
-  data <- read_csv(filePath)
+  
+  get_time <- function(string) {
+    parts <- strsplit(string, "_")[[1]]
+    as.numeric(gsub(".csv", "", parts[3]))
+  }
+  
+  file_pattern <- paste0("kmer_", k, "_", ".*\\.csv$")
+  file_list <- list.files(
+    path = data_path, pattern = file_pattern,
+    full.names = FALSE
+  )
+  
+  # Check if any files are found
+  if (length(file_list) == 0) {
+    message("No files found for k = ", k)
+    return(NULL)
+  }
+  
+  # Sort the strings based on the timestamp in descending order
+  sorted_strings <- file_list[order(sapply(file_list, get_time),
+                                    decreasing = TRUE
+  )]
+  
+  data <- read.csv(paste(data_path, sorted_strings[1], sep = "/"))
+  
+  # read kmer file
   df = subset(data, select = -c(...1))
   dat <- df %>%
     mutate(sample_name = paste('var', seq(1:nrow(data)), sep = '_')) # 
@@ -29,10 +54,11 @@ dendrogram_create = function(filePath)
     select(sample_name, variant)
   numeric_data <- dat %>% select(-c(variant))
   
-  # normalize data to values from 0 to 1 
+  # normalize data to values from 0 to 1
+  slice_col <- which(colnames(data) == "strain")
   numeric_data_norm <- numeric_data %>%
     select(sample_name, everything()) %>%
-    pivot_longer(cols = 2:"TTTTTTT", values_to = 'value', names_to = 'type') %>%
+    pivot_longer(cols = 2:(slice_col - 1), values_to = 'value', names_to = 'type') %>%
     group_by(type) %>%
     mutate(value_norm = (value-min(value))/(max(value)-min(value))) %>% # normalize data to values 0–1
     select(sample_name, value_norm) %>%
@@ -58,19 +84,7 @@ dendrogram_create = function(filePath)
   dendrogram_end<-subset(dendrogram_ends,sample_name!="<NA>")
   #print(dendrogram_end)
 
-  # Generate custom color palette for dendrogram ends based on metadata variable
-  # unique_vars <- levels(factor(dendrogram_ends$target)) %>%
-  #   as.data.frame() %>% rownames_to_column("row_id")
-  # color_count <- length(unique(unique_vars$.)) # count number of unique variables
-  # get_palette <- colorRampPalette(brewer.pal(n = 8, name = "Set1")) # RColorBrewer
-  # palette <- get_palette(color_count) %>% # produce RColorBrewer palette based on number of unique variables in metadata
-  #   as.data.frame() %>%
-  #   rename("color" = ".") %>%
-  #   rownames_to_column(var = "row_id")
-  # color_list <- left_join(unique_vars, palette, by = "row_id") %>%
-  #   select(-row_id)
-  # species_color <- as.character(color_list$color)
-  # names(species_color) <- color_list$.
+  # generate color variant color palette
   variant_color <- brewer.pal(n = 6, name = 'Paired')
 
   p <- ggplot() +
@@ -82,33 +96,14 @@ dendrogram_create = function(filePath)
                                                                                       'Variant: ', variant))) + # test aes is for plotly
     scale_color_manual(values = variant_color) + scale_y_reverse() + coord_flip() +
     theme_bw() + theme(legend.position = 'right') + ylab('Distance') + xlab('Sequence')
-  ggp <- ggplotly(p)
+ 
+   ggp <- ggplotly(p)
   ggp
   
-  # Saves dendogram as an RData file in the presentation 1 assets folder
-  save(ggp, file = file.path('presentations/research-updates-1/presentation_files/', "clustering-variant.RData"))
-  
   #Saves dendogram as an RData file and PNG in the results folder
-  save(ggp, file = file.path('results/dendogram/', 'clustering-variant.RData'))
-  ggsave(p, file = file.path('results/dendogram/', 'clustering-variant.png'))
+  save(ggp, file = file.path(results_path, 'clustering-variant.RData'))
+  ggsave(p, file = file.path(results_path, 'clustering-variant.png'))
 
 }
 
-dendrogram_create('data/kmers/kmer_7.csv')
 
-# CLEAN UP #################################################
-
-# Clear environment
-rm(list = ls())
-
-# Clear packages
-p_unload(all)  # Remove all add-ons
-detach("package:datasets", unload = TRUE)  # For base
-
-# Clear plots but only if there IS a plot
-# while (!is.null(dev.list())) dev.off()
-
-# Clear console
-cat("\014")  # ctrl+L
-
-# Clear mind :)
