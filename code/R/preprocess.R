@@ -70,7 +70,8 @@ preprocess <- function(data_path, extract_path,
       # Parse then merge metaData file with accumulator.
       # Defer sanitation after random sampling so fasta and metaData kept 1:1.
       metaData <- as.data.frame(read_tsv(tsv_path,
-                                         col_select = c(1,5,10,11,12,16,17,19)))
+                                         col_select = c(1,5,10,11,12,16,17,19)),
+                                show_col_types = FALSE)
       
       # Not removing raw date as I believe it is useful for sorting or can be
       # parsed on an as-needed basis. Dropped year, month, day: just extract
@@ -97,7 +98,7 @@ preprocess <- function(data_path, extract_path,
   rm(metaData)
 
   # Print out total samples beforehand to guide future strat_size.
-  print(paste("Total number of samples in complete, unpruned data:",
+  message(paste("Total number of samples in complete, unpruned data:",
               nrow(metadata_all)))
 
   # Addon: Filter by country_exposure.
