@@ -103,10 +103,9 @@ if (!benchmark_mode) {
   # Initialize benchmark results collector, write to log later
   benchmark_results = list()
 
-  # Benchmark:
-  # To benchmark preprocess starting from extraction, delete:
-  # data/GISAID/datasets/
-  # To benchmark while generating data, set write_fastacsv = TRUE.
+  # Benchmark Notes:
+  # preprocess, to start from extraction, delete: data/GISAID/datasets/
+  # preprocess, to also generate data, set write_fastacsv = TRUE.
   microbenchmark(
     preprocess = list[fasta_all, metadata_all] <-
       preprocess(data_path, extract_path, seed,
@@ -115,31 +114,35 @@ if (!benchmark_mode) {
     get_kmers_loop = for (k in kmer_list) {
       get_kmers(fasta_all, metadata_all, k, stamp)
     },
-    list = list(test = 1+1),
+    get_kmers_3 = get_kmers(fasta_all, metadata_all, 3, stamp),
+    get_kmers_5 = get_kmers(fasta_all, metadata_all, 5, stamp),
+    get_kmers_7 = get_kmers(fasta_all, metaData_all, 7, stamp),
+    dim_reduce =   for (k in kmer_list) {
+      dim_reduce(k, data_path_kmers, results_path_dimreduce,
+                 tsne_seed = seed, tsne_perplexity,
+                 tsne_max_iter, tsne_initial_dims,
+                 umap_seed = seed, umap_n_neighbors,
+                 umap_metric, umap_min_dist, col_name = target_col)
+    },
+    dim_reduce_3 = dim_reduce(3, data_path_kmers, results_path_dimreduce,
+                              tsne_seed = seed, tsne_perplexity,
+                              tsne_max_iter, tsne_initial_dims,
+                              umap_seed = seed, umap_n_neighbors,
+                              umap_metric, umap_min_dist, col_name = target_col),
+    dim_reduce_5 = dim_reduce(3, data_path_kmers, results_path_dimreduce,
+                              tsne_seed = seed, tsne_perplexity,
+                              tsne_max_iter, tsne_initial_dims,
+                              umap_seed = seed, umap_n_neighbors,
+                              umap_metric, umap_min_dist, col_name = target_col),
+    dim_reduce_7 = dim_reduce(7, data_path_kmers, results_path_dimreduce,
+                              tsne_seed = seed, tsne_perplexity,
+                              tsne_max_iter, tsne_initial_dims,
+                              umap_seed = seed, umap_n_neighbors,
+                              umap_metric, umap_min_dist, col_name = target_col),
     times = benchmark_times,
     unit = "seconds",
     control = list(order = "inorder", warmup = 2L)
   )
-}
-
-print("All operations completed successfully!")
-# Step 1: preprocess()
-list[fasta_all, metadata_all] <- preprocess(data_path, extract_path, seed,
-                                            strat_size, country_exposure,
-                                            write_fastacsv, stamp)
-
-# Step 2: get_kmers()
-for (k in kmer_list) {
-  get_kmers(fasta_all, metadata_all, k, stamp)
-}
-
-# Step 3: dim_reduce()
-for (k in kmer_list) {
-  dim_reduce(k, data_path_kmers, results_path_dimreduce,
-             tsne_seed = seed, tsne_perplexity,
-             tsne_max_iter, tsne_initial_dims,
-             umap_seed = seed, umap_n_neighbors,
-             umap_metric, umap_min_dist, col_name = target_col)
 }
 
 print("All operations completed successfully!")
