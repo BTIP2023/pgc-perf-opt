@@ -33,7 +33,8 @@ pacman::p_load(dplyr, GGally, ggplot2, ggthemes, ggvis,
                stringr, tidyr, tidyverse,
                ape, kmer, readr, validate, gsubfn, seqinr,
                umap, htmlwidgets, factoextra, scales, ggbiplot,
-               Rtsne, tsne, RColorBrewer, ggfortify, devtools)
+               Rtsne, tsne, RColorBrewer, ggfortify, devtools, 
+               ggdendro, dendextend, cluster, colorspace)
 install_github("vqv/ggbiplot", upgrade = FALSE)
 
 # validate used for %vin% operator 
@@ -46,6 +47,8 @@ source("code/R/helper.R")
 source("code/R/preprocess.R")
 source("code/R/kmer-analysis.R")
 source("code/R/dim-reduce.R")
+source("code/R/clustering-variant.R")
+source("code/R/clustering-region.R")
 
 # SET PARAMETERS ###########################################
 # pipeline.R general parameters
@@ -78,6 +81,12 @@ umap_n_neighbors <- 15
 umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 target_col <- "variant"
+
+#clustering-variant.R::dendrogram_create_variant()
+results_path_dendrogram <- "results/dendrogram"
+
+#clustering-variant.R::dendrogram_create_region()
+
 
 # RUN PIPELINE #############################################
 
@@ -140,6 +149,16 @@ for (k in kmer_list) {
              tsne_max_iter, tsne_initial_dims,
              umap_seed = seed, umap_n_neighbors,
              umap_metric, umap_min_dist, col_name = target_col)
+}
+
+#Step 4: AGNES Clustering by Variant
+for (k in kmer_list) {
+  dendrogram_create_variant(k, data_path_kmers, results_path_dendrogram)
+}
+
+#Step 5: AGNES Clustering by Region
+for (k in kmer_list){ 
+  dendrogram_create_region(k, data_path_kmers, results_path_dendrogram)
 }
 
 print("All operations completed successfully!")
