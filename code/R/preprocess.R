@@ -98,7 +98,7 @@ preprocess <- function(data_path, extract_path,
   rm(metaData)
 
   # Print out total samples beforehand to guide future strat_size.
-  print(paste("Total number of samples in complete, unpruned data:",
+  message(paste("Total number of samples in complete, unpruned data:",
               nrow(metadata_all)))
 
   # Addon: Filter by country_exposure.

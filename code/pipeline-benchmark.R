@@ -57,11 +57,9 @@ seed <- 1234
 stamp <- get_time()
 kmer_list <- c(3, 5, 7)
 
-## Critical routines:
-# [preprocess, get_kmers per k (kcount), get_kmers for all k,
-#  ...]
-benchmark_mode <- TRUE
-benchmark_times <- 1L   # how many times should routine be evaluated
+# microbenchmark parameters
+bm_times <- 1L   # how many times should routine be evaluated
+bm_units <- "seconds"
 
 # preprocess.R::preprocess() parameters
 data_path_gisaid <- "data/GISAID"
@@ -83,83 +81,52 @@ umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 target_col <- "variant"
 
-# AGNES Clustering Parameters :: dendogram_create_x
+# AGNES Clustering Parameters :: dendogram_create_x()
 results_path_agnes <- "results/dendrogram"
 
 # RUN PIPELINE #############################################
+# Initialize benchmark results collector, write to log later
+benchmark_results = list()
 
-if (!benchmark_mode) {
-  # Step 1: preprocess()
-  list[fasta_all, metadata_all] <- preprocess(data_path, extract_path, seed,
-                                              strat_size, country_exposure,
-                                              write_fastacsv, stamp)
-  # Step 2: get_kmers()
-  for (k in kmer_list) {
+# Benchmark Notes:
+# preprocess, to start from extraction, delete: data/GISAID/datasets/
+# preprocess, to also generate data, set write_fastacsv = TRUE.
+microbenchmark(
+  preprocess = list[fasta_all, metadata_all] <-
+    preprocess(data_path, extract_path, seed,
+               strat_size, country_exposure,
+               write_fastacsv, stamp),
+  get_kmers_loop = for (k in kmer_list) {
     get_kmers(fasta_all, metadata_all, k, stamp)
-  }
-
-  # Step 3: dim_reduce()
-  for (k in kmer_list) {
+  },
+  get_kmers_3 = get_kmers(fasta_all, metadata_all, 3, stamp),
+  get_kmers_5 = get_kmers(fasta_all, metadata_all, 5, stamp),
+  get_kmers_7 = get_kmers(fasta_all, metaData_all, 7, stamp),
+  dim_reduce =   for (k in kmer_list) {
     dim_reduce(k, data_path_kmers, results_path_dimreduce,
                tsne_seed = seed, tsne_perplexity,
                tsne_max_iter, tsne_initial_dims,
                umap_seed = seed, umap_n_neighbors,
                umap_metric, umap_min_dist, col_name = target_col)
-  }
-  
-  #Step 4: AGNES Clustering by Variant
-  for (k in kmer_list) {
-    dendrogram_create_variant(k, data_path_kmers, results_path_agnes)
-  }
-  
-  #Step 5: AGNES Clustering by Region
-  for (k in kmer_list){
-    dendrogram_create_region(k, data_path_kmers, results_path_agnes)
-  }
-} else {
-  # Initialize benchmark results collector, write to log later
-  benchmark_results = list()
-
-  # Benchmark Notes:
-  # preprocess, to start from extraction, delete: data/GISAID/datasets/
-  # preprocess, to also generate data, set write_fastacsv = TRUE.
-  microbenchmark(
-    preprocess = list[fasta_all, metadata_all] <-
-      preprocess(data_path, extract_path, seed,
-                 strat_size, country_exposure,
-                 write_fastacsv, stamp),
-    get_kmers_loop = for (k in kmer_list) {
-      get_kmers(fasta_all, metadata_all, k, stamp)
-    },
-    get_kmers_3 = get_kmers(fasta_all, metadata_all, 3, stamp),
-    get_kmers_5 = get_kmers(fasta_all, metadata_all, 5, stamp),
-    get_kmers_7 = get_kmers(fasta_all, metaData_all, 7, stamp),
-    dim_reduce =   for (k in kmer_list) {
-      dim_reduce(k, data_path_kmers, results_path_dimreduce,
-                 tsne_seed = seed, tsne_perplexity,
-                 tsne_max_iter, tsne_initial_dims,
-                 umap_seed = seed, umap_n_neighbors,
-                 umap_metric, umap_min_dist, col_name = target_col)
-    },
-    dim_reduce_3 = dim_reduce(3, data_path_kmers, results_path_dimreduce,
-                              tsne_seed = seed, tsne_perplexity,
-                              tsne_max_iter, tsne_initial_dims,
-                              umap_seed = seed, umap_n_neighbors,
-                              umap_metric, umap_min_dist, col_name = target_col),
-    dim_reduce_5 = dim_reduce(3, data_path_kmers, results_path_dimreduce,
-                              tsne_seed = seed, tsne_perplexity,
-                              tsne_max_iter, tsne_initial_dims,
-                              umap_seed = seed, umap_n_neighbors,
-                              umap_metric, umap_min_dist, col_name = target_col),
-    dim_reduce_7 = dim_reduce(7, data_path_kmers, results_path_dimreduce,
-                              tsne_seed = seed, tsne_perplexity,
-                              tsne_max_iter, tsne_initial_dims,
-                              umap_seed = seed, umap_n_neighbors,
-                              umap_metric, umap_min_dist, col_name = target_col),
-    times = benchmark_times,
-    unit = "seconds",
-    control = list(order = "inorder", warmup = 2L)
-  )
-}
+  },
+  dim_reduce_3 = dim_reduce(3, data_path_kmers, results_path_dimreduce,
+                            tsne_seed = seed, tsne_perplexity,
+                            tsne_max_iter, tsne_initial_dims,
+                            umap_seed = seed, umap_n_neighbors,
+                            umap_metric, umap_min_dist, col_name = target_col),
+  dim_reduce_5 = dim_reduce(5, data_path_kmers, results_path_dimreduce,
+                            tsne_seed = seed, tsne_perplexity,
+                            tsne_max_iter, tsne_initial_dims,
+                            umap_seed = seed, umap_n_neighbors,
+                            umap_metric, umap_min_dist, col_name = target_col),
+  dim_reduce_7 = dim_reduce(7, data_path_kmers, results_path_dimreduce,
+                            tsne_seed = seed, tsne_perplexity,
+                            tsne_max_iter, tsne_initial_dims,
+                            umap_seed = seed, umap_n_neighbors,
+                            umap_metric, umap_min_dist, col_name = target_col),
+  times = bm_times,
+  unit = bm_units,
+  control = list(order = "inorder", warmup = 2L)
+)
 
 print("All operations completed successfully!")
