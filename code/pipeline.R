@@ -33,8 +33,7 @@ pacman::p_load(dplyr, GGally, ggplot2, ggthemes, ggvis,
                stringr, tidyr, tidyverse,
                ape, kmer, readr, validate, gsubfn, seqinr,
                umap, htmlwidgets, factoextra, scales, ggbiplot,
-               Rtsne, tsne, RColorBrewer, ggfortify, devtools,
-               microbenchmark)
+               Rtsne, tsne, RColorBrewer, ggfortify, devtools)
 install_github("vqv/ggbiplot", upgrade = FALSE)
 
 # validate used for %vin% operator 
@@ -91,19 +90,19 @@ if (!benchmark_mode) {
   for (k in kmer_list) {
     get_kmers(fasta_all, metadata_all, k, stamp)
   }
-  
+
   # Step 3: dim_reduce()
   for (k in kmer_list) {
     dim_reduce(k, data_path_kmers, results_path_dimreduce,
                tsne_seed = seed, tsne_perplexity,
                tsne_max_iter, tsne_initial_dims,
-               umap_seed = seed, umap_n_neighbors, 
+               umap_seed = seed, umap_n_neighbors,
                umap_metric, umap_min_dist, col_name = target_col)
   }
 } else {
   # Initialize benchmark results collector, write to log later
   benchmark_results = list()
-  
+
   # Benchmark:
   # To benchmark preprocess starting from extraction, delete:
   # data/GISAID/datasets/
@@ -121,6 +120,26 @@ if (!benchmark_mode) {
     unit = "seconds",
     control = list(order = "inorder", warmup = 2L)
   )
+}
+
+print("All operations completed successfully!")
+# Step 1: preprocess()
+list[fasta_all, metadata_all] <- preprocess(data_path, extract_path, seed,
+                                            strat_size, country_exposure,
+                                            write_fastacsv, stamp)
+
+# Step 2: get_kmers()
+for (k in kmer_list) {
+  get_kmers(fasta_all, metadata_all, k, stamp)
+}
+
+# Step 3: dim_reduce()
+for (k in kmer_list) {
+  dim_reduce(k, data_path_kmers, results_path_dimreduce,
+             tsne_seed = seed, tsne_perplexity,
+             tsne_max_iter, tsne_initial_dims,
+             umap_seed = seed, umap_n_neighbors,
+             umap_metric, umap_min_dist, col_name = target_col)
 }
 
 print("All operations completed successfully!")
