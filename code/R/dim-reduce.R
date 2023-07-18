@@ -1,14 +1,11 @@
 dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
                        tsne_max_iter, tsne_initial_dims, umap_seed,
                        umap_n_neighbors, umap_metric, umap_min_dist, col_name) {
-  # Hide warnings
-  options(warn = -1) # Address open issue in plot_ly: warning 'bar' objects
-  # don't have these attributes: 'mode'
 
   # -----Functions-----
 
-  # Function to extract the timestamp
-  get_time <- function(string) {
+  # Function to extract the timestamp from the kmer files
+  extract_time <- function(string) {
     parts <- strsplit(string, "_")[[1]]
     as.numeric(gsub(".csv", "", parts[3]))
   }
@@ -30,7 +27,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     }
 
     # Sort the strings based on the timestamp in descending order
-    sorted_strings <- file_list[order(sapply(file_list, get_time),
+    sorted_strings <- file_list[order(sapply(file_list, extract_time),
       decreasing = TRUE
     )]
 
@@ -47,8 +44,9 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
     # Note: 3D plots are plot_ly objects, 2D plots are ggplot objects.
     if (is_3d) {
+      print("ISSUE")
       # Save plot_ly obj. as PNG
-      save_image(p, paste(results_path, filename, sep = "/"))
+      # save_image(p, paste(results_path, filename, sep = "/"))
     } else {
       # Save as PNG
       ggsave(filename, p, results_path,
@@ -377,10 +375,6 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     # Save plot as PNG and HTML
     save_plot("3d-umap", k, p, is_3d = TRUE)
   }
-
-  # -----END of Functions-----
-
-
 
   # -----START-----
 

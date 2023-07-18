@@ -27,7 +27,7 @@ COPY . /home/src/pgc-perf-opt
 # RStudio Server is available via exposed local port, configure creds.
 
 # Building (from project root):
-# docker build -t pgc-perf-opt/gpu . -f ./docker/cpu.Dockerfile
+# docker build -t pgc-perf-opt/cpu . -f ./docker/cpu.Dockerfile
 
 # Usage:
 # https://rocker-project.org/images/versioned/rstudio.html

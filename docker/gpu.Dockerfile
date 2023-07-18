@@ -44,15 +44,21 @@ COPY . /home/src/pgc-perf-opt
 # Usage:
 # https://rocker-project.org/images/versioned/cuda.html
 # Same as that of rocker/tidyverse, with a few exceptions:
+
 ### R console
 # CPU-only
 # docker run --rm -ti rocker/cuda
 # Machines with nvidia-docker and GPU support
 # docker run --gpus all --rm -ti rocker/cuda
+
 ### RStudio Server instance
 # CPU-only
 # docker run -p 8787:8787 rocker/ml
 # Machines with nvidia-docker and GPU support
 # docker run --gpus all -p 8787:8787 rocker/ml
+
+### Switching Python versions through R
+# reticulate::install_miniconda()
+# reticulate::conda_install(packages = "python=3.7")
 
 # Ref: https://rocker-project.org/images/
