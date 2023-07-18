@@ -41,6 +41,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for saving 2D plots as PNG and HTML
   save_plot <- function(method, k, p, is_3d = FALSE) {
+    print("Saving plot...")
     # File name for saving
     filename <- paste0(method, "-", k, ".png")
 
@@ -129,6 +130,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     save_plot("3d-pca", k, p, is_3d = TRUE)
   }
 
+  # Function that generates scree plot from PCA results
   screeplot <- function(pca_df) {
     print("Generating scree plot...")
     p <- fviz_eig(pca_df,
@@ -139,28 +141,59 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     save_plot("screeplot", k, p)
   }
 
+  # Function that generates factor loadings of first
+  # n_components Principal Components
+  factor_loadings <- function(pca_df, x, n_components) {
+    print(paste("Generating factor loadings plot of first", n_components,
+      "PCs...",
+      sep = " "
+    ))
+    # Extract factor loadings
+    loadings <- pca_df$rotation
+
+    # Plot bar plots for factor loadings of n principal components
+    for (i in 1:n_components) {
+      # Create a data frame for the factor loadings
+      loadings_df <- data.frame(
+        variable = colnames(x),
+        loading = loadings[, i]
+      )
+
+      # Create a bar plot using ggplot2
+      p <- ggplot(loadings_df, aes(x = variable, y = loading)) +
+        geom_bar(stat = "identity", fill = "blue") +
+        labs(
+          title = paste("Principal Component", i),
+          x = "Variables", y = "Factor Loadings"
+        )
+
+      # Save plot as PNG and HTML
+      save_plot(paste("loadings", i, sep = "-"), k, p)
+    }
+  }
+
+  # Function that generates graph of individuals from PCA results
   indiv <- function(pca_df) {
     print("Generating graph of individuals...")
     p <- fviz_pca_ind(pca_df,
       col.ind = "cos2", # Color by the quality of representation
       gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
       repel = TRUE, # Avoid text overlapping
-      label = list(ind = list(label = "Quality of Representation")),
       xlab = "PC1",
-      ylab = "PC2"
+      ylab = "PC2",
     )
 
     # Save plot as PNG and HTML
     save_plot("indivgraph", k, p)
   }
 
+  # Function that generates graph of variables from PCA results
   vars <- function(pca_df) {
     print("Generating graph of variables...")
-    p <- fviz_pca_ind(pca_df,
-      col.ind = "contrib", # Color by contributions to the PC
+    p <- fviz_pca_var(pca_df,
+      col.var = "contrib", # Color by contributions to the PC
       gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
       repel = TRUE, # Avoid text overlapping
-      label = list(ind = list(label = "Contribution to PC")),
       xlab = "PC1",
       ylab = "PC2"
     )
@@ -169,21 +202,25 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     save_plot("vargraph", k, p)
   }
 
+  # Function that generates biplot from PCA results
   biplot <- function(pca_df) {
     print("Generating biplot...")
     # # [Old method] Create biplot of individuals and variables
-    # p <- fviz_pca_biplot(pca_df,
-    #                 col.var = "#2E9FDF", # Variables color
-    #                 col.ind = "#696969"  # Individuals color
-    # )
+    p <- fviz_pca_biplot(pca_df,
+      col.var = "#2E9FDF", # Variables color
+      col.ind = "#696969", # Individuals color
+      addEllipses = TRUE,
+      xlab = "PC1",
+      ylab = "PC2"
+    )
 
-    # Create biplot of individuals and variables (using ggbiplot)
-    p <- ggbiplot(pca_df,
-      obs.scale = 1, var.scale = 1,
-      groups = target, ellipse = TRUE, circle = TRUE
-    ) +
-      scale_color_discrete(name = "") +
-      theme(legend.direction = "horizontal", legend.position = "top")
+    # # Create biplot of individuals and variables (using ggbiplot)
+    # p <- ggbiplot(pca_df,
+    #   obs.scale = 1, var.scale = 1,
+    #   groups = target, ellipse = TRUE, circle = TRUE
+    # ) +
+    #   scale_color_discrete(name = "") +
+    #   theme(legend.direction = "horizontal", legend.position = "top")
 
     # Save plot as PNG and HTML
     save_plot("biplot", k, p)
@@ -205,7 +242,10 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   ecb <- function(x) {
     epoc_df <- data.frame(x, target = df[[col_name]])
 
-    plt <- ggplot(epoc_df, aes(x = X1, y = X2, label = target, color = target)) +
+    plt <- ggplot(epoc_df, aes(
+      x = X1, y = X2,
+      label = target, color = target
+    )) +
       geom_text()
 
     print(plt)
@@ -369,6 +409,9 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Generate screeplot
   screeplot(pca_df)
+
+  # Generate factor loadings plot of first 3 principal components
+  factor_loadings(pca_df, x, 3)
 
   # Generate graph of individuals
   indiv(pca_df)
