@@ -31,10 +31,10 @@ COPY . /home/src/pgc-perf-opt
 
 # Usage:
 # https://rocker-project.org/images/versioned/rstudio.html
-# Password: docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 rocker/rstudio
-# Root: docker run --rm -ti -e ROOT=true -p 8787:8787 rocker/rstudio
-# Disable Authentication: docker run --rm -ti -e DISABLE_AUTH=true -p 127.0.0.1:8787:8787 rocker/rstudio
-# User ID and Group ID: docker run --rm -ti -e USERID=1001 -e GROUPID=1001 -p 8787:8787 rocker/rstudio
+# Password: docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 pgc-perf-opt/cpu
+# Root: docker run --rm -ti -e ROOT=true -p 8787:8787 pgc-perf-opt/cpu
+# Disable Authentication: docker run --rm -ti -e DISABLE_AUTH=true -p 127.0.0.1:8787:8787 pgc-perf-opt/cpu
+# User ID and Group ID: docker run --rm -ti -e USERID=1001 -e GROUPID=1001 -p 8787:8787 pgc-perf-opt/cpu
 # To not expose: -p 127.0.0.1:8787:8787
 
 # Ref: https://rocker-project.org/images/
