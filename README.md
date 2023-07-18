@@ -25,6 +25,24 @@ This section will summarize the performance evaluations of each benchamrk. Possi
 ## Presentations
 This section will contain directories for the research proposal presentations, research updates and the final research presentation.
 
+## Custom Plotting
+Factor1 = variant
+Factor2 = div
+filterf1 <- (“omicron” “omicron_sub”)
+Filterf2 <- (“all regions from luzon”)
+
+Filter_pca <- (pca_df, data, k, filterf1, filterf2),
+
+ pca_plot <- function(pca_df, data, k, color=factor1, filterf1, shape=factor2, filterf2)
+
+Filtertsne
+tsneplot
+
+Filterumap
+Umap plot
+
+
+
 ---
 ## References
 Chandra, R., Bansal, C., Kang, M., Blau, T., Agarwal, V., Singh, P., Wilson, L. O. W., & Vasan, S. (2023). Unsupervised machine learning framework for discriminating major variants of concern during COVID-19. *PLOS ONE, 18(5),* e0285719. https://doi.org/10.1371/journal.pone.0285719. Reference repository at [ai-covariants/analysis-mutations](https://github.com/ai-covariants/analysis-mutations).
