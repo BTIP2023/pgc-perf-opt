@@ -1,39 +1,18 @@
 dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
                        tsne_max_iter, tsne_initial_dims, umap_seed,
                        umap_n_neighbors, umap_metric, umap_min_dist, col_name) {
-  # Install and load the required packages
-  if (!require(pacman)) {
-    install.packages("pacman")
-  }
-  pacman::p_load(
-    tidyverse,
-    lubridate,
-    umap,
-    plotly,
-    htmlwidgets,
-    factoextra,
-    scales,
-    Rtsne,
-    tsne,
-    RColorBrewer,
-    ggfortify,
-    ggbiplot
-  )
-
-  # Hide warnings
-  options(warn = -1) # Address open issue in plot_ly: warning 'bar' objects
-  # don't have these attributes: 'mode'
 
   # -----Functions-----
 
-  # Function to extract the timestamp
-  get_time <- function(string) {
+  # Function to extract the timestamp from the kmer files
+  extract_time <- function(string) {
     parts <- strsplit(string, "_")[[1]]
     as.numeric(gsub(".csv", "", parts[3]))
   }
 
   # Function to search and read the CSV file
   read_kmer_csv <- function(data_path, k) {
+    print("Reading CSV file...")
     # Get the list of files matching the pattern
     file_pattern <- paste0("kmer_", k, "_", ".*\\.csv$")
     file_list <- list.files(
@@ -48,7 +27,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     }
 
     # Sort the strings based on the timestamp in descending order
-    sorted_strings <- file_list[order(sapply(file_list, get_time),
+    sorted_strings <- file_list[order(sapply(file_list, extract_time),
       decreasing = TRUE
     )]
 
@@ -59,13 +38,15 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for saving 2D plots as PNG and HTML
   save_plot <- function(method, k, p, is_3d = FALSE) {
+    print("Saving plot...")
     # File name for saving
     filename <- paste0(method, "-", k, ".png")
 
     # Note: 3D plots are plot_ly objects, 2D plots are ggplot objects.
     if (is_3d) {
+      print("ISSUE")
       # Save plot_ly obj. as PNG
-      save_image(p, paste(results_path, filename, sep = "/"))
+      # save_image(p, paste(results_path, filename, sep = "/"))
     } else {
       # Save as PNG
       ggsave(filename, p, results_path,
@@ -83,6 +64,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for pre-processing and scaling of data
   pre_process <- function(data, col_name) {
+    print("Pre-processing and scaling data...")
     # Extract year from date column
     # (This is needed for labeling of points in 3D plots)
     df$year <- format(as.Date(df$date), "%Y")
@@ -108,12 +90,14 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function that performs PCA
   pca_fn <- function(x) {
+    print("Performing PCA...")
     pca_df <- prcomp(x, center = TRUE)
     return(pca_df)
   }
 
   # Function for 2D PCA plot
   pca_plot <- function(pca_df, data, k) {
+    print("Generating 2D PCA plot...")
     p <- autoplot(pca_df, data = data, colour = col_name) +
       scale_color_brewer(palette = "Set1")
 
@@ -123,6 +107,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for 3D PCA plot
   pca_3d <- function(pca_df, df, col_name) {
+    print("Generating 3D PCA plot...")
     pc <- as.data.frame(pca_df$x[, 1:3])
 
     # Use plot_ly for 3D visualization
@@ -130,6 +115,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
       x = ~PC1, y = ~PC2, z = ~PC3, type = "scatter3d",
       mode = "markers", color = df[[col_name]],
       text = paste(
+        "Identifier: ", df$gisaid_epi_isl, "<br>",
         "Variant: ", df$variant, "<br>",
         "Sex: ", df$sex, "<br>",
         "Division Exposure: ", df$division_exposure, "<br>",
@@ -143,7 +129,9 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     save_plot("3d-pca", k, p, is_3d = TRUE)
   }
 
+  # Function that generates scree plot from PCA results
   screeplot <- function(pca_df) {
+    print("Generating scree plot...")
     p <- fviz_eig(pca_df,
       xlab = "Number of Principal Components"
     )
@@ -152,26 +140,59 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     save_plot("screeplot", k, p)
   }
 
+  # Function that generates factor loadings of first
+  # n_components Principal Components
+  factor_loadings <- function(pca_df, x, n_components) {
+    print(paste("Generating factor loadings plot of first", n_components,
+      "PCs...",
+      sep = " "
+    ))
+    # Extract factor loadings
+    loadings <- pca_df$rotation
+
+    # Plot bar plots for factor loadings of n principal components
+    for (i in 1:n_components) {
+      # Create a data frame for the factor loadings
+      loadings_df <- data.frame(
+        variable = colnames(x),
+        loading = loadings[, i]
+      )
+
+      # Create a bar plot using ggplot2
+      p <- ggplot(loadings_df, aes(x = variable, y = loading)) +
+        geom_bar(stat = "identity", fill = "blue") +
+        labs(
+          title = paste("Principal Component", i),
+          x = "Variables", y = "Factor Loadings"
+        )
+
+      # Save plot as PNG and HTML
+      save_plot(paste("loadings", i, sep = "-"), k, p)
+    }
+  }
+
+  # Function that generates graph of individuals from PCA results
   indiv <- function(pca_df) {
+    print("Generating graph of individuals...")
     p <- fviz_pca_ind(pca_df,
       col.ind = "cos2", # Color by the quality of representation
       gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
       repel = TRUE, # Avoid text overlapping
-      label = list(ind = list(label = "Quality of Representation")),
       xlab = "PC1",
-      ylab = "PC2"
+      ylab = "PC2",
     )
 
     # Save plot as PNG and HTML
     save_plot("indivgraph", k, p)
   }
 
+  # Function that generates graph of variables from PCA results
   vars <- function(pca_df) {
-    p <- fviz_pca_ind(pca_df,
-      col.ind = "contrib", # Color by contributions to the PC
+    print("Generating graph of variables...")
+    p <- fviz_pca_var(pca_df,
+      col.var = "contrib", # Color by contributions to the PC
       gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
       repel = TRUE, # Avoid text overlapping
-      label = list(ind = list(label = "Contribution to PC")),
       xlab = "PC1",
       ylab = "PC2"
     )
@@ -180,20 +201,25 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     save_plot("vargraph", k, p)
   }
 
+  # Function that generates biplot from PCA results
   biplot <- function(pca_df) {
+    print("Generating biplot...")
     # # [Old method] Create biplot of individuals and variables
-    # p <- fviz_pca_biplot(pca_df,
-    #                 col.var = "#2E9FDF", # Variables color
-    #                 col.ind = "#696969"  # Individuals color
-    # )
+    p <- fviz_pca_biplot(pca_df,
+      col.var = "#2E9FDF", # Variables color
+      col.ind = "#696969", # Individuals color
+      addEllipses = TRUE,
+      xlab = "PC1",
+      ylab = "PC2"
+    )
 
-    # Create biplot of individuals and variables (using ggbiplot)
-    p <- ggbiplot(pca_df,
-      obs.scale = 1, var.scale = 1,
-      groups = target, ellipse = TRUE, circle = TRUE
-    ) +
-      scale_color_discrete(name = "") +
-      theme(legend.direction = "horizontal", legend.position = "top")
+    # # Create biplot of individuals and variables (using ggbiplot)
+    # p <- ggbiplot(pca_df,
+    #   obs.scale = 1, var.scale = 1,
+    #   groups = target, ellipse = TRUE, circle = TRUE
+    # ) +
+    #   scale_color_discrete(name = "") +
+    #   theme(legend.direction = "horizontal", legend.position = "top")
 
     # Save plot as PNG and HTML
     save_plot("biplot", k, p)
@@ -201,6 +227,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function that performs t-SNE (Rtsne library)
   rtsne_fn <- function(pca_results, tsne_dims) {
+    print("Performing t-SNE...")
     set.seed(tsne_seed)
     tsne_df <- Rtsne(pca_results,
       dims = tsne_dims, perplexity = tsne_perplexity,
@@ -214,7 +241,10 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   ecb <- function(x) {
     epoc_df <- data.frame(x, target = df[[col_name]])
 
-    plt <- ggplot(epoc_df, aes(x = X1, y = X2, label = target, color = target)) +
+    plt <- ggplot(epoc_df, aes(
+      x = X1, y = X2,
+      label = target, color = target
+    )) +
       geom_text()
 
     print(plt)
@@ -222,6 +252,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function that performs t-SNE (tsne library)
   tsne_fn <- function(pca_results, tsne_dims) {
+    print("Performing t-SNE...")
     set.seed(tsne_seed)
     if (tsne_dims == 2) {
       tsne_df <- tsne(pca_results,
@@ -245,6 +276,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for 2D t-SNE plot
   tsne_plot <- function(tsne_df, target, k, is_tsne) {
+    print("Generating 2D t-SNE plot...")
     if (is_tsne) {
       df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], target = target)
     } else {
@@ -264,11 +296,13 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for 3D t-SNE plot
   tsne_3d <- function(tsne_df, df, col_name) {
+    print("Generating 3D t-SNE plot...")
     final <- cbind(data.frame(tsne_df), df[[col_name]])
     p <- plot_ly(final,
       x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
       color = ~ df[[col_name]],
       text = paste(
+        "Identifier: ", df$gisaid_epi_isl, "<br>",
         "Variant: ", df$variant, "<br>",
         "Sex: ", df$sex, "<br>",
         "Division Exposure: ", df$division_exposure, "<br>",
@@ -284,6 +318,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function that performs UMAP
   umap_fn <- function(x, umap_dims) {
+    print("Performing UMAP...")
     umap_df <- umap(x,
       n_components = umap_dims, n_neighbors = umap_n_neighbors,
       metric = umap_metric, min_dist = umap_min_dist,
@@ -294,6 +329,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for 2D UMAP plot
   umap_plot <- function(umap_df, target, k) {
+    print("Generating 2D UMAP plot...")
     emb <- umap_df$layout
 
     x_o <- emb[, 1]
@@ -316,11 +352,13 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Function for 3D UMAP plot
   umap_3d <- function(umap_df, df, col_name) {
+    print("Generating 3D UMAP plot...")
     final <- cbind(data.frame(umap_df[["layout"]]), df[[col_name]])
     p <- plot_ly(final,
       x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
       color = ~ df[[col_name]],
       text = paste(
+        "Identifier: ", df$gisaid_epi_isl, "<br>",
         "Variant: ", df$variant, "<br>",
         "Sex: ", df$sex, "<br>",
         "Division Exposure: ", df$division_exposure, "<br>",
@@ -340,10 +378,6 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
     # Save plot as PNG and HTML
     save_plot("3d-umap", k, p, is_3d = TRUE)
   }
-
-  # -----END of Functions-----
-
-
 
   # -----START-----
 
@@ -372,6 +406,9 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Generate screeplot
   screeplot(pca_df)
+
+  # Generate factor loadings plot of first 3 principal components
+  factor_loadings(pca_df, x, 3)
 
   # Generate graph of individuals
   indiv(pca_df)

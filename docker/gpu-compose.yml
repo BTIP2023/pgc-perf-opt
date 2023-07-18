@@ -1,0 +1,13 @@
+services:
+  rstudio:
+    image: pgc-perf-opt/gpu
+    ports:
+      - "127.0.0.1:8787:8787"
+    environment:
+      PASSWORD: yourpassword
+      ROOT: true
+      DISABLE_AUTH: false
+      USERID: 1234
+      GROUPID: 1234
+    volumes:
+      - ..:/home/src/pgc-perf-opt
