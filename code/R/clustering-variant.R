@@ -19,7 +19,7 @@ pacman::p_load(ggdendro, RColorBrewer, readr, cluster,
 
 # WORK WITH DATA ###########################################
 
-dendrogram_create = function(k, data_path, results_path)
+dendrogram_create_variant <- function(k, data_path, results_path)
 {
   
   get_time <- function(string) {
@@ -44,7 +44,7 @@ dendrogram_create = function(k, data_path, results_path)
                                     decreasing = TRUE
   )]
   
-  data <- read.csv(paste(data_path, sorted_strings[1], sep = "/"))
+  data <- read_csv(paste(data_path, sorted_strings[1], sep = "/"))
   
   # read kmer file
   df = subset(data, select = -c(...1))
@@ -68,21 +68,18 @@ dendrogram_create = function(k, data_path, results_path)
   # create dendrogram from AGNES
   model <- agnes(numeric_data_norm, metric = "euclidean",method="single")
   dendrogram <- as.dendrogram(model)
-  plot(dendrogram)
   
   # extract dendrogram segment data
   dendrogram_data <- dendro_data(dendrogram)
   dendrogram_segments <- dendrogram_data$segments # contains all dendrogram segment data
-  print(dendrogram_segments)
 
   # get terminal dendrogram segments
   dendrogram_ends <- dendrogram_segments %>%
     filter(yend == 0) %>% # filter for terminal dendrogram ends
     left_join(dendrogram_data$labels, by = 'x') %>% # .$labels contains the row names from dist_matrix (i.e., sample_name)
-    rename(sample_name = label) %>%
+    dplyr::rename(sample_name = label) %>%
     left_join(metadata, by = 'sample_name')
   dendrogram_end<-subset(dendrogram_ends,sample_name!="<NA>")
-  #print(dendrogram_end)
 
   # generate color variant color palette
   variant_color <- brewer.pal(n = 6, name = 'Paired')
@@ -100,10 +97,8 @@ dendrogram_create = function(k, data_path, results_path)
    ggp <- ggplotly(p)
   ggp
   
-  #Saves dendogram as an RData file and PNG in the results folder
-  save(ggp, file = file.path(results_path, 'clustering-variant.RData'))
-  ggsave(p, file = file.path(results_path, 'clustering-variant.png'))
+  #Saves dendrogram as an RData file and PNG in the results folder
+  save(ggp, file = file.path(results_path, paste0('clustering-variant', "-", k, ".RData")))
+  ggsave(p, file = file.path(results_path, paste0('clustering-variant', "-", k, ".PNG")))
 
 }
-
-

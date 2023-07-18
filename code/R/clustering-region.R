@@ -1,38 +1,43 @@
-# Reference: https://github.com/ai-covariants/analysis-mutations
-# File: kmer-analysis.R
-
-# INSTALL AND LOAD PACKAGES ################################
-library(datasets)  # Load base packages manually
-
-# Installs pacman ("package manager") if needed
-if (!require("pacman")) install.packages("pacman", repos = "https://cran.case.edu")
-library(pacman)
-
-# Use pacman to load add-on packages as desired
-# First call are standard packages for the project
-pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
-               ggvis, httr, lubridate, plotly, psych,
-               rio, rmarkdown, shiny, 
-               stringr, tidyr, tidyverse)
-# Second call are file-specific packages
-pacman::p_load(ggdendro, RColorBrewer, readr, cluster,
-               dendextend, colorspace)
-
-# WORK WITH DATA ###########################################
-dendrogram_create = function(filePath,image_name)
+dendrogram_create_region = function(k, data_path, results_path)
 {
-  data <- read_csv(filePath)
+  
+  get_time <- function(string) {
+    parts <- strsplit(string, "_")[[1]]
+    as.numeric(gsub(".csv", "", parts[3]))
+  }
+  
+  file_pattern <- paste0("kmer_", k, "_", ".*\\.csv$")
+  file_list <- list.files(
+    path = data_path, pattern = file_pattern,
+    full.names = FALSE
+  )
+  
+  # Check if any files are found
+  if (length(file_list) == 0) {
+    message("No files found for k = ", k)
+    return(NULL)
+  }
+  
+  # Sort the strings based on the timestamp in descending order
+  sorted_strings <- file_list[order(sapply(file_list, get_time),
+                                    decreasing = TRUE
+  )]
+  
+  data <- read_csv(paste(data_path, sorted_strings[1], sep = "/"))
+  
+  # read kmer file
   df = subset(data, select = -c(...1))
   dat <- df %>%
     mutate(sample_name = paste('var', seq(1:nrow(data)), sep = '_')) # 
   metadata <- dat %>%
     select(sample_name, division_exposure)
-  numeric_data <- subset(dat, select = -c(division_exposure))
+  numeric_data <- dat %>% select(-c(division_exposure))
   
-  # normalize data to values from 0 to 1 
+  # normalize data to values from 0 to 1
+  slice_col <- which(colnames(data) == "strain")
   numeric_data_norm <- numeric_data %>%
     select(sample_name, everything()) %>%
-    pivot_longer(cols = 2:"TTTTTTT", values_to = 'value', names_to = 'type') %>%
+    pivot_longer(cols = 2:(slice_col - 1), values_to = 'value', names_to = 'type') %>%
     group_by(type) %>%
     mutate(value_norm = (value-min(value))/(max(value)-min(value))) %>% # normalize data to values 0–1
     select(sample_name, value_norm) %>%
@@ -53,7 +58,7 @@ dendrogram_create = function(filePath,image_name)
   dendrogram_ends <- dendrogram_segments %>%
     filter(yend == 0) %>% # filter for terminal dendrogram ends
     left_join(dendrogram_data$labels, by = 'x') %>% # .$labels contains the row names from dist_matrix (i.e., sample_name)
-    rename(sample_name = label) %>%
+    dplyr::rename(sample_name = label) %>%
     left_join(metadata, by = 'sample_name') 
   
   # Generate custom color palette for dendrogram ends based on metadata variable
@@ -66,7 +71,7 @@ dendrogram_create = function(filePath,image_name)
   # produce RColorBrewer palette based on number of unique variables in metadata:
   palette <- get_palette(color_count) %>% 
     as.data.frame() %>%
-    rename('color' = '.') %>%
+    dplyr::rename('color' = '.') %>%
     rownames_to_column(var = 'row_id')
   color_list <- left_join(unique_vars, palette, by = 'row_id') %>%
     select(-row_id)
@@ -88,26 +93,8 @@ dendrogram_create = function(filePath,image_name)
   ggp
   
   #Saves dendogram as an RData file and PNG in the results folder
-  save(ggp, file = file.path('results/dendogram/', 'clustering-region.RData'))
-  ggsave(p, file = file.path('results/dendogram/', 'clustering-region.png'), 
+  save(ggp, file = file.path(results_path, paste0('clustering-region', "-", k, ".RData")))
+  ggsave(p, file = file.path(results_path, paste0('clustering-region', "-", k, ".PNG")), 
          limitsize=FALSE, height=7, width=20)
 }
 
-dendrogram_create('data/kmers/kmer_7.csv')
-
-# CLEAN UP #################################################
-
-# Clear environment
-rm(list = ls())
-
-# Clear packages
-p_unload(all)  # Remove all add-ons
-detach("package:datasets", unload = TRUE)  # For base
-
-# Clear plots but only if there IS a plot
-# while (!is.null(dev.list())) dev.off()
-
-# Clear console
-cat("\014")  # ctrl+L
-
-# Clear mind :)
