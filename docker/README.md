@@ -52,20 +52,40 @@ To start a container using this image:
 docker-compose -f ./docker/compose.yml up
 ```
 
-You are **encouraged to modify** `./docker/compose.yml` for your purposes.
+You are **encouraged to modify** `compose.yml` for your purposes. In particular, you may
+set the host-side port as follows: default setting is `127.0.0.1:0:8787`, where `127.0.0.1` makes the RStudio Server
+only accessible from your computer (omit it to make it accessible from other computers on the network), and `0` makes
+the port a random value (change it to a specific number if you wish).
+You may also set the following environment variables:
 
-Other commands:
+- `PASSWORD=string` (password for RStudio server, note that username is always `rstudio`)
+- `ROOT=bool` (whether to start the container as ROOT user)
+- `DISABLE_AUTH=bool` (whether to authenticate RStudio Server users)
+- `USERID=int` (default non-root user ID)
+- `GROUPID=int` (default non-root group ID)
+
+To access the RStudio Server:
+
+1. Open Docker Desktop and locate the `docker > docker-pgc-perf-opt-1` container.
+2. Open the container details and click the host port and container port mapping (e.g. 8080:8787)
+3. Login to RStudio Server (if DISABLE_AUTH is `FALSE`). Use username `rstudio` and your `compose.yml` password.
+
+Running from the Docker CLI:
 
 ```bash
-# Password:
+# Set Password:
 docker run --rm -ti -e PASSWORD=yourpassword -p 8787:8787 pgc-perf-opt/cpu
-# Root:
+
+# Set Root:
 docker run --rm -ti -e ROOT=true -p 8787:8787 pgc-perf-opt/cpu
-# Disable Authentication:
+
+# Set RStudio Server Authentication:
 docker run --rm -ti -e DISABLE_AUTH=true -p 127.0.0.1:8787:8787 pgc-perf-opt/cpu
-# User ID and Group ID:
+
+# Set User ID and Group ID:
 docker run --rm -ti -e USERID=1001 -e GROUPID=1001 -p 8787:8787 pgc-perf-opt/cpu
-# To not expose:
+
+# Select Port to Expose (use `127.0.0.1` for `localhost` only):
 -p 127.0.0.1:8787:8787
 ```
 
