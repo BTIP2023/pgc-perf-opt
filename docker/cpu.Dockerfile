@@ -17,8 +17,10 @@ LABEL organization="Philippine Genome Center - Core Facility for Bioinformatics"
         optimization with respect to Spectre/Meltdown CPU patches. `
         Also serves as Base GPU Image for PGC Performance Optimization Group"
 
-# Copy local repository snapshot
+# Copy local repository snapshot (see .dockerignore)
 # Notes: Container has a /home/rstudio directory.
+#   - Comment out presentations/ in .dockerignore if you wish
+#   - to work on presentations in the container.
 COPY . /home/rstudio/pgc-perf-opt
 
 # Change working directory to project root
@@ -28,7 +30,7 @@ WORKDIR /home/rstudio/pgc-perf-opt
 VOLUME ["/home/rstudio/pgc-perf-opt"]
 
 # Install project base R, Python, and system-level dependencies
-RUN ./scripts/install_pgc_base.sh
+RUN ./docker/scripts/install_pgc_base.sh
 
 ### Python
 # Comes with Python 3.10.6 with base packages via python3.

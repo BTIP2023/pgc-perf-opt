@@ -60,6 +60,7 @@ data/GISAID/*
 
 # Since we're mounting development volumes, we can ignore these
 docker/
+!docker/scripts/install_pgc_base.sh
 presentations/
 results/
 

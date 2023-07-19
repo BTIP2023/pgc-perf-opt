@@ -30,13 +30,14 @@ apt-get update && apt-get install -y --no-install-recommends \
 # R packages installation, removed redundancies from install_tidyverse.sh
 install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     GGally \
-    GGthemes \
+    ggthemes \
     ggvis \
     plotly \
     psych \
     rio \
     markdown \
     shiny \
+    remotes \
     microbenchmark
 
 # For kmer-analysis.R and sources
@@ -53,11 +54,11 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     htmlwidgets \
     factoextra \
     scales \
-    ggbiplot \
     Rtsne \
     tsne \
     RColorBrewer \
     ggfortify \
+    reticulate
 
 # For clustering and sources
 install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
@@ -66,6 +67,9 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     cluster \
     colorspace
 
+# Auxiliary R packages (more complicated installs)
+Rscript /home/rstudio/pgc-perf-opt/scripts/install_pgc_aux.R
+
 # Clean up
 rm -rf /var/lib/apt/lists/*
 rm -rf /tmp/downloaded_packages
@@ -73,3 +77,5 @@ rm -rf /tmp/downloaded_packages
 ## Strip binary installed lybraries from RSPM
 ## https://github.com/rocker-org/rocker-versioned2/issues/340
 strip /usr/local/lib/R/site-library/*/libs/*.so
+
+echo -e "\nInstall PGC Perf Opt CPU base packages, done!"

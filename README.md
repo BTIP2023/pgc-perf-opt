@@ -14,6 +14,9 @@ Please see `data/README.md` for further instructions.
 ## Workflows
 This section will describe the collected bioinformatics workflows. Currently, only the code from the reference repository will be benchmarked for the prototype benchmark workflow.
 
+Said workflow found in `code/pipeline-classic.R` has the following structure:
+![code/pipeline-classic.R](presentations/pipeline-flowchart.png)
+
 ## Code
 This section will explain the code used for running the workflows and the benchmarks. Relevant hardware, software, and data configurations must be explicitly noted for each benchmark.
 
