@@ -1,7 +1,6 @@
 dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
                        tsne_max_iter, tsne_initial_dims, umap_seed,
                        umap_n_neighbors, umap_metric, umap_min_dist, col_name) {
-
   # -----Functions-----
 
   # Function to extract the timestamp from the kmer files
@@ -54,7 +53,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
         dpi = 300, bg = "white"
       )
       # Convert ggplot object to ggplotly
-      p <- ggplotly(p)
+      p <- ggplotly(p) 
     }
 
     # Save as HTML
@@ -98,7 +97,17 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   # Function for 2D PCA plot
   pca_plot <- function(pca_df, data, k) {
     print("Generating 2D PCA plot...")
-    p <- autoplot(pca_df, data = data, colour = col_name) +
+    target <- df[[col_name]]
+    p <- autoplot(pca_df, data = data, color = col_name) +
+      geom_point(aes(color = target, text = paste(
+        "Identifier: ", df$gisaid_epi_isl, "\n",
+        "Variant: ", df$variant, "\n",
+        "Sex: ", df$sex, "\n",
+        "Division Exposure: ", df$division_exposure, "\n",
+        "Year: ", format(as.Date(df$date), "%Y"), "\n",
+        "Strain: ", df$strain, "\n",
+        "Pangolin Lineage: ", df$pangolin_lineage
+      ))) +
       scale_color_brewer(palette = "Set1")
 
     # Save plot as PNG and HTML
@@ -115,12 +124,12 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
       x = ~PC1, y = ~PC2, z = ~PC3, type = "scatter3d",
       mode = "markers", color = df[[col_name]],
       text = paste(
-        "Identifier: ", df$gisaid_epi_isl, "<br>",
-        "Variant: ", df$variant, "<br>",
-        "Sex: ", df$sex, "<br>",
-        "Division Exposure: ", df$division_exposure, "<br>",
-        "Year: ", format(as.Date(df$date), "%Y"), "<br>",
-        "Strain: ", df$strain, "<br>",
+        "Identifier: ", df$gisaid_epi_isl, "\n",
+        "Variant: ", df$variant, "\n",
+        "Sex: ", df$sex, "\n",
+        "Division Exposure: ", df$division_exposure, "\n",
+        "Year: ", format(as.Date(df$date), "%Y"), "\n",
+        "Strain: ", df$strain, "\n",
         "Pangolin Lineage: ", df$pangolin_lineage
       )
     )
@@ -278,13 +287,21 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   tsne_plot <- function(tsne_df, target, k, is_tsne) {
     print("Generating 2D t-SNE plot...")
     if (is_tsne) {
-      df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], target = target)
+      tsne_df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], target = target)
     } else {
-      df <- data.frame(X1 = tsne_df$Y[, 1], X2 = tsne_df$Y[, 2], target = target)
+      tsne_df <- data.frame(X1 = tsne_df$Y[, 1], X2 = tsne_df$Y[, 2], target = target)
     }
     # Create ggplot object
-    p <- ggplot(df, aes(x = X1, y = X2, color = target)) +
-      geom_point() +
+    p <- ggplot(tsne_df, aes(x = X1, y = X2, color = target)) +
+      geom_point(aes(text = paste(
+        "Identifier: ", df$gisaid_epi_isl, "\n",
+        "Variant: ", df$variant, "\n",
+        "Sex: ", df$sex, "\n",
+        "Division Exposure: ", df$division_exposure, "\n",
+        "Year: ", format(as.Date(df$date), "%Y"), "\n",
+        "Strain: ", df$strain, "\n",
+        "Pangolin Lineage: ", df$pangolin_lineage
+      ))) +
       xlab("TSNE-2D-1") +
       ylab("TSNE-2D-2") +
       labs(color = "Label") +
@@ -340,7 +357,15 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
       data = as.data.frame(emb),
       aes(x = x_o, y = y_o, color = target)
     ) +
-      geom_point() +
+      geom_point(aes(text = paste(
+        "Identifier: ", df$gisaid_epi_isl, "\n",
+        "Variant: ", df$variant, "\n",
+        "Sex: ", df$sex, "\n",
+        "Division Exposure: ", df$division_exposure, "\n",
+        "Year: ", format(as.Date(df$date), "%Y"), "\n",
+        "Strain: ", df$strain, "\n",
+        "Pangolin Lineage: ", df$pangolin_lineage
+      ))) +
       xlab("UMAP_1") +
       ylab("UMAP_2") +
       labs(color = "Label") +
@@ -408,7 +433,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   screeplot(pca_df)
 
   # Generate factor loadings plot of first 3 principal components
-  factor_loadings(pca_df, x, 3)
+  # factor_loadings(pca_df, x, 3)
 
   # Generate graph of individuals
   indiv(pca_df)
@@ -421,13 +446,13 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Perform t-SNE via 'tsne' library using PCA results (in 2 dimensions)
   # # Note: Uncomment the next two line to use tsne; otherwise, comment them
-  # is_tsne <- TRUE
-  # tsne_df <- tsne_fn(pca_df$x, 2)
+  is_tsne <- TRUE
+  tsne_df <- tsne_fn(pca_df$x, 2)
 
   # Perform t-SNE via 'Rtsne' library using PCA results (in 2 dimensions)
   # # Note: Uncomment the next two line to use Rtsne; otherwise, comment them
-  is_tsne <- FALSE
-  tsne_df <- rtsne_fn(pca_df$x, 2)
+  # is_tsne <- FALSE
+  # tsne_df <- rtsne_fn(pca_df$x, 2)
 
   # Generate 2D t-SNE plot
   tsne_plot(tsne_df, target, k, is_tsne)
@@ -435,13 +460,13 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   # Generate 3D t-SNE plot (runs t-SNE again in 3 dimensions)
   # # Note: Uncomment the two succeeding lines to use tsne;
   # # otherwise, comment them
-  # tsne_df <- tsne_fn(pca_df$x, 3)
-  # tsne_3d(tsne_df, df, col_name)
+  tsne_df <- tsne_fn(pca_df$x, 3)
+  tsne_3d(tsne_df, df, col_name)
 
   # # Note: Uncomment the two succeeding lines to use Rtsne;
   # # otherwise, comment them
-  tsne_df <- rtsne_fn(pca_df$x, 3)
-  tsne_3d(tsne_df$Y, df, col_name)
+  # tsne_df <- rtsne_fn(pca_df$x, 3)
+  # tsne_3d(tsne_df$Y, df, col_name)
 
   # Perform UMAP (in 2 dimensions)
   umap_df <- umap_fn(x, 2)
