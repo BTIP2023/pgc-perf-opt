@@ -1,6 +1,6 @@
 services:
-  pgc-base-cpu:
-    image: yshebron/cpu
+  pgc-perf-opt:
+    image: yshebron/pgc-perf-opt
     ports:
       - "127.0.0.1:0:8787"
     environment:

@@ -4,12 +4,10 @@ services:
     ports:
       - "127.0.0.1:0:8787"
     environment:
-      PASSWORD: yourpassword
+      PASSWORD: rstudio
       ROOT: true
       DISABLE_AUTH: false
-      USERID: 1001
-      GROUPID: 1001
     volumes:
-      - ./benchmarks:/home/rstudio/pgc-perf-opt/benchmarks
-      - ./code:/home/rtudio/pgc-perf-opt/code
-      - ./data:/home/rstudio/pgc-perf-opt/data
+      - ../benchmarks:/home/rstudio/pgc-perf-opt/benchmarks
+      - ../code:/home/rstudio/pgc-perf-opt/code
+      - ../data:/home/rstudio/pgc-perf-opt/data

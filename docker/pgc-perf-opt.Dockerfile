@@ -1,7 +1,7 @@
 # escape=`
 
-# Main objective: Perf eval/opt wrt Spectre/Meltdown CPU patches.
-# Also serves as: Base CPU Image for PGC Performance Optimization Group.
+# Base Image for PGC Performance Optimization Group.
+# Natively supports: Performance eval/opt wrt Spectre/Meltdown CPU patches. 
 
 # Base Image: rocker/tidyverse:4.3.1
 # Slim image for benchmarking and developing R workflows.
@@ -13,9 +13,9 @@
 FROM rocker/tidyverse:4.3.1
 
 LABEL organization="Philippine Genome Center - Core Facility for Bioinformatics" `
-      description="For bioinformatics performance evaluation and `
-        optimization with respect to Spectre/Meltdown CPU patches. `
-        Also serves as Base GPU Image for PGC Performance Optimization Group"
+      description="Base image for PGC Performance Optimization Group. `
+        Natively supports: Performance eval/opt wrt Spectre/Meltdown CPU patches." `
+      maintainer="Yenzy Urson S. Hebron <yshebron@up.edu.ph>"
 
 # Copy local repository snapshot (see .dockerignore)
 # Notes: Container has a /home/rstudio directory.

@@ -1,5 +1,9 @@
 # Code Guide
 
+To run the main UML bioinformatics pipeline, source `pipeline-classic.R`.
+
+To run benchmarks for said UML bioinformatics pipeline, source `pipeline-benchmark.R`.
+
 ## Prerequisites
 
 ### R/Rstudio
@@ -92,6 +96,6 @@ they can be huge, especially for large stratSize, keep an eye on their space usa
 and prune old and unused generated files in `data/interm` and `data/kmers`.
 
 ## TODOs
-- [ ] Update this README once main pipeline has been established wherein kmer-analysis.R is also just another source.
+- [X] Update this README once main pipeline has been established.
 - [x] Add auto-pruner for old generated files (might do timestamp arithmetic)
 - [x] Add auto-setter to latest generated files in `dim-reduce.R` and similar files.
