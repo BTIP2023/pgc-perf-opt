@@ -10,7 +10,7 @@ by itself.
 
 **ATTN:** In LINUX SYSTEMS, there are installation dependencies on some fairly
 major packages. tidyverse, httr and odbc require installations at the command
-line before they can be installed in R. Run these to install the required elements:
+line before they can be installed in R. Run the commands below to install the required elements. Ignore if running using any of the project's containers.
 ```bash
 # do these before running any script in `code/`!
 sudo apt update -y

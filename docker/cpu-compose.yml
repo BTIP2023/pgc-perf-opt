@@ -10,4 +10,4 @@ services:
       USERID: 1234
       GROUPID: 1234
     volumes:
-      - ..:/home/src/pgc-perf-opt
+      - ..:/home/rstudio/pgc-perf-opt
