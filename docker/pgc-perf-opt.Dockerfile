@@ -29,6 +29,9 @@ WORKDIR /home/rstudio/pgc-perf-opt
 # Install project base R, Python, and system-level dependencies
 RUN ./docker/scripts/install_pgc_base.sh
 
+# Set RStudio Server working directory to workspace
+RUN echo "setwd(\"/home/rstudio/pgc-perf-opt/\")" > /home/rstudio/.Rprofile
+
 ### Python
 # Comes with Python 3.10.6 with base packages via python3.
 # Install the rest of the dependencies manually via pip.

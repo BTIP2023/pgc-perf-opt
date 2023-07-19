@@ -79,4 +79,5 @@ backup/
 # VSCode files
 tempCodeRunnerFile.R
 
-# 
+# Git
+.git

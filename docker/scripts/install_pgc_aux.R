@@ -1,8 +1,9 @@
 # Install other R tweaks
 
 # ggbiplot: https://github.com/vqv/ggbiplot#installation
+# Note that this uses libcurl, not curl (avoid conflict by not installing curl)
 library(devtools)
-install_github("vqv/ggbiplot")
+devtools::install_github("vqv/ggbiplot")
 
 # knitr 1.42 for presentations
 library(remotes)

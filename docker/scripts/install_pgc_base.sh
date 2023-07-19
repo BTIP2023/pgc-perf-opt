@@ -18,8 +18,8 @@ function apt_install() {
 }
 
 # Install Linux utility libraries
-apt-get update && apt-get install -y --no-install-recommends \
-    curl \
+# Do not install curl as libcurl is already installed.
+apt_install \
     tree \
     jq \
     htop \
@@ -39,7 +39,7 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     rio \
     markdown \
     shiny \
-    remotes \
+    devtools \
     microbenchmark \
     reticulate
 
@@ -81,4 +81,4 @@ rm -rf /tmp/downloaded_packages
 ## https://github.com/rocker-org/rocker-versioned2/issues/340
 strip /usr/local/lib/R/site-library/*/libs/*.so
 
-echo -e "\nInstall PGC Perf Opt CPU base packages, done!"
+echo -e "\nInstall PGC Perf Opt base packages, done!"
