@@ -166,8 +166,9 @@ preprocess <- function(data_path, extract_path,
     "Soccsksargen" ~ "SOCCSKARGEN",
     "Zamboanga" ~ "Zamboanga Peninsula",
     "Region IV-A" ~ "CALABARZON",
-    "Region XII (Soccsksargen)" ~ "SOCCSKARGEN",
     "Region X (Northern Mindanao)" ~ "Northern Mindanao",
+    "Region XI (Davao Region)" ~ "Davao Region",
+    "Region XII (Soccsksargen)" ~ "SOCCSKARGEN",
     .default = metadata_all$division_exposure
   )
   
