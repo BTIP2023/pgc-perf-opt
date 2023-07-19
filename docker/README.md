@@ -13,7 +13,7 @@ These containers will resolve all dependency issues brought up in all the `READM
 
 ## Dockerfiles and their Images
 
-### Base Image (`pgc-perf-opt.Dockerfile`)
+### 1. Base Image (`pgc-perf-opt.Dockerfile`)
 
 This image serves as the base image of all research objectives. This attempts to ensure full
 compatibility with the project's entire codebase, from `code/` to `presentations/`.
@@ -67,11 +67,11 @@ docker run --rm -ti -e USERID=1001 -e GROUPID=1001 -p 8787:8787 pgc-perf-opt/cpu
 -p 127.0.0.1:8787:8787
 ```
 
-### CPU benchmark (`cpu.Dockerfile`)
+### 2. CPU benchmark (`cpu.Dockerfile`)
 
 This section will contain information about the CPU benchmark container.
 
-### GPU benchmark (`gpu.Dockerfile`)
+### 3. GPU benchmark (`gpu.Dockerfile`)
 
 This section will contain information about the GPU benchmark container.
 
