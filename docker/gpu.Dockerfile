@@ -1,6 +1,7 @@
 # escape=`
 
 # Side objective: Perf eval/opt wrt NVIDIA CUDA implementation.
+# Also serves as: Base GPU compute Image for PGC Performance Optimization Group.
 
 # Base Image: rocker/ml:4.3.1
 # Adds CUDA support to rocker/tidyverse:4.3.1
@@ -12,14 +13,25 @@
 # - rocker/r-ver:4.3.1
 FROM rocker/ml:4.3.1
 
-# Copy repository (might have to adjust for diff. obj)
-COPY . /home/src/pgc-perf-opt
+LABEL organization="Philippine Genome Center - Core Facility for Bioinformatics" `
+      description="For bioinformatics performance evaluation and `
+        optimization with respect to Spectre/Meltdown CPU patches. `
+        Also serves as Base GPU Image for PGC Performance Optimization Group"
 
-# Bind a volume for development (might have to adjust for diff. obj)
+# Copy local repository snapshot
 # Notes: Container has a /home/rstudio directory.
+#   - Comment out presentations/ in .dockerignore if you wish
+#   - to work on presentations in the container.
+COPY . /home/rstudio/pgc-perf-opt
 
-# Building (from project root):
-# docker build -t pgc-perf-opt/gpu . -f ./docker/gpu.Dockerfile
+# Change working directory to project root
+WORKDIR /home/rstudio/pgc-perf-opt
+
+# Bind a volume for development
+VOLUME ["/home/rstudio/pgc-perf-opt"]
+
+# Install project base R, Python, and system-level dependencies
+RUN ./docker/scripts/install_pgc_base.sh
 
 ### Python
 # Comes with Python 3.10.6 with base packages via python3.
@@ -30,16 +42,8 @@ COPY . /home/src/pgc-perf-opt
 # Comes with R 4.3.1 and RStudio Server, bundled with tidyverse.
 # RStudio Server is available via exposed local port, configure creds.
 
-# Building: docker build -f 
-
-### Python
-# This also already includes Python 3.10.6 with base packages via python3.
-# Install the rest of the dependencies manually via pip.
-# In particular, install plotly.
-
-### R and RStudio
-# Bundled with tidyverse.
-# RStudio Server is available via exposed local port, configure creds.
+# Building (from project root):
+# docker build -t pgc-perf-opt/gpu . -f ./docker/cpu.Dockerfile
 
 # Usage:
 # https://rocker-project.org/images/versioned/cuda.html

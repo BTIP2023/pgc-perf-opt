@@ -36,7 +36,7 @@ pacman::p_load(dplyr, GGally, ggplot2, ggthemes, ggvis,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
                microbenchmark)
-install_github("vqv/ggbiplot", upgrade = FALSE)
+install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
 
 # validate used for %vin% operator 
 # gsubfn used to destructure more than one return value
