@@ -33,6 +33,8 @@ Examples of resolved issues:
 - package namespace issues.
 - tidyverse installation in Ubuntu.
 
+Please see `pgc-perf-opt.Dockerfile` and `scripts/{install_pgc_base.sh, install_pgc_aux.R}` for further information.
+
 Should you encounter these or any other issue, please open an Issue in our main
 [repository](https://github.com/PGCInternship2023/pgc-perf-opt).
 
