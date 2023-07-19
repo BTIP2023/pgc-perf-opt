@@ -426,23 +426,23 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   # Generate 2D PCA plot
   pca_plot(pca_df, df, k)
 
-  # # Generate 3D PCA plot (does not run PCA again)
-  # pca_3d(pca_df, df, col_name)
-  # 
-  # # Generate screeplot
-  # screeplot(pca_df)
-  # 
-  # # Generate factor loadings plot of first 3 principal components
-  # # factor_loadings(pca_df, x, 3)
-  # 
-  # # Generate graph of individuals
-  # indiv(pca_df)
-  # 
-  # # Generate graph of variables
-  # vars(pca_df)
-  # 
-  # # Generate biplot
-  # biplot(pca_df)
+  # Generate 3D PCA plot (does not run PCA again)
+  pca_3d(pca_df, df, col_name)
+
+  # Generate screeplot
+  screeplot(pca_df)
+
+  # Generate factor loadings plot of first 3 principal components
+  # factor_loadings(pca_df, x, 3)
+
+  # Generate graph of individuals
+  indiv(pca_df)
+
+  # Generate graph of variables
+  vars(pca_df)
+
+  # Generate biplot
+  biplot(pca_df)
 
   # Perform t-SNE via 'tsne' library using PCA results (in 2 dimensions)
   # # Note: Uncomment the next two line to use tsne; otherwise, comment them
@@ -470,7 +470,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
 
   # Perform UMAP (in 2 dimensions)
   umap_df <- umap_fn(x, 2)
-  
+
   # Generate 2D UMAP plot
   umap_plot(umap_df, target, k)
 
