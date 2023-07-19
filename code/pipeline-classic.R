@@ -62,7 +62,7 @@ data_path_gisaid <- "data/GISAID"
 extract_path <- "data/GISAID/datasets"
 strat_size <- 100
 country_exposure <- "Philippines"
-write_fastacsv <- FALSE
+write_fastacsv <- TRUE
 
 # kmer-analysis.R::get_kmers() parameters
 
@@ -83,7 +83,7 @@ results_path_agnes <- "results/dendrogram"
 # RUN PIPELINE #############################################
 
 # Step 1: preprocess()
-list[fasta_all, metadata_all] <- preprocess(data_path, extract_path, seed,
+list[fasta_all, metadata_all] <- preprocess(data_path_gisaid, extract_path, seed,
                                             strat_size, country_exposure,
                                             write_fastacsv, stamp)
 # Step 2: get_kmers()
