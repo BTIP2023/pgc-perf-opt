@@ -59,8 +59,12 @@ data/GISAID/*
 .idea
 
 # Since we're mounting development volumes, we can ignore these
+benchmarks/
+code/
+data/
 docker/
 !docker/scripts/install_pgc_base.sh
+!docker/scripts/install_pgc_aux.R
 presentations/
 results/
 

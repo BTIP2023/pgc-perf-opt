@@ -1,15 +1,15 @@
 services:
   pgc-base-gpu:
-    image: pgc-perf-opt/gpu
+    image: yshebron/gpu
     ports:
       - "127.0.0.1:0:8787"
     environment:
       PASSWORD: yourpassword
       ROOT: true
       DISABLE_AUTH: false
-      USERID: 1234
-      GROUPID: 1234
+      USERID: 1001
+      GROUPID: 1001
     volumes:
-      - ./benchmarks:/home/src/pgc-perf-opt/benchmarks
-      - ./code:/home/src/pgc-perf-opt/code
-      - ./data:/home/src/pgc-perf-opt/data
+      - ./benchmarks:/home/rstudio/pgc-perf-opt/benchmarks
+      - ./code:/home/rtudio/pgc-perf-opt/code
+      - ./data:/home/rstudio/pgc-perf-opt/data

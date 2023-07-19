@@ -25,10 +25,12 @@ apt-get update && apt-get install -y --no-install-recommends \
     htop \
     texinfo \
     nano \
-    less
+    less \
+    python3-pip
 
 # R packages installation, removed redundancies from install_tidyverse.sh
 install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
+    pacman \
     GGally \
     ggthemes \
     ggvis \
@@ -38,7 +40,12 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     markdown \
     shiny \
     remotes \
-    microbenchmark
+    microbenchmark \
+    reticulate
+
+# Auxiliary R packages (more complicated installs)
+Rscript ./docker/scripts/install_pgc_aux.R
+python3 -m pip install plotly
 
 # For kmer-analysis.R and sources
 install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
@@ -57,8 +64,7 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     Rtsne \
     tsne \
     RColorBrewer \
-    ggfortify \
-    reticulate
+    ggfortify
 
 # For clustering and sources
 install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
@@ -66,9 +72,6 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     dendextend \
     cluster \
     colorspace
-
-# Auxiliary R packages (more complicated installs)
-Rscript /home/rstudio/pgc-perf-opt/scripts/install_pgc_aux.R
 
 # Clean up
 rm -rf /var/lib/apt/lists/*

@@ -27,7 +27,9 @@ COPY . /home/rstudio/pgc-perf-opt
 WORKDIR /home/rstudio/pgc-perf-opt
 
 # Bind a volume for development
-VOLUME ["/home/rstudio/pgc-perf-opt"]
+VOLUME ["/home/rstudio/pgc-perf-opt/benchmarks"]
+VOLUME ["/home/rstudio/pgc-perf-opt/code"]
+VOLUME ["/home/rstudio/pgc-perf-opt/data"]
 
 # Install project base R, Python, and system-level dependencies
 RUN ./docker/scripts/install_pgc_base.sh
