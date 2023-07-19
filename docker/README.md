@@ -49,7 +49,7 @@ docker build -t <yourdockerusername>/pgc-perf-opt:<tag> . -f ./docker/pgc-perf-o
 To start a container using this image:
 
 ```bash
-docker-compose -f ./docker/compose.yml up
+docker compose -f ./docker/compose.yml up
 ```
 
 You are **encouraged to modify** `compose.yml` for your purposes. In particular, you may
