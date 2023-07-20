@@ -18,7 +18,7 @@ function apt_install() {
 }
 
 # Install Linux utility libraries
-# Do not install curl as libcurl is already installed.
+# Defer curl installation for compatibility with install_github()
 apt_install \
     tree \
     jq \
@@ -31,6 +31,7 @@ apt_install \
 # R packages installation, removed redundancies from install_tidyverse.sh
 install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     pacman \
+    plyr \
     GGally \
     ggthemes \
     ggvis \
@@ -46,6 +47,10 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
 # Auxiliary R packages (more complicated installs)
 Rscript ./docker/scripts/install_pgc_aux.R
 python3 -m pip install plotly
+
+# Install deferred curl
+apt-get update && apt-get upgrade && apt-get install curl -y
+apt install cmake -y # install for factoextra
 
 # For kmer-analysis.R and sources
 install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \

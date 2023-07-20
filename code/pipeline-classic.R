@@ -27,7 +27,7 @@ if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
 # Use pacman to load add-on packages as desired.
 # TODO: Remove redundancies in dependencies. E.g., dplyr and ggplot2
 # are already dependencies of tidyverse.
-pacman::p_load(dplyr, GGally, ggplot2, ggthemes, ggvis,
+pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                httr, lubridate, plotly, psych,
                rio, markdown, rmarkdown, shiny,
                stringr, tidyr, tidyverse,
@@ -112,3 +112,20 @@ for (k in kmer_list){
 }
 
 print("All operations completed successfully!")
+
+# CLEAN UP #################################################
+
+# Clear environment
+rm(list = ls()) 
+
+# Clear packages
+p_unload(all)  # Remove all add-ons
+detach("package:datasets", unload = TRUE)  # For base
+
+# Clear plots but only if there IS a plot
+while (!is.null(dev.list())) dev.off()
+
+# Clear console
+# cat("\014")  # ctrl+L
+
+# Clear mind :)
