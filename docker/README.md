@@ -64,6 +64,8 @@ You may also set the following environment variables:
 - `USERID=int` (default non-root user ID)
 - `GROUPID=int` (default non-root group ID)
 
+Note that there should always be a `DOCKER_RUNNING=true` environment variable. DO NOT MODIFY this.
+
 To access the RStudio Server:
 
 1. Open Docker Desktop and locate the `docker > docker-pgc-perf-opt-1` container.
