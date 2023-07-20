@@ -43,11 +43,12 @@ title-slide-attributes:
 ![](presentation_files/img/linear-algebra.jpg){.fragment fig-align="center" height=60% width=60%}
 
 ## Does processor vulnerability mitigations (Spectre and Meltdown) significantly affect the runtime of the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
 ![](presentation_files/img/spectre_meltdown.png){.fragment fig-align="center" height=60% width=60%}
+
 # Progress Report - Overview {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
 ## The team's trello board gives an overview of the team's progress {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-
 ![](presentation_files/img/trello.png){.fragment fig-align="center" height=70% width=70%}
 
 ## The burndown chart shows if the team is on track to finish the project on time {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
@@ -57,6 +58,29 @@ title-slide-attributes:
 <iframe src="https://docs.google.com/spreadsheets/d/1e_8Idq3GNALJlM27_xZwYv2O2Rsih5MytwXbmZ9c7TI/edit#gid=196745742" width=1800px height=900px></iframe>
 
 # Progress Report - Workflow Optimization {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## Data filtering by certain attributes (e.g. variant, region of exposure) was included into the workflow {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+```{r eval=FALSE}
+#| echo: true
+
+  if(missing(filter1_factor) && missing(filter1_values) &&
+     missing(filter2_factor) && missing(filter2_values)){
+    
+  } else if(missing(filter2_factor) && missing(filter2_values)){
+    
+    df <- filter(df, df[[filter1_factor]] %in% filter1_values)
+    
+  } else if(missing(filter1_factor) && missing(filter1_values)){
+    
+    df <- filter(df, df[[filter2_factor]] %in% filter2_values)
+    
+  } else {
+    df <- filter(df, df[[filter1_factor]] %in% filter1_values)
+    df <- filter(df, df[[filter2_factor]] %in% filter2_values)
+  }
+
+```
 
 ## Graph tooltips were improved to include relevant metadata {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 <iframe src="presentation_files/img/umap-7.html" width=1800px height=900px></iframe>
@@ -110,16 +134,18 @@ if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
 # Use pacman to load add-on packages as desired.
 # TODO: Remove redundancies in dependencies. E.g., dplyr and ggplot2
 # are already dependencies of tidyverse.
-pacman::p_load(dplyr, GGally, ggplot2, ggthemes, ggvis,
+pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                httr, lubridate, plotly, psych,
                rio, markdown, rmarkdown, shiny,
                stringr, tidyr, tidyverse,
                ape, kmer, readr, validate, gsubfn, seqinr,
-               umap, htmlwidgets, factoextra, scales, ggbiplot,
+               umap, htmlwidgets, factoextra, scales,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
-               microbenchmark)
+               microbenchmark,
+               highcharter)
 install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
+pacman::p_load(ggbiplot)
 
 # validate used for %vin% operator 
 # gsubfn used to destructure more than one return value
@@ -145,7 +171,7 @@ data_path_gisaid <- "data/GISAID"
 extract_path <- "data/GISAID/datasets"
 strat_size <- 100
 country_exposure <- "Philippines"
-write_fastacsv <- FALSE
+write_fastacsv <- TRUE
 
 # kmer-analysis.R::get_kmers() parameters
 
@@ -158,6 +184,13 @@ tsne_initial_dims <- 50
 umap_n_neighbors <- 15
 umap_metric <- "euclidean"
 umap_min_dist <- 0.1
+target_col <- "variant"
+
+# dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
+factor1 <- "variant"
+values1 <- c("Omicron", "Omicron Sub")
+factor2 <- "year"
+values2 <- c("2023")
 
 # AGNES Clustering Parameters :: dendogram_create_x()
 results_path_agnes <- "results/dendrogram"
@@ -165,9 +198,10 @@ results_path_agnes <- "results/dendrogram"
 # RUN PIPELINE #############################################
 
 # Step 1: preprocess()
-list[fasta_all, metadata_all] <- preprocess(data_path, extract_path, seed,
+list[fasta_all, metadata_all] <- preprocess(data_path_gisaid, extract_path, seed,
                                             strat_size, country_exposure,
                                             write_fastacsv, stamp)
+
 # Step 2: get_kmers()
 for (k in kmer_list) {
   get_kmers(fasta_all, metadata_all, k, stamp)
@@ -179,7 +213,9 @@ for (k in kmer_list) {
              tsne_seed = seed, tsne_perplexity,
              tsne_max_iter, tsne_initial_dims,
              umap_seed = seed, umap_n_neighbors,
-             umap_metric, umap_min_dist)
+             umap_metric, umap_min_dist, col_name = target_col,
+             filter1_factor = factor1, filter1_values = values1, # OPTIONAL
+             filter2_factor = factor2, filter2_values = values2) # OPTIONAL
 }
 
 #Step 4: AGNES Clustering by Variant
@@ -193,6 +229,22 @@ for (k in kmer_list){
 }
 
 print("All operations completed successfully!")
+
+# CLEAN UP #################################################
+
+# Clear environment
+rm(list = ls()) 
+
+# Clear packages (unloading them before another adds another compat check)
+p_unload(all)  # Remove all add-ons
+
+# Clear plots but only if there IS a plot
+while (!is.null(dev.list())) dev.off()
+
+# Clear console
+# cat("\014")  # ctrl+L
+
+# Clear mind :)
 ```
 
 # Progress Report - Benchmarking{background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
@@ -203,6 +255,161 @@ print("All operations completed successfully!")
 ## A docker container was created to standardize the environment for benchmarking {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/docker-container.png){.fragment fig-align="center" height=60% width=60%}
 
+## A pipeline to be used for benchmarking was created{data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+```{r eval=FALSE}
+#| echo: true
+
+# File: pipeline.R
+# Contains the complete bioinformatics pipeline
+# for convenient runs and benchmarks.
+# This will source functions from code/R/
+
+# INSTALL AND LOAD PACKAGES ################################
+options(repos = "https://cloud.r-project.org/")
+
+# Installs pacman ("package manager") if needed
+if (!require("pacman"))
+  install.packages("pacman")
+library(pacman)
+
+### ATTN: IN LINUX SYSTEMS, CONSULT README FOR ADDITIONAL PREREQUISITES
+### BEFORE RUNNING ANY SCRIPT. ISSUE: tidyverse installation.
+### This is a non-issue if code is ran within cpu.Dockerfile.
+### This cannot be scripted because this requires sudo priveleges.
+
+# Install xml2 in advance to prep for tidyverse installation in Linux.
+# Note that in Windows RStudio, this is installed by default.
+# If you're getting xml2 errors on Windows, you broke something lol.
+if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
+  install.packages("xml2", dependencies = TRUE, INSTALL_opts = c("--no-lock"))
+  pacman::p_load(xml2)
+}
+
+# Use pacman to load add-on packages as desired.
+# TODO: Remove redundancies in dependencies. E.g., dplyr and ggplot2
+# are already dependencies of tidyverse.
+pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
+               httr, lubridate, plotly, psych,
+               rio, markdown, rmarkdown, shiny,
+               stringr, tidyr, tidyverse,
+               ape, kmer, readr, validate, gsubfn, seqinr,
+               umap, htmlwidgets, factoextra, scales,
+               Rtsne, tsne, RColorBrewer, ggfortify, devtools,
+               ggdendro, dendextend, cluster, colorspace,
+               microbenchmark,
+               highcharter)
+install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
+pacman::p_load(ggbiplot)
+
+# validate used for %vin% operator 
+# gsubfn used to destructure more than one return value
+# devtools supports install_github for installing ggbiplot
+# Note: Divisive k-means clustering available via kmer::cluster
+
+# LOAD SOURCES #############################################
+source("code/R/helper.R")
+source("code/R/preprocess.R")
+source("code/R/kmer-analysis.R")
+source("code/R/dim-reduce.R")
+source("code/R/clustering-variant.R")
+source("code/R/clustering-region.R")
+
+# SET PARAMETERS ###########################################
+# pipeline.R general parameters
+seed <- 1234
+stamp <- get_time()
+kmer_list <- c(3, 5, 7)
+
+# microbenchmark parameters
+# Note: tree map
+bm_times <- 2L   # how many times should routine be evaluated
+bm_units <- "seconds"
+
+# preprocess.R::preprocess() parameters
+data_path_gisaid <- "data/GISAID"
+extract_path <- "data/GISAID/datasets"
+strat_size <- 100
+country_exposure <- "Philippines"
+write_fastacsv <- FALSE
+
+# kmer-analysis.R::get_kmers() parameters
+
+# dim-reduce.R::dim_reduce() parameters
+data_path_kmers <- "data/kmers"
+results_path_dimreduce <- "results/dim-reduce/R"
+tsne_perplexity <- 40
+tsne_max_iter <- 1000
+tsne_initial_dims <- 50
+umap_n_neighbors <- 15
+umap_metric <- "euclidean"
+umap_min_dist <- 0.1
+target_col <- "variant"
+
+# AGNES Clustering Parameters :: dendogram_create_x()
+results_path_agnes <- "results/dendrogram"
+
+# RUN BENCHMARK #############################################
+# Benchmark Notes:
+# preprocess, to start from extraction, delete: data/GISAID/datasets/
+# preprocess, to also generate data, set write_fastacsv = TRUE.
+results <- microbenchmark(
+  preprocess = list[fasta_all, metadata_all] <-
+    preprocess(data_path, extract_path, seed,
+               strat_size, country_exposure,
+               write_fastacsv, stamp),
+  get_kmers_loop = for (k in kmer_list) {
+    get_kmers(fasta_all, metadata_all, k, stamp)
+  },
+  get_kmers_3 = get_kmers(fasta_all, metadata_all, 3, stamp),
+  get_kmers_5 = get_kmers(fasta_all, metadata_all, 5, stamp),
+  get_kmers_7 = get_kmers(fasta_all, metadata_all, 7, stamp),
+  # dim_reduce = for (k in kmer_list) {
+  #   dim_reduce(k, data_path_kmers, results_path_dimreduce,
+  #              tsne_seed = seed, tsne_perplexity,
+  #              tsne_max_iter, tsne_initial_dims,
+  #              umap_seed = seed, umap_n_neighbors,
+  #              umap_metric, umap_min_dist, col_name = target_col)
+  # },
+  # dim_reduce_3 = dim_reduce(3, data_path_kmers, results_path_dimreduce,
+  #                           tsne_seed = seed, tsne_perplexity,
+  #                           tsne_max_iter, tsne_initial_dims,
+  #                           umap_seed = seed, umap_n_neighbors,
+  #                           umap_metric, umap_min_dist, col_name = target_col),
+  # dim_reduce_5 = dim_reduce(5, data_path_kmers, results_path_dimreduce,
+  #                           tsne_seed = seed, tsne_perplexity,
+  #                           tsne_max_iter, tsne_initial_dims,
+  #                           umap_seed = seed, umap_n_neighbors,
+  #                           umap_metric, umap_min_dist, col_name = target_col),
+  # dim_reduce_7 = dim_reduce(7, data_path_kmers, results_path_dimreduce,
+  #                           tsne_seed = seed, tsne_perplexity,
+  #                           tsne_max_iter, tsne_initial_dims,
+  #                           umap_seed = seed, umap_n_neighbors,
+  #                           umap_metric, umap_min_dist, col_name = target_col),
+  times = bm_times,
+  unit = bm_units,
+  control = list(order = "inorder", warmup = 2L)
+)
+
+print("All operations completed successfully!")
+
+# CLEAN UP #################################################
+
+# Clear environment
+# rm(list = ls()) 
+
+# Clear packages (unloading them before another adds another compat check)
+p_unload(all)  # Remove all add-ons
+
+# Clear plots but only if there IS a plot
+while (!is.null(dev.list())) dev.off()
+
+# Clear console
+# cat("\014")  # ctrl+L
+
+# Clear mind :)
+
+```
 
 # Next Steps {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
@@ -210,7 +417,6 @@ print("All operations completed successfully!")
 
 - Goals for Next Week
   - Improve plot by adding ability to change point shapes according to another variable
-  - Improve plot by adding filtering for certain variants
   - Benchmark Workflow with Spectre and Meltdown Patches Enabled vs. Disabled in Intel Core/AMD Ryzen processors and Windows/Linux OS 
   - Benchmark Computations using OpenBLAS/ATLAS/AMD BLISS/ Intel MKL
   - Document and Analyze Benchmarking Results
