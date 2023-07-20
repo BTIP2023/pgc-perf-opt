@@ -118,7 +118,7 @@ print("All operations completed successfully!")
 # Clear environment
 rm(list = ls()) 
 
-# Clear packages
+# Clear packages (unloading them before another adds another compat check)
 p_unload(all)  # Remove all add-ons
 detach("package:datasets", unload = TRUE)  # For base
 

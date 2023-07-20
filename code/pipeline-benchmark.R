@@ -131,3 +131,20 @@ microbenchmark(
 )
 
 print("All operations completed successfully!")
+
+# CLEAN UP #################################################
+
+# Clear environment
+rm(list = ls()) 
+
+# Clear packages (unloading them before another adds another compat check)
+p_unload(all)  # Remove all add-ons
+detach("package:datasets", unload = TRUE)  # For base
+
+# Clear plots but only if there IS a plot
+while (!is.null(dev.list())) dev.off()
+
+# Clear console
+# cat("\014")  # ctrl+L
+
+# Clear mind :)
