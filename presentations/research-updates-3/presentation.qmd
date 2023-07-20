@@ -1,5 +1,5 @@
 ---
-title: "Research Updates 2"
+title: "Research Updates 3"
 author: "<b>Project Lead:</b> Mark Joseph Garrovillas, RCh </br> <b>Interns:</b> Brylle Joshua Logroño, John Matthew Felices, Yenzy Urson Hebron"
 date: "July 14 2023"
 institution: "Core Facility for Bioinformatics"
@@ -44,6 +44,17 @@ title-slide-attributes:
 
 ## Does processor vulnerability mitigations (Spectre and Meltdown) significantly affect the runtime of the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/spectre_meltdown.png){.fragment fig-align="center" height=60% width=60%}
+# Progress Report - Overview {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## The team's trello board gives an overview of the team's progress {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/trello.png){.fragment fig-align="center" height=70% width=70%}
+
+## The burndown chart shows if the team is on track to finish the project on time {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="https://docs.google.com/spreadsheets/d/1e_8Idq3GNALJlM27_xZwYv2O2Rsih5MytwXbmZ9c7TI/edit#gid=0" width=1800px height=900px></iframe>
+
+## The burndown chart shows if the team is on track to finish the project on time {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="https://docs.google.com/spreadsheets/d/1e_8Idq3GNALJlM27_xZwYv2O2Rsih5MytwXbmZ9c7TI/edit#gid=196745742" width=1800px height=900px></iframe>
 
 # Progress Report - Workflow Optimization {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
