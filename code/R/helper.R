@@ -23,7 +23,8 @@ write_to_log <- function(output_dir, filename, log_string) {
                   "------\n"), output_path, append=TRUE)
   } else if (pacman::p_detectOS() == "Linux") {
     device <- paste(as.list(Sys.info())[c("sysname", "release")], collapse = ' ')
-    lsb_release <- as.list(system("lsb_release -a", intern = TRUE))
+    lsb_release <- as.list(system("lsb_release -a", intern = TRUE,
+                                  ignore.stderr = TRUE))
     names(lsb_release) <- str_match(lsb_release, pattern = ".+?(?=:)")
     lsb_release <- unlist(lsb_release[c("Description", "Codename")],
                           use.names = FALSE)
