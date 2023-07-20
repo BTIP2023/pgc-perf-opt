@@ -83,7 +83,7 @@ pre_process <- function(df, col_name) {
   
   # (This is needed for labeling of points in 3D plots)
   df$year <- format(as.Date(df$date), "%Y")
-
+  
   return(list(x = x, target = target))
 }
 
@@ -109,7 +109,7 @@ pca_fn <- function(x) {
 }
 
 # Function for 2D PCA plot
-pca_plot <- function(pca_df, df, k, target) {
+pca_plot <- function(pca_df, df, k, target, results_path) {
   variant <- df[[target]]
   print("Generating 2D PCA plot...")
   p <- autoplot(pca_df, data = df) +
@@ -124,11 +124,11 @@ pca_plot <- function(pca_df, df, k, target) {
     ))) +
     scale_color_brewer(palette = "Set1")
   # Save plot as PNG and HTML
-  save_plot("pca", k, p)
+  save_plot("pca", results_path, k, p)
 }
 
 # Function for 3D PCA plot
-pca_3d <- function(pca_df, df, target, k) {
+pca_3d <- function(pca_df, df, target, k, results_path) {
   print("Generating 3D PCA plot...")
   pc <- as.data.frame(pca_df$x[, 1:3])
   
@@ -148,18 +148,18 @@ pca_3d <- function(pca_df, df, target, k) {
   )
   
   # Save plot as PNG and HTML
-  save_plot("3d-pca", k, p, is_3d = TRUE)
+  save_plot("3d-pca", results_path, k, p, is_3d = TRUE)
 }
 
 # Function that generates scree plot from PCA results
-screeplot <- function(pca_df, k) {
+screeplot <- function(pca_df, k, results_path) {
   print("Generating scree plot...")
   p <- fviz_eig(pca_df,
                 xlab = "Number of Principal Components"
   )
   
   # Save plot as PNG and HTML
-  save_plot("screeplot", k, p)
+  save_plot("screeplot", results_path, k, p)
 }
 
 # Function that generates factor loadings of first
@@ -194,7 +194,7 @@ factor_loadings <- function(pca_df, x, k, n_components) {
 }
 
 # Function that generates graph of individuals from PCA results
-indiv <- function(pca_df, k) {
+indiv <- function(pca_df, k, results_path) {
   print("Generating graph of individuals...")
   p <- fviz_pca_ind(pca_df,
                     col.ind = "cos2", # Color by the quality of representation
@@ -205,11 +205,11 @@ indiv <- function(pca_df, k) {
   )
   
   # Save plot as PNG and HTML
-  save_plot("indivgraph", k, p)
+  save_plot("indivgraph", results_path, k, p)
 }
 
 # Function that generates graph of variables from PCA results
-vars <- function(pca_df, k) {
+vars <- function(pca_df, k, results_path) {
   print("Generating graph of variables...")
   p <- fviz_pca_var(pca_df,
                     col.var = "contrib", # Color by contributions to the PC
@@ -220,11 +220,11 @@ vars <- function(pca_df, k) {
   )
   
   # Save plot as PNG and HTML
-  save_plot("vargraph", k, p)
+  save_plot("vargraph", results_path, k, p)
 }
 
 # Function that generates biplot from PCA results
-biplot <- function(pca_df, k) {
+biplot <- function(pca_df, k, results_path) {
   print("Generating biplot...")
   # # [Old method] Create biplot of individuals and variables
   p <- fviz_pca_biplot(pca_df,
@@ -244,7 +244,7 @@ biplot <- function(pca_df, k) {
   #   theme(legend.direction = "horizontal", legend.position = "top")
   
   # Save plot as PNG and HTML
-  save_plot("biplot", k, p)
+  save_plot("biplot", results_path, k, p)
 }
 
 # Function that performs t-SNE (Rtsne library)
@@ -261,11 +261,11 @@ rtsne_fn <- function(pca_results, tsne_dims, tsne_perplexity, tsne_max_iter, tsn
 
 # Function that includes visualization for each t-SNE iteration
 ecb <- function(x) {
-  epoc_df <- data.frame(x, target = df[[target]])
+  epoc_df <- data.frame(x, target = col_name)
   
   plt <- ggplot(epoc_df, aes(
     x = X1, y = X2,
-    label = df[[target]], color = df[[target]]
+    label = target, color = target
   )) +
     geom_text()
   
@@ -282,7 +282,7 @@ tsne_fn <- function(pca_results, tsne_dims, tsne_initial_dims, tsne_perplexity, 
                     initial_dims = tsne_initial_dims,
                     perplexity = tsne_perplexity,
                     max_iter = tsne_max_iter,
-                    epoch_callback = ecb
+                    # epoch_callback = ecb
     )
   } else {
     tsne_df <- tsne(pca_results,
@@ -297,7 +297,7 @@ tsne_fn <- function(pca_results, tsne_dims, tsne_initial_dims, tsne_perplexity, 
 }
 
 # Function for 2D t-SNE plot
-tsne_plot <- function(tsne_df, df, target, k, is_tsne) {
+tsne_plot <- function(tsne_df, df, target, k, is_tsne, results_path) {
   print("Generating 2D t-SNE plot...")
   if (is_tsne) {
     tsne_df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], target = df[[target]])
@@ -321,11 +321,11 @@ tsne_plot <- function(tsne_df, df, target, k, is_tsne) {
     scale_color_brewer(palette = "Set1")
   
   # Save plot as PNG and HTML
-  save_plot("tsne", k, p)
+  save_plot("tsne", results_path, k, p)
 }
 
 # Function for 3D t-SNE plot
-tsne_3d <- function(tsne_df, df, target, k) {
+tsne_3d <- function(tsne_df, df, target, k, results_path) {
   print("Generating 3D t-SNE plot...")
   final <- cbind(data.frame(tsne_df), df[[target]])
   p <- plot_ly(final,
@@ -343,7 +343,7 @@ tsne_3d <- function(tsne_df, df, target, k) {
   )
   
   # Save plot as PNG and HTML
-  save_plot("3d-tsne", k, p, is_3d = TRUE)
+  save_plot("3d-tsne", results_path, k, p, is_3d = TRUE)
 }
 
 # Function that performs UMAP
@@ -358,7 +358,7 @@ umap_fn <- function(x, umap_dims, umap_n_neighbors, umap_metric, umap_min_dist, 
 }
 
 # Function for 2D UMAP plot
-umap_plot <- function(umap_df, df, target, k) {
+umap_plot <- function(umap_df, df, target, k, results_path) {
   print("Generating 2D UMAP plot...")
   emb <- umap_df$layout
   
@@ -385,11 +385,11 @@ umap_plot <- function(umap_df, df, target, k) {
     scale_color_brewer(palette = "Set1")
   
   # Save plot as PNG and HTML
-  save_plot("umap", k, p)
+  save_plot("umap", results_path, k, p)
 }
 
 # Function for 3D UMAP plot
-umap_3d <- function(umap_df, df, target, k) {
+umap_3d <- function(umap_df, df, target, k, results_path) {
   print("Generating 3D UMAP plot...")
   final <- cbind(data.frame(umap_df[["layout"]]), target)
   p <- plot_ly(final,
@@ -414,7 +414,7 @@ umap_3d <- function(umap_df, df, target, k) {
   ))
   
   # Save plot as PNG and HTML
-  save_plot("3d-umap", k, p, is_3d = TRUE)
+  save_plot("3d-umap", results_path, k, p, is_3d = TRUE)
 }
 
 # Main Function
@@ -422,75 +422,75 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
                        tsne_max_iter, tsne_initial_dims, umap_seed,
                        umap_n_neighbors, umap_metric, umap_min_dist, col_name) {
   # -----START-----
-
+  
   pre_reduce_res <- pre_reduce(results_path, data_path, k, col_name)
   
   df <- pre_reduce_res$df                # df is the original dataset
   x <- pre_reduce_res$data$x             # x is the scaled data
   target <- col_name                     # target is the column used for 
-                                         # clustering
-
+  # clustering
+  
   # Perform PCA
   pca_df <- pca_fn(x)
-
+  
   # Generate 2D PCA plot
-  pca_plot(pca_df, df, k, target)
-
+  pca_plot(pca_df, df, k, target, results_path)
+  
   # Generate 3D PCA plot (does not run PCA again)
-  pca_3d(pca_df, df, target, k)
-
+  pca_3d(pca_df, df, target, k, results_path)
+  
   # Generate screeplot
-  screeplot(pca_df, k)
-
+  screeplot(pca_df, k, results_path)
+  
   # Generate factor loadings plot of first 3 principal components
-  factor_loadings(pca_df, x, k, 3)
-
+  # factor_loadings(pca_df, x, k, 3)
+  
   # Generate graph of individuals
-  indiv(pca_df, k)
-
+  indiv(pca_df, k, results_path)
+  
   # Generate graph of variables
-  vars(pca_df, k)
-
+  vars(pca_df, k, results_path)
+  
   # Generate biplot
-  biplot(pca_df, k)
-
+  biplot(pca_df, k, results_path)
+  
   # Perform t-SNE via 'tsne' library using PCA results (in 2 dimensions)
   # # Note: Uncomment the next two line to use tsne; otherwise, comment them
   is_tsne <- TRUE
   tsne_df <- tsne_fn(pca_df$x, 2, tsne_initial_dims, tsne_perplexity, 
                      tsne_max_iter, tsne_seed)
-
+  
   # Perform t-SNE via 'Rtsne' library using PCA results (in 2 dimensions)
   # # Note: Uncomment the next two line to use Rtsne; otherwise, comment them
   # is_tsne <- FALSE
   # tsne_df <- rtsne_fn(pca_df$x, 2)
-
+  
   # Generate 2D t-SNE plot
-  tsne_plot(tsne_df, df, target, k, is_tsne)
-
+  tsne_plot(tsne_df, df, target, k, is_tsne, results_path)
+  
   # Generate 3D t-SNE plot (runs t-SNE again in 3 dimensions)
   # # Note: Uncomment the two succeeding lines to use tsne;
   # # otherwise, comment them
   tsne_df <- tsne_fn(pca_df$x, 3, tsne_initial_dims, tsne_perplexity, 
                      tsne_max_iter, tsne_seed)
-  tsne_3d(tsne_df, df, target, k)
-
+  tsne_3d(tsne_df, df, target, k, results_path)
+  
   # # Note: Uncomment the two succeeding lines to use Rtsne;
   # # otherwise, comment them
   # tsne_df <- rtsne_fn(pca_df$x, 3, tsne_perplexity, tsne_max_iter, tsne_seed)
   # tsne_3d(tsne_df$Y, df, target, k)
-
+  
   # Perform UMAP (in 2 dimensions)
   umap_df <- umap_fn(x, 2, umap_n_neighbors, umap_metric, 
                      umap_min_dist, umap_seed)
-
+  
   # Generate 2D UMAP plot
-  umap_plot(umap_df, df, target, k)
-
+  umap_plot(umap_df, df, target, k, results_path)
+  
   # Generate 3D UMAP plot (runs t-SNE again in 3 dimensions)
   umap_df <- umap_fn(x, 3, umap_n_neighbors, umap_metric, 
                      umap_min_dist, umap_seed)
-  umap_3d(umap_df, df, target, k)
-
+  umap_3d(umap_df, df, target, k, results_path)
+  
   # -----END-----
 }
