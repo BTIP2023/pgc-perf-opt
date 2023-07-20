@@ -32,11 +32,12 @@ pacman::p_load(dplyr, GGally, ggplot2, ggthemes, ggvis,
                rio, markdown, rmarkdown, shiny,
                stringr, tidyr, tidyverse,
                ape, kmer, readr, validate, gsubfn, seqinr,
-               umap, htmlwidgets, factoextra, scales, ggbiplot,
+               umap, htmlwidgets, factoextra, scales,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
                microbenchmark)
 install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
+library(ggbiplot)
 
 # validate used for %vin% operator 
 # gsubfn used to destructure more than one return value
