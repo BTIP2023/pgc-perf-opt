@@ -120,8 +120,8 @@ preprocess <- function(data_path, extract_path,
   
   # Do not preserve grouping structure (below only) to avoid NULL groups
   dropped_variants <- filter(meta_grouped, n() < strat_size)
-  meta_grouped <- filter(meta_grouped, n() >= strat_size) %>%
-    sample_n(strat_size)
+  meta_grouped <- filter(meta_grouped, n() >= strat_size)
+  meta_grouped <- sample_n(meta_grouped, nrow(meta_grouped))
   metadata_all <- bind_rows(meta_grouped, dropped_variants)
   
   rm(dropped_variants)
@@ -163,14 +163,40 @@ preprocess <- function(data_path, extract_path,
     "Davao" ~ "Davao Region",
     "Bangsamoro Autonomous Region in Muslim Mindanao" ~ "BARMM",
     "Autonomous Region In Muslim Mindanao(ARMM)" ~ "BARMM",
-    "Soccsksargen" ~ "SOCCSKARGEN",
+    "Soccsksargen" ~ "SOCCSKSARGEN",
+    "Region III" ~ "Central Luzon",
+    "Region IV-B" ~ "MIMAROPA",
     "Zamboanga" ~ "Zamboanga Peninsula",
     "Region IV-A" ~ "CALABARZON",
+    "Region VIII (Eastern Visayas)" ~ "Eastern Visayas",
+    "Region VIII" ~ "Eastern Visayas",
     "Region X (Northern Mindanao)" ~ "Northern Mindanao",
     "Region XI (Davao Region)" ~ "Davao Region",
-    "Region XII (Soccsksargen)" ~ "SOCCSKARGEN",
+    "Region XII (Soccsksargen)" ~ "SOCCSKSARGEN",
+    "Metropolitan Manila" ~ "NCR",
     .default = metadata_all$division_exposure
   )
+  
+  # Addon: Add shortened Regions in Roman Numerals
+  metadata_all <- metadata_all %>%
+    dplyr::mutate(de_short = case_match(
+      division_exposure,
+      "Ilocos Region" ~ "I",
+      "Cagayan Valley" ~ "II",
+      "Central Luzon" ~ "III",
+      "CALABARZON" ~ "IV-A",
+      "MIMAROPA" ~ "IV-B",
+      "Bicol Region" ~ "V",
+      "Western Visayas" ~ "VI",
+      "Central Visayas" ~ "VII",
+      "Eastern Visayas" ~ "VIII",
+      "Zamboanga Peninsula" ~ "IX",
+      "Northern Mindanao" ~ "X",
+      "Davao Region" ~ "XI",
+      "SOCCSKSARGEN" ~ "XII",
+      "Caraga" ~ "XIII",
+      .default = division_exposure
+    ), .after = division_exposure)
   
   # Addon: Add age_group, adjacent to age column
   # Age group reference: https://www.statcan.gc.ca/en/concepts/definitions/age2
