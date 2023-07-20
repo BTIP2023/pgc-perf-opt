@@ -80,3 +80,6 @@ backup/
 
 # VSCode files
 tempCodeRunnerFile.R
+
+# Large Files
+data/fasta_all.fasta

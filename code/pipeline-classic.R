@@ -35,7 +35,8 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                umap, htmlwidgets, factoextra, scales,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
-               microbenchmark)
+               microbenchmark,
+               highcharter)
 install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
 pacman::p_load(ggbiplot)
 
@@ -78,6 +79,12 @@ umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 target_col <- "variant"
 
+# dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
+factor1 <- "variant"
+values1 <- c("Omicron", "Omicron Sub")
+factor2 <- "year"
+values2 <- c("2023")
+
 # AGNES Clustering Parameters :: dendogram_create_x()
 results_path_agnes <- "results/dendrogram"
 
@@ -87,6 +94,7 @@ results_path_agnes <- "results/dendrogram"
 list[fasta_all, metadata_all] <- preprocess(data_path_gisaid, extract_path, seed,
                                             strat_size, country_exposure,
                                             write_fastacsv, stamp)
+
 # Step 2: get_kmers()
 for (k in kmer_list) {
   get_kmers(fasta_all, metadata_all, k, stamp)
@@ -98,7 +106,9 @@ for (k in kmer_list) {
              tsne_seed = seed, tsne_perplexity,
              tsne_max_iter, tsne_initial_dims,
              umap_seed = seed, umap_n_neighbors,
-             umap_metric, umap_min_dist, col_name = target_col)
+             umap_metric, umap_min_dist, col_name = target_col,
+             filter1_factor = factor1, filter1_values = values1, # OPTIONAL
+             filter2_factor = factor2, filter2_values = values2) # OPTIONAL
 }
 
 #Step 4: AGNES Clustering by Variant

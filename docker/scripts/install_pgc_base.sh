@@ -42,7 +42,8 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     shiny \
     devtools \
     microbenchmark \
-    reticulate
+    reticulate \
+    highcharter
 
 # Auxiliary R packages (more complicated installs)
 Rscript ./docker/scripts/install_pgc_aux.R
