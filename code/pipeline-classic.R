@@ -78,6 +78,10 @@ umap_n_neighbors <- 15
 umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 target_col <- "variant"
+factor1 <- "variant"
+values1 <- c("Omicron", "Omicron Sub")
+factor2 <- "year"
+values2 <- c("2023")
 
 # AGNES Clustering Parameters :: dendogram_create_x()
 results_path_agnes <- "results/dendrogram"
@@ -100,7 +104,9 @@ for (k in kmer_list) {
              tsne_seed = seed, tsne_perplexity,
              tsne_max_iter, tsne_initial_dims,
              umap_seed = seed, umap_n_neighbors,
-             umap_metric, umap_min_dist, col_name = target_col)
+             umap_metric, umap_min_dist, col_name = target_col,
+             filter1_factor = factor1, filter1_values = filter1,
+             filter2_factor = factor2, filter2_values = filter2)
 }
 
 #Step 4: AGNES Clustering by Variant

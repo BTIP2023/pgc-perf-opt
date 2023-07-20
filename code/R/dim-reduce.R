@@ -88,7 +88,8 @@ pre_process <- function(df, col_name) {
 }
 
 # Function to execute before main dim-reduce codes
-pre_reduce <- function(results_path, data_path, k, col_name) {
+pre_reduce <- function(results_path, data_path, k, col_name, filter1_factor, 
+                       filter1_values, filter2_factor, filter2_values) {
   # Check if the directory already exists
   if (!dir.exists(results_path)) {
     # Create the directory if it doesn't exist
@@ -96,6 +97,11 @@ pre_reduce <- function(results_path, data_path, k, col_name) {
   }
   # Search and read the CSV file
   df <- read_kmer_csv(data_path, k)
+  
+  # Filter dataframe according to specified filters
+  df <- filter(df, df[[filter1_factor]] %in% filter1_values)
+  df <- filter(df, df[[filter1_factor]] %in% filter2_values)
+  
   # Pre-process the data
   data <- pre_process(df, col_name)
   return(list(df = df, data = data))
@@ -420,10 +426,14 @@ umap_3d <- function(umap_df, df, target, k, results_path) {
 # Main Function
 dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
                        tsne_max_iter, tsne_initial_dims, umap_seed,
-                       umap_n_neighbors, umap_metric, umap_min_dist, col_name) {
+                       umap_n_neighbors, umap_metric, umap_min_dist, col_name,
+                       filter1_factor, filter1_values, filter2_factor, 
+                       filter2_values) {
   # -----START-----
   
-  pre_reduce_res <- pre_reduce(results_path, data_path, k, col_name)
+  pre_reduce_res <- pre_reduce(results_path, data_path, k, col_name,
+                               filter1_factor, filter1_values, filter2_factor, 
+                               filter2_values)
   
   df <- pre_reduce_res$df                # df is the original dataset
   x <- pre_reduce_res$data$x             # x is the scaled data
