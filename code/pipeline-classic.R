@@ -62,9 +62,9 @@ kmer_list <- c(3, 5, 7)
 # preprocess.R::preprocess() parameters
 data_path_gisaid <- "data/GISAID"
 extract_path <- "data/GISAID/datasets"
-strat_size <- 25000
+strat_size <- 100
 country_exposure <- "Philippines"
-write_fastacsv <- FALSE
+write_fastacsv <- TRUE
 
 # kmer-analysis.R::get_kmers() parameters
 
@@ -78,6 +78,8 @@ umap_n_neighbors <- 15
 umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 target_col <- "variant"
+
+# dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
 factor1 <- "variant"
 values1 <- c("Omicron", "Omicron Sub")
 factor2 <- "year"
@@ -105,8 +107,8 @@ for (k in kmer_list) {
              tsne_max_iter, tsne_initial_dims,
              umap_seed = seed, umap_n_neighbors,
              umap_metric, umap_min_dist, col_name = target_col,
-             filter1_factor = factor1, filter1_values = filter1,
-             filter2_factor = factor2, filter2_values = filter2)
+             filter1_factor = factor1, filter1_values = values1, # OPTIONAL
+             filter2_factor = factor2, filter2_values = values2) # OPTIONAL
 }
 
 #Step 4: AGNES Clustering by Variant

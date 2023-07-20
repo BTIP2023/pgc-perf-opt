@@ -97,10 +97,24 @@ pre_reduce <- function(results_path, data_path, k, col_name, filter1_factor,
   }
   # Search and read the CSV file
   df <- read_kmer_csv(data_path, k)
+  df$year <- format(as.Date(df$date), "%Y")
   
-  # Filter dataframe according to specified filters
-  df <- filter(df, df[[filter1_factor]] %in% filter1_values)
-  df <- filter(df, df[[filter1_factor]] %in% filter2_values)
+  # Making filter values optional
+  if(missing(filter1_factor) && missing(filter1_values) &&
+     missing(filter2_factor) && missing(filter2_values)){
+    
+  } else if(missing(filter2_factor) && missing(filter2_values)){
+    
+    df <- filter(df, df[[filter1_factor]] %in% filter1_values)
+    
+  } else if(missing(filter1_factor) && missing(filter1_values)){
+    
+    df <- filter(df, df[[filter2_factor]] %in% filter2_values)
+    
+  } else {
+    df <- filter(df, df[[filter1_factor]] %in% filter1_values)
+    df <- filter(df, df[[filter2_factor]] %in% filter2_values)
+  }
   
   # Pre-process the data
   data <- pre_process(df, col_name)
