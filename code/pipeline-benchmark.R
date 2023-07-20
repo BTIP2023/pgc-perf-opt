@@ -13,7 +13,7 @@ library(pacman)
 
 ### ATTN: IN LINUX SYSTEMS, CONSULT README FOR ADDITIONAL PREREQUISITES
 ### BEFORE RUNNING ANY SCRIPT. ISSUE: tidyverse installation.
-### This is a non-issue if code is ran within cpu-gpu.Dockerfile.
+### This is a non-issue if code is ran within cpu.Dockerfile.
 ### This cannot be scripted because this requires sudo priveleges.
 
 # Install xml2 in advance to prep for tidyverse installation in Linux.
@@ -26,17 +26,18 @@ if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
 
 # Use pacman to load add-on packages as desired.
 # TODO: Remove redundancies in dependencies. E.g., dplyr and ggplot2
-# is already a dependency of tidyverse.
-pacman::p_load(dplyr, GGally, ggplot2, ggthemes, ggvis,
+# are already dependencies of tidyverse.
+pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                httr, lubridate, plotly, psych,
                rio, markdown, rmarkdown, shiny,
                stringr, tidyr, tidyverse,
                ape, kmer, readr, validate, gsubfn, seqinr,
-               umap, htmlwidgets, factoextra, scales, ggbiplot,
+               umap, htmlwidgets, factoextra, scales,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
                microbenchmark)
 install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
+library(ggbiplot)
 
 # validate used for %vin% operator 
 # gsubfn used to destructure more than one return value
