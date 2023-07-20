@@ -35,7 +35,7 @@ read_kmer_csv <- function(data_path, k) {
 }
 
 # Function for saving 2D plots as PNG and HTML
-save_plot <- function(method, k, p, is_3d = FALSE) {
+save_plot <- function(method, results_path, k, p, is_3d = FALSE) {
   print("Saving plot...")
   # File name for saving
   filename <- paste0(method, "-", k, ".png")
@@ -261,7 +261,7 @@ rtsne_fn <- function(pca_results, tsne_dims, tsne_perplexity, tsne_max_iter, tsn
 
 # Function that includes visualization for each t-SNE iteration
 ecb <- function(x) {
-  epoc_df <- data.frame(x, target = df[[col_name]])
+  epoc_df <- data.frame(x, target = df[[target]])
   
   plt <- ggplot(epoc_df, aes(
     x = X1, y = X2,
@@ -282,7 +282,7 @@ tsne_fn <- function(pca_results, tsne_dims, tsne_initial_dims, tsne_perplexity, 
                     initial_dims = tsne_initial_dims,
                     perplexity = tsne_perplexity,
                     max_iter = tsne_max_iter,
-                    # epoch_callback = ecb
+                    epoch_callback = ecb
     )
   } else {
     tsne_df <- tsne(pca_results,
