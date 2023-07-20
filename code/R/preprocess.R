@@ -56,7 +56,7 @@ preprocess <- function(data_path, extract_path,
       }
       variant <- str_to_title(variant)
       
-      message(paste("---\nReading", fasta_path))
+      message(paste("\nReading", fasta_path))
       # Parse then merge fasta file with accumulator.
       # Optimization: If write_fasta == TRUE, then use seqinr, else use ape.
       if (write_fastacsv) {
@@ -66,7 +66,7 @@ preprocess <- function(data_path, extract_path,
       }
       fasta_all <- c(fasta_all, fasta)
       
-      print(paste("Reading", tsv_path))
+      message(paste("Reading", tsv_path))
       # Parse then merge metaData file with accumulator.
       # Defer sanitation after random sampling so fasta and metaData kept 1:1.
       metaData <- as.data.frame(read_tsv(tsv_path,
