@@ -35,9 +35,13 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                umap, htmlwidgets, factoextra, scales,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
-               microbenchmark)
+               microbenchmark,
+               highcharter)
 install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
 pacman::p_load(ggbiplot)
+
+# Set highcharter options
+options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
 
 # validate used for %vin% operator 
 # gsubfn used to destructure more than one return value
@@ -63,7 +67,7 @@ data_path_gisaid <- "data/GISAID"
 extract_path <- "data/GISAID/datasets"
 strat_size <- 100
 country_exposure <- "Philippines"
-write_fastacsv <- TRUE
+write_fastacsv <- FALSE
 
 # kmer-analysis.R::get_kmers() parameters
 
