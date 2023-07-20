@@ -32,6 +32,8 @@ RUN ./docker/scripts/install_pgc_base.sh
 # Set RStudio Server working directory to workspace
 RUN echo "setwd(\"/home/rstudio/pgc-perf-opt/\")" > /home/rstudio/.Rprofile
 
+CMD ["R"]
+
 # Note: Currently using bind mounts instead of volumes for dev convenience
 # and because of skill issue.
 

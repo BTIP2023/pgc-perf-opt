@@ -62,9 +62,9 @@ kmer_list <- c(3, 5, 7)
 # preprocess.R::preprocess() parameters
 data_path_gisaid <- "data/GISAID"
 extract_path <- "data/GISAID/datasets"
-strat_size <- 24671
+strat_size <- 25000
 country_exposure <- "Philippines"
-write_fastacsv <- TRUE
+write_fastacsv <- FALSE
 
 # kmer-analysis.R::get_kmers() parameters
 

@@ -21,9 +21,9 @@ preprocess <- function(data_path, extract_path,
   
   # Extract GISAID data.
   if (dir.exists(extract_path)) {
-    print("GISAID data already extracted from tar archives.")
+    message("GISAID data already extracted from tar archives.")
   } else {
-    print("Extracting GISAID data to data/GISAID/datasets/...")
+    message("Extracting GISAID data to data/GISAID/datasets/...")
     tars <- list.files(data_path, pattern = ".+\\.tar")
     for (file_name in tars) {
       subdir <- str_match(file_name, pattern = "[^-]+-[^-]+")
@@ -55,9 +55,8 @@ preprocess <- function(data_path, extract_path,
         variant <- "Omicron Sub"
       }
       variant <- str_to_title(variant)
-      print(paste("Reading", fasta_path))
-      print(paste("Reading", tsv_path))
       
+      print(paste("Reading", fasta_path))
       # Parse then merge fasta file with accumulator.
       # Optimization: If write_fasta == TRUE, then use seqinr, else use ape.
       if (write_fastacsv) {
@@ -67,10 +66,12 @@ preprocess <- function(data_path, extract_path,
       }
       fasta_all <- c(fasta_all, fasta)
       
+      print(paste("Reading", tsv_path))
       # Parse then merge metaData file with accumulator.
       # Defer sanitation after random sampling so fasta and metaData kept 1:1.
       metaData <- as.data.frame(read_tsv(tsv_path,
-                                         col_select = c(1,3,5,10,11,12,16,17,19)),
+                                         col_select = c(1,3,5,10,11,
+                                                        12,16,17,19,22,23)),
                                 show_col_types = FALSE)
 
       # Not removing raw date as I believe it is useful for sorting or can be
@@ -119,9 +120,14 @@ preprocess <- function(data_path, extract_path,
     tibble::rownames_to_column()
   
   # Do not preserve grouping structure (below only) to avoid NULL groups
+  # If number of samples in variant group < strat_size, then filter from
+  # meta_grouped and put temporarily in dropped_variants.
+  # If number of samples is variant group >= strat_size, then get those
+  # and place in meta_grouped, then randomly sample each of those groups
   dropped_variants <- filter(meta_grouped, n() < strat_size)
   meta_grouped <- filter(meta_grouped, n() >= strat_size)
-  meta_grouped <- sample_n(meta_grouped, nrow(meta_grouped))
+  if (nrow(meta_grouped) >= strat_size)
+    meta_grouped <- sample_n(meta_grouped, strat_size)
   metadata_all <- bind_rows(meta_grouped, dropped_variants)
   
   rm(dropped_variants)
@@ -150,6 +156,12 @@ preprocess <- function(data_path, extract_path,
   metadata_all <- metadata_all[is.na(pmatch(1:nrow(metadata_all), drop_idxs)),]
   
   # At this point, data has been stratified and randomly sampled.
+  # Now, get credits for the data that has been sampled.
+  # Only sampled rows will be credited.
+  # compile_credits(metadata_all)
+  
+  # After getting credits, we can now drop submitting_lab and authors
+  metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
   
   # Addon: Fix regions
   metadata_all$division_exposure <- case_match(
