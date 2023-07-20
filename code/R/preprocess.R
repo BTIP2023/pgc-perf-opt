@@ -27,7 +27,7 @@ preprocess <- function(data_path, extract_path,
     tars <- list.files(data_path, pattern = ".+\\.tar")
     for (file_name in tars) {
       subdir <- str_match(file_name, pattern = "[^-]+-[^-]+")
-      print(paste("Extracting to:", subdir))
+      message(paste("Extracting to:", subdir))
       untar(paste(data_path, file_name, sep = "/"),
             exdir = paste(extract_path, subdir, sep = "/"))
     }
@@ -56,7 +56,7 @@ preprocess <- function(data_path, extract_path,
       }
       variant <- str_to_title(variant)
       
-      print(paste("Reading", fasta_path))
+      message(paste("---\nReading", fasta_path))
       # Parse then merge fasta file with accumulator.
       # Optimization: If write_fasta == TRUE, then use seqinr, else use ape.
       if (write_fastacsv) {
@@ -222,7 +222,7 @@ preprocess <- function(data_path, extract_path,
   # Lines below creates intermediate fasta_all.fasta and metadata_all.csv.
   # Optimization: Check job order if want to write fasta and csv.
   if (write_fastacsv) {
-    print("Writing generated fasta and csv files to data/interm/...")
+    message("Writing generated fasta and csv files to data/interm/...")
     
     # Write parameters used to log file
     write_to_log(output_dir = "data/interm", filename = "log.txt",
@@ -235,7 +235,7 @@ preprocess <- function(data_path, extract_path,
     seqinr::write.fasta(fasta_all, names(fasta_all),
                         sprintf("data/interm/fasta_all_%s.fasta", stamp))
     
-    print(paste("Writing intermediate metadata to",
+    message(paste("Writing intermediate metadata to",
                 sprintf("data/interm/metadata_all_%s.csv", stamp)))
     
     write.csv(metadata_all,
