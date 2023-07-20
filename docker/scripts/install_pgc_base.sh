@@ -48,10 +48,6 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
 Rscript ./docker/scripts/install_pgc_aux.R
 python3 -m pip install plotly
 
-# Install deferred curl
-apt-get update && apt-get upgrade && apt-get install curl -y
-apt install cmake -y # install for factoextra
-
 # For kmer-analysis.R and sources
 install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     ape \
@@ -77,6 +73,12 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     dendextend \
     cluster \
     colorspace
+
+# Install deferred packages
+apt-get update
+apt-get upgrade -y
+apt-get install curl -y
+apt-get install cmake -y # install for factoextra
 
 # Clean up
 rm -rf /var/lib/apt/lists/*

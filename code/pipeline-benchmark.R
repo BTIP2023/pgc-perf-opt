@@ -37,7 +37,7 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                ggdendro, dendextend, cluster, colorspace,
                microbenchmark)
 install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
-library(ggbiplot)
+pacman::p_load(ggbiplot)
 
 # validate used for %vin% operator 
 # gsubfn used to destructure more than one return value
@@ -92,6 +92,7 @@ benchmark_results = list()
 # Benchmark Notes:
 # preprocess, to start from extraction, delete: data/GISAID/datasets/
 # preprocess, to also generate data, set write_fastacsv = TRUE.
+# benchmarks
 microbenchmark(
   preprocess = list[fasta_all, metadata_all] <-
     preprocess(data_path, extract_path, seed,
@@ -139,7 +140,6 @@ rm(list = ls())
 
 # Clear packages (unloading them before another adds another compat check)
 p_unload(all)  # Remove all add-ons
-detach("package:datasets", unload = TRUE)  # For base
 
 # Clear plots but only if there IS a plot
 while (!is.null(dev.list())) dev.off()
