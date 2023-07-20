@@ -12,3 +12,4 @@ services:
       - ../benchmarks:/home/rstudio/pgc-perf-opt/benchmarks
       - ../code:/home/rstudio/pgc-perf-opt/code
       - ../data:/home/rstudio/pgc-perf-opt/data
+      - ../results:/home/rstudio/pgc-perf-opt/results

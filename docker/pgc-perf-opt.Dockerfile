@@ -32,6 +32,9 @@ RUN ./docker/scripts/install_pgc_base.sh
 # Set RStudio Server working directory to workspace
 RUN echo "setwd(\"/home/rstudio/pgc-perf-opt/\")" > /home/rstudio/.Rprofile
 
+# Note: Currently using bind mounts instead of volumes for dev convenience
+# and because of skill issue.
+
 ### Python
 # Comes with Python 3.10.6 with base packages via python3.
 # Install the rest of the dependencies manually via pip.

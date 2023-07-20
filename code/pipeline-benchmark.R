@@ -85,7 +85,7 @@ target_col <- "variant"
 # AGNES Clustering Parameters :: dendogram_create_x()
 results_path_agnes <- "results/dendrogram"
 
-# RUN PIPELINE #############################################
+# RUN BENCHMARK #############################################
 # Initialize benchmark results collector, write to log later
 benchmark_results = list()
 
