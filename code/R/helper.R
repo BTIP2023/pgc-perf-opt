@@ -44,7 +44,6 @@ write_to_log <- function(output_dir, filename, log_string) {
                             "Vulnerability Srbds",
                             "Vulnerability Tsx async abort")],
                     use.names = FALSE)
-    # [c(1,5,8,11,16,17,30,33,34,35)]
     mem <- system("grep MemTotal /proc/meminfo", intern=T)
     specs <- c(device, lsb_release, lscpu, mem)
     write_lines(c(as.character(Sys.time()), specs, log_string,
@@ -61,4 +60,28 @@ write_to_log <- function(output_dir, filename, log_string) {
 get_time <- function() {
   ret <- gsub("[.:-]|\\s", "", as.character(Sys.time()))
   ret <- substring(ret, 1, nchar(ret)-3)
+}
+
+# Plot treemap with appropriate drilldowns using highcharter
+make_treemap <- function(metadata) {
+  # Set highcharter options
+  options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
+  
+  # Summary table
+  summary.table <- metadata_all %>% 
+    group_by(variant) %>% 
+    summarise(
+      nb_variant = n(), 
+      nb_division_exposure = length(unique(division_exposure))
+    ) %>% 
+    arrange(-nb_variant, -nb_division_exposure)
+  summary.table
+  
+  hc <- summary.table %>%
+    hchart(
+      "treemap", 
+      hcaes(x = variant, value = nb_variant, color = nb_division_exposure)
+    )
+  hc
+  
 }

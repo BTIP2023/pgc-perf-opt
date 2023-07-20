@@ -40,9 +40,6 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
 install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
 pacman::p_load(ggbiplot)
 
-# Set highcharter options
-options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
-
 # validate used for %vin% operator 
 # gsubfn used to destructure more than one return value
 # devtools supports install_github for installing ggbiplot
@@ -65,9 +62,9 @@ kmer_list <- c(3, 5, 7)
 # preprocess.R::preprocess() parameters
 data_path_gisaid <- "data/GISAID"
 extract_path <- "data/GISAID/datasets"
-strat_size <- 100
+strat_size <- 24671
 country_exposure <- "Philippines"
-write_fastacsv <- FALSE
+write_fastacsv <- TRUE
 
 # kmer-analysis.R::get_kmers() parameters
 
@@ -91,6 +88,7 @@ results_path_agnes <- "results/dendrogram"
 list[fasta_all, metadata_all] <- preprocess(data_path_gisaid, extract_path, seed,
                                             strat_size, country_exposure,
                                             write_fastacsv, stamp)
+
 # Step 2: get_kmers()
 for (k in kmer_list) {
   get_kmers(fasta_all, metadata_all, k, stamp)
