@@ -42,6 +42,12 @@ title-slide-attributes:
 ## Which linear algebra library implementation (BLAS,LAPACK,OpenCL,IntelMLK) gives the most optimal runtime for the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/linear-algebra.jpg){.fragment fig-align="center" height=60% width=60%}
 
+## Initial Treemaps to further motivate the Dataset Analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="division-variant-lineage.html" width=1800px height=900px></iframe>
+
+## Initial Treemaps to further motivate the Dataset Analysis  {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="variant-division-lineage.html" width=1800px height=900px></iframe>
+
 ## Does processor vulnerability mitigations (Spectre and Meltdown) significantly affect the runtime of the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ![](presentation_files/img/spectre_meltdown.png){.fragment fig-align="center" height=60% width=60%}
@@ -249,8 +255,9 @@ while (!is.null(dev.list())) dev.off()
 ## USB-Bootable Ubuntu OS was created to standardize the OS during benchmarking {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/ubuntu.png){.fragment fig-align="center" height=60% width=60%}
 
-## A docker container was created to standardize the environment for benchmarking {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-![](presentation_files/img/docker-container.png){.fragment fig-align="center" height=60% width=60%}
+## Created Docker image to standardize the development environment {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/docker-container.png){.fragment fig-align="center" height=50% width=50%}
+![](presentation_files/img/docker.jpg){.fragment fig-align="center" height=30% width=%}
 
 ## A pipeline to be used for benchmarking was created{data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
