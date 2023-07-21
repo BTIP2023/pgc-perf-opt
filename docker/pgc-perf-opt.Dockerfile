@@ -84,7 +84,7 @@ RUN apt-get install cmake -y
 
 # Clean up of install temps
 RUN rm -rf /var/lib/apt/lists/*
-RUN -rf /tmp/downloaded_packages
+RUN rm -rf /tmp/downloaded_packages
 
 ## Strip binary installed lybraries from RSPM
 ## https://github.com/rocker-org/rocker-versioned2/issues/340
