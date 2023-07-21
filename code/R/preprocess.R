@@ -158,7 +158,7 @@ preprocess <- function(data_path, extract_path,
   # At this point, data has been stratified and randomly sampled.
   # Now, get credits for the data that has been sampled.
   # Only sampled rows will be credited.
-  # compile_credits(metadata_all)
+  # compile_overview(metadata_all)
   
   # After getting credits, we can now drop submitting_lab and authors
   metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
@@ -192,7 +192,7 @@ preprocess <- function(data_path, extract_path,
   
   # Addon: Add shortened Regions in Roman Numerals
   metadata_all <- metadata_all %>%
-    dplyr::mutate(de_short = case_match(
+    dplyr::mutate(division_code = case_match(
       division_exposure,
       "Ilocos Region" ~ "I",
       "Cagayan Valley" ~ "II",

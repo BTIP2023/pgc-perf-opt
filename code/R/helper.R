@@ -79,8 +79,8 @@ compile_overview <- function(metadata, write_path) {
 
 # Plot treemap with appropriate drilldowns using highcharter
 make_treemap <- function(metadata) {
-  # Set highcharter options
-  options(highcharter.theme = hc_theme_smpl(tooltip = list(valueDecimals = 2)))
+  set.seed(1234)
+  
   
   # Summary table
   summary.table <- metadata_all %>% 
@@ -95,8 +95,39 @@ make_treemap <- function(metadata) {
   hc <- summary.table %>%
     hchart(
       "treemap", 
-      hcaes(x = variant, value = nb_variant, color = nb_division_exposure)
-    )
+      hcaes(x = variant, value = nb_variant)
+    ) %>%
+    hc_add_theme(hc_theme_ggplot2()) %>%
+    hc_colorAxis(stops = color_stops(colors = viridis::inferno(n = 6, direction = -1)),
+                 max =  50)
   hc
   
+  hc <- data_to_hierarchical(metadata_all, c(division_exposure, variant), division_exposure)
+  hchart(hc, type = "treemap")
+  
+  set.seed(110)
+  
+  ex <- data.frame(
+    l1 = metadata_all$division_exposure,
+    l2 = metadata_all$variant,
+    l3 = metadata_all$pangolin_lineage,
+    count = rep(1,nrow(metadata_all))
+  )
+  
+  ex %>% 
+    data_to_hierarchical(c(l1, l2, l3), count) %>%
+    hchart(type = "treemap",
+           allowTraversingTree = TRUE,
+           levelIsConstant = FALSE,
+           levels = list(
+             list(level = 1, dataLabels = list(enabled = TRUE,
+                                               format = "{point.name}<br>
+                                               {point.value}"),
+                  borderColor = "white", borderWidth = 1),
+             list(level = 2, dataLabels = list(enabled = TRUE,
+                                               style = list(fontSize = "0.8em"))),
+             list(level = 3, dataLabels = list(enabled = FALSE))
+           )
+    )
 }
+
