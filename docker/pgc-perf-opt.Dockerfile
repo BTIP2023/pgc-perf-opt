@@ -15,6 +15,8 @@ LABEL organization="Philippine Genome Center - Core Facility for Bioinformatics"
         Natively supports: Performance eval/opt wrt Spectre/Meltdown CPU patches." \
       maintainer="Yenzy Urson S. Hebron <yshebron@up.edu.ph>"
 
+ARG NCPUS=-1
+
 # Copy local repository snapshot (see .dockerignore)
 # Notes: Container has a /home/rstudio directory.
 #   - Comment out presentations/ in .dockerignore if you wish
@@ -30,6 +32,23 @@ WORKDIR /home/rstudio/pgc-perf-opt
 
 # Install project base R, Python, and system-level dependencies
 RUN ./docker/scripts/install_pgc_base.sh
+
+# R packages installation, removed redundancies from install_tidyverse.sh
+RUN install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
+    pacman \
+    plyr \
+    GGally \
+    ggthemes \
+    ggvis \
+    plotly \
+    psych \
+    rio \
+    markdown \
+    shiny \
+    devtools \
+    microbenchmark \
+    reticulate \
+    highcharter
 
 # For kmer-analysis.R and sources
 RUN install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \

@@ -29,21 +29,4 @@ apt_install \
     less \
     libglpk-dev
 
-# R packages installation, removed redundancies from install_tidyverse.sh
-install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
-    pacman \
-    plyr \
-    GGally \
-    ggthemes \
-    ggvis \
-    plotly \
-    psych \
-    rio \
-    markdown \
-    shiny \
-    devtools \
-    microbenchmark \
-    reticulate \
-    highcharter
-
 echo -e "\nInstall PGC Perf Opt base apt packages, done!"
