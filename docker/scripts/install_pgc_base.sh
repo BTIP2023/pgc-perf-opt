@@ -19,6 +19,7 @@ function apt_install() {
 
 # Install Linux utility libraries
 # Defer curl installation for compatibility with install_github()
+# libglpk-dev is required for highcharter installation in Ubuntu
 apt_install \
     tree \
     jq \
@@ -26,7 +27,7 @@ apt_install \
     texinfo \
     nano \
     less \
-    python3-pip
+    libglpk-dev
 
 # R packages installation, removed redundancies from install_tidyverse.sh
 install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
@@ -44,10 +45,6 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     microbenchmark \
     reticulate \
     highcharter
-
-# Auxiliary R packages (more complicated installs)
-Rscript ./docker/scripts/install_pgc_aux.R
-python3 -m pip install plotly
 
 # For kmer-analysis.R and sources
 install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \

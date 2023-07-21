@@ -1,5 +1,3 @@
-# escape=`
-
 # Base Image for PGC Performance Optimization Group.
 # Natively supports: Performance eval/opt wrt Spectre/Meltdown CPU patches. 
 
@@ -12,9 +10,9 @@
 # - rocker/r-ver:4.3.1
 FROM rocker/tidyverse:4.3.1
 
-LABEL organization="Philippine Genome Center - Core Facility for Bioinformatics" `
-      description="Base image for PGC Performance Optimization Group. `
-        Natively supports: Performance eval/opt wrt Spectre/Meltdown CPU patches." `
+LABEL organization="Philippine Genome Center - Core Facility for Bioinformatics" \
+      description="Base image for PGC Performance Optimization Group. \
+        Natively supports: Performance eval/opt wrt Spectre/Meltdown CPU patches." \
       maintainer="Yenzy Urson S. Hebron <yshebron@up.edu.ph>"
 
 # Copy local repository snapshot (see .dockerignore)
@@ -29,10 +27,19 @@ WORKDIR /home/rstudio/pgc-perf-opt
 # Install project base R, Python, and system-level dependencies
 RUN ./docker/scripts/install_pgc_base.sh
 
-# Set RStudio Server working directory to workspace
-RUN echo "setwd(\"/home/rstudio/pgc-perf-opt/\")" > /home/rstudio/.Rprofile
+# Auxiliary Installations of R packages (and Python by necessity)
+# apt_install libpython-dev
+# apt_install libpython3-dev
+RUN Rscript ./docker/scripts/install_pgc_aux.R
 
-CMD ["R"]
+# Set RStudio Server working directory to workspace
+# RUN echo "setwd(\"/home/rstudio/pgc-perf-opt\")" > /home/rstudio/.Rprofile
+
+# Make RStudio Server use reticulated environment on startup
+# /home/rstudio/.local/share/r-miniconda/envs/r-reticulate
+# RUN echo "library(reticulate)" >> /home/rstudio/.Rprofile
+# RUN echo "Sys.setenv(RETICULATE_MINICONDA_PATH = \"/home/rstudio/.local/share/r-miniconda\")" >> /home/rstudio/.Rprofile
+# RUN echo "reticulate::use_miniconda(\"/home/rstudio/.local/share/r-miniconda/envs/r-reticulate\")" >> /home/rstudio/.Rprofile
 
 # Note: Currently using bind mounts instead of volumes for dev convenience
 # and because of skill issue.

@@ -13,8 +13,8 @@ remotes::install_version("knitr", version = "1.42",
 # save_image
 # In Linux, so no need for
 # `reticulate::conda_install("r-reticulate", "python-kaleido==0.1.*"")
-library(reticulate)
-reticulate::install_miniconda()
-reticulate::conda_install("r-reticulate", "python-kaleido")
-reticulate::conda_install("r-reticulate", "plotly", channel = "plotly")
-reticulate::use_miniconda("r-reticulate")
+# library(reticulate)
+# Sys.setenv(RETICULATE_MINICONDA_PATH = "/home/rstudio/.local/share/r-miniconda")
+# reticulate::install_miniconda(path = "/home/rstudio/.local/share/r-miniconda")
+# reticulate::conda_install("r-reticulate", "python-kaleido")
+# reticulate::conda_install("r-reticulate", "plotly", channel = "plotly")
