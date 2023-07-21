@@ -21,7 +21,7 @@ LABEL organization="Philippine Genome Center - Core Facility for Bioinformatics"
 #   - to work on presentations in the container.
 COPY . /home/rstudio/pgc-perf-opt
 
-RUN apt-get update
+RUN --mount=type=cache,target=/var/cache/apt apt-get update
 RUN apt-get install -y libpython2-dev
 RUN apt-get install -y libpython3-dev
 
@@ -42,7 +42,7 @@ RUN echo "setwd('/home/rstudio/pgc-perf-opt')" > /home/rstudio/.Rprofile
 RUN echo "library(reticulate)" >> /home/rstudio/.Rprofile
 RUN echo "Sys.setenv(RETICULATE_MINICONDA_PATH = '/home/rstudio/r-miniconda')" >> /home/rstudio/.Rprofile
 RUN echo "Sys.setenv(RETICULATE_MINICONDA_ENABLED = 'true')" >> /home/rstudio/.Rprofile
-RUN echo "reticulate::py_config()" >> /home/srstudio/.Rprofile
+RUN echo "reticulate::py_config()" >> /home/rstudio/.Rprofile
 RUN echo "reticulate::use_miniconda('reticulate')" >> /home/rstudio/.Rprofile
 
 # Note: Currently using bind mounts instead of volumes for dev convenience
@@ -50,8 +50,7 @@ RUN echo "reticulate::use_miniconda('reticulate')" >> /home/rstudio/.Rprofile
 
 ### Python
 # Comes with Python 3.10.6 with base packages via python3.
-# Install the rest of the dependencies manually via pip.
-# In particular, install plotly.
+# However, we only use Python 3.9.16, installed via reticulate to ~/r-miniconda.
 
 ### R and RStudio
 # Comes with R 4.3.1 and RStudio Server, bundled with tidyverse.
