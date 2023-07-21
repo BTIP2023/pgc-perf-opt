@@ -56,7 +56,7 @@ preprocess <- function(data_path, extract_path,
       }
       variant <- str_to_title(variant)
       
-      message(paste("\nReading", fasta_path))
+      message(paste0("\nReading ", fasta_path, "... "))
       # Parse then merge fasta file with accumulator.
       # Optimization: If write_fasta == TRUE, then use seqinr, else use ape.
       if (write_fastacsv) {
@@ -65,15 +65,17 @@ preprocess <- function(data_path, extract_path,
         fasta <- ape::read.FASTA(fasta_path)
       }
       fasta_all <- c(fasta_all, fasta)
+      message("\bDONE.")
       
-      message(paste("Reading", tsv_path))
+      message(paste0("Reading ", tsv_path, "... "))
       # Parse then merge metaData file with accumulator.
       # Defer sanitation after random sampling so fasta and metaData kept 1:1.
       metaData <- as.data.frame(read_tsv(tsv_path,
                                          col_select = c(1,3,5,10,11,
-                                                        12,16,17,19,22,23)),
-                                show_col_types = FALSE)
-
+                                                        12,16,17,19,22,23),
+                                         show_col_types = FALSE))
+      message("\bDONE.")
+      
       # Not removing raw date as I believe it is useful for sorting or can be
       # parsed on an as-needed basis. Dropped year, month, day: just extract
       # them from the date using lubridate::{year,month,day}(date).
@@ -99,7 +101,7 @@ preprocess <- function(data_path, extract_path,
   rm(metaData)
 
   # Print out total samples beforehand to guide future strat_size.
-  message(paste("Total number of samples in complete, unpruned data:",
+  message(paste("\nTotal number of samples in complete, unpruned data:",
               nrow(metadata_all)))
 
   # Addon: Filter by country_exposure.
@@ -163,6 +165,9 @@ preprocess <- function(data_path, extract_path,
   # After getting credits, we can now drop submitting_lab and authors
   metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
   
+  message(paste("Number of randomly selected samples in stratified data:",
+                nrow(metadata_all)))
+  
   # Addon: Fix regions
   metadata_all$division_exposure <- case_match(
     metadata_all$division_exposure,
@@ -222,25 +227,31 @@ preprocess <- function(data_path, extract_path,
   # Lines below creates intermediate fasta_all.fasta and metadata_all.csv.
   # Optimization: Check job order if want to write fasta and csv.
   if (write_fastacsv) {
-    message("Writing generated fasta and csv files to data/interm/...")
+    message("\nWriting generated fasta and csv files:")
     
     # Write parameters used to log file
     write_to_log(output_dir = "data/interm", filename = "log.txt",
                  log_string = sprintf("timestamp = %s\nseed = %d, strat_size = %d",
                                       stamp, seed, strat_size))
     
-    print(paste("Writing intermediate fasta to",
-                sprintf("data/interm/fasta_all_%s.fasta", stamp)))
+    message(paste0("Writing intermediate fasta to ",
+                   sprintf("data/interm/fasta_all_%s.fasta... ", stamp)),
+            appendLF = FALSE)
     
     seqinr::write.fasta(fasta_all, names(fasta_all),
                         sprintf("data/interm/fasta_all_%s.fasta", stamp))
     
-    message(paste("Writing intermediate metadata to",
-                sprintf("data/interm/metadata_all_%s.csv", stamp)))
+    message("DONE.")
+    
+    message(paste0("Writing intermediate metadata to ",
+                  sprintf("data/interm/metadata_all_%s.csv... ", stamp)),
+            appendLF = FALSE)
     
     write.csv(metadata_all,
               sprintf("data/interm/metadata_all_%s.csv", stamp),
               row.names = FALSE)
+    
+    message("DONE.")
     
     # Refetch fasta_all data using ape::read.FASTA to optimize for kcount.
     fasta_all <- read.FASTA(sprintf("data/interm/fasta_all_%s.fasta", stamp))
