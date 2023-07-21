@@ -31,7 +31,48 @@ WORKDIR /home/rstudio/pgc-perf-opt
 # Install project base R, Python, and system-level dependencies
 RUN ./docker/scripts/install_pgc_base.sh
 
+# For kmer-analysis.R and sources
+RUN install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
+    ape \
+    kmer \
+    validate \
+    gsubfn \
+    seqinr
+
+# For dim-reduce.R and sources
+RUN install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
+    umap \
+    htmlwidgets \
+    factoextra \
+    scales \
+    Rtsne \
+    tsne \
+    RColorBrewer \
+    ggfortify
+
+# For clustering and sources
+RUN install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
+    ggdendro \
+    dendextend \
+    cluster \
+    colorspace
+
+# Upgrade for curl compat with R remotes, then install deferred packs
+RUN apt-get upgrade -y
+RUN apt-get install curl -y
+# Install for factoextra
+RUN apt-get install cmake -y
+
+# Clean up of install temps
+RUN rm -rf /var/lib/apt/lists/*
+RUN -rf /tmp/downloaded_packages
+
+## Strip binary installed lybraries from RSPM
+## https://github.com/rocker-org/rocker-versioned2/issues/340
+RUN strip /usr/local/lib/R/site-library/*/libs/*.so
+
 # Auxiliary Installations of R packages (and Python by necessity)
+# Done in root R, so no need for clean-up
 RUN Rscript ./docker/scripts/install_pgc_aux.R
 
 # Set RStudio Server working directory to workspace

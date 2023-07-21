@@ -46,44 +46,4 @@ install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
     reticulate \
     highcharter
 
-# For kmer-analysis.R and sources
-install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
-    ape \
-    kmer \
-    validate \
-    gsubfn \
-    seqinr
-
-# For dim-reduce.R and sources
-install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
-    umap \
-    htmlwidgets \
-    factoextra \
-    scales \
-    Rtsne \
-    tsne \
-    RColorBrewer \
-    ggfortify
-
-# For clustering and sources
-install2.r --error --skipmissing --skipinstalled -n "$NCPUS" \
-    ggdendro \
-    dendextend \
-    cluster \
-    colorspace
-
-# Install deferred packages
-apt-get update
-apt-get upgrade -y
-apt-get install curl -y
-apt-get install cmake -y # install for factoextra
-
-# Clean up
-rm -rf /var/lib/apt/lists/*
-rm -rf /tmp/downloaded_packages
-
-## Strip binary installed lybraries from RSPM
-## https://github.com/rocker-org/rocker-versioned2/issues/340
-strip /usr/local/lib/R/site-library/*/libs/*.so
-
-echo -e "\nInstall PGC Perf Opt base packages, done!"
+echo -e "\nInstall PGC Perf Opt base apt packages, done!"
