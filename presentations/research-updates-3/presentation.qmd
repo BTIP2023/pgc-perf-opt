@@ -89,9 +89,6 @@ title-slide-attributes:
 <iframe src="presentation_files/img/3d-umap-7.html" width=1800px height=900px></iframe>
 
 ## Scree Plots, Loading Plots, and Vargraphs from PCA Analysis were generated {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-<iframe src="presentation_files/img/3d-umap-7.html" width=1800px height=900px></iframe>
-
-## Scree Plots, Loading Plots, and Vargraphs from PCA Analysis were generated {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 <iframe src="presentation_files/img/screeplot-3.html" width=1800px height=900px></iframe>
 
 ## Scree Plots, Loading Plots, and Vargraphs from PCA Analysis were generated {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
@@ -411,12 +408,25 @@ while (!is.null(dev.list())) dev.off()
 
 ```
 
+## Initial benchmarking using different linear algebra libraries was performed for the entire benchmarking pipeline {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/dim-red-7.html" width=1800px height=900px></iframe>
+
+## Initial benchmarking using different linear algebra libraries was performed for PCA Analysis {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/pca-7.html" width=1800px height=900px></iframe>
+
+## Initial benchmarking using different linear algebra libraries was performed for t-SNE Analysis {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/tsne-2d-7.html" width=1800px height=900px></iframe>
+
+## Initial benchmarking using different linear algebra libraries was performed for UMAP Analysis {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/umap-2d-7.html" width=1800px height=900px></iframe>
+
+
 # Next Steps {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
 ## Future Plans {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}    
 
 - Goals for Next Week
-  - Improve plot by adding ability to change point shapes according to another variable
+  - Improve plots by adding ability to change point shapes according to another variable
   - Benchmark Workflow with Spectre and Meltdown Patches Enabled vs. Disabled in Intel Core/AMD Ryzen processors and Windows/Linux OS 
   - Benchmark Computations using OpenBLAS/ATLAS/AMD BLISS/ Intel MKL
   - Document and Analyze Benchmarking Results
