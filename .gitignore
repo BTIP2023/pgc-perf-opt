@@ -65,7 +65,7 @@ presentations/research-updates-1/*.html
 presentations/research-updates-2/presentation_files/libs/
 presentations/research-updates-2/*.html
 presentations/research-updates-3/presentation_files/libs/
-presentations/research-updates-3/*.html
+# presentations/research-updates-3/*.html
 presentations/final-presentation/presentation_files/libs/
 presentations/final-presentation/*.html
 *.drawio
