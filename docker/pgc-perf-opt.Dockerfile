@@ -21,6 +21,10 @@ LABEL organization="Philippine Genome Center - Core Facility for Bioinformatics"
 #   - to work on presentations in the container.
 COPY . /home/rstudio/pgc-perf-opt
 
+RUN apt-get update
+RUN apt-get install -y libpython2-dev
+RUN apt-get install -y libpython3-dev
+
 # Change working directory to project root
 WORKDIR /home/rstudio/pgc-perf-opt
 
@@ -28,18 +32,18 @@ WORKDIR /home/rstudio/pgc-perf-opt
 RUN ./docker/scripts/install_pgc_base.sh
 
 # Auxiliary Installations of R packages (and Python by necessity)
-# apt_install libpython-dev
-# apt_install libpython3-dev
 RUN Rscript ./docker/scripts/install_pgc_aux.R
 
 # Set RStudio Server working directory to workspace
-# RUN echo "setwd(\"/home/rstudio/pgc-perf-opt\")" > /home/rstudio/.Rprofile
+RUN echo "setwd('/home/rstudio/pgc-perf-opt')" > /home/rstudio/.Rprofile
 
 # Make RStudio Server use reticulated environment on startup
 # /home/rstudio/.local/share/r-miniconda/envs/r-reticulate
-# RUN echo "library(reticulate)" >> /home/rstudio/.Rprofile
-# RUN echo "Sys.setenv(RETICULATE_MINICONDA_PATH = \"/home/rstudio/.local/share/r-miniconda\")" >> /home/rstudio/.Rprofile
-# RUN echo "reticulate::use_miniconda(\"/home/rstudio/.local/share/r-miniconda/envs/r-reticulate\")" >> /home/rstudio/.Rprofile
+RUN echo "library(reticulate)" >> /home/rstudio/.Rprofile
+RUN echo "Sys.setenv(RETICULATE_MINICONDA_PATH = '/home/rstudio/r-miniconda')" >> /home/rstudio/.Rprofile
+RUN echo "Sys.setenv(RETICULATE_MINICONDA_ENABLED = 'true')" >> /home/rstudio/.Rprofile
+RUN echo "reticulate::py_config()" >> /home/srstudio/.Rprofile
+RUN echo "reticulate::use_miniconda('reticulate')" >> /home/rstudio/.Rprofile
 
 # Note: Currently using bind mounts instead of volumes for dev convenience
 # and because of skill issue.
