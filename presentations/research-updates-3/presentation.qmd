@@ -1,7 +1,7 @@
 ---
 title: "Research Updates 3"
 author: "<b>Project Lead:</b> Mark Joseph Garrovillas, RCh </br> <b>Interns:</b> Brylle Joshua Logroño, John Matthew Felices, Yenzy Urson Hebron"
-date: "July 14 2023"
+date: "July 21 2023"
 institution: "Core Facility for Bioinformatics"
 format: 
   revealjs:
@@ -42,12 +42,11 @@ title-slide-attributes:
 ## Which linear algebra library implementation (BLAS,LAPACK,OpenCL,IntelMLK) gives the most optimal runtime for the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/linear-algebra.jpg){.fragment fig-align="center" height=60% width=60%}
 
-## Initial Treemaps to further motivate the Dataset Analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-<iframe src="division-variant-lineage.html" width=1800px height=900px></iframe>
-
 ## Does processor vulnerability mitigations (Spectre and Meltdown) significantly affect the runtime of the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/spectre_meltdown.png){.fragment fig-align="center" height=60% width=60%}
 
+## Initial Treemaps to further motivate the Dataset Analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="division-variant-lineage.html" width=1800px height=900px></iframe>
 
 ## Initial Treemaps to further motivate the Dataset Analysis  {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 <iframe src="variant-division-lineage.html" width=1800px height=900px></iframe>
