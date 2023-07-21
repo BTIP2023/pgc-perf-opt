@@ -103,7 +103,7 @@ RUN echo "library(reticulate)" >> /home/rstudio/.Rprofile
 RUN echo "Sys.setenv(RETICULATE_MINICONDA_PATH = '/home/rstudio/r-miniconda')" >> /home/rstudio/.Rprofile
 RUN echo "Sys.setenv(RETICULATE_MINICONDA_ENABLED = 'true')" >> /home/rstudio/.Rprofile
 RUN echo "reticulate::py_config()" >> /home/rstudio/.Rprofile
-RUN echo "reticulate::use_miniconda('reticulate')" >> /home/rstudio/.Rprofile
+RUN echo "reticulate::use_miniconda('r-reticulate')" >> /home/rstudio/.Rprofile
 
 # Note: Currently using bind mounts instead of volumes for dev convenience
 # and because of skill issue.
