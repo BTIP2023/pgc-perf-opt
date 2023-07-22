@@ -60,7 +60,6 @@ stamp <- get_time()
 kmer_list <- c(3, 5, 7)
 
 # microbenchmark parameters
-# Note: tree map
 bm_times <- 2L   # how many times should routine be evaluated
 bm_units <- "seconds"
 

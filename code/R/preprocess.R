@@ -70,10 +70,11 @@ preprocess <- function(data_path, extract_path,
       message(paste0("Reading ", tsv_path, "... "))
       # Parse then merge metaData file with accumulator.
       # Defer sanitation after random sampling so fasta and metaData kept 1:1.
-      metaData <- as.data.frame(read_tsv(tsv_path,
-                                         col_select = c(1,3,5,10,11,
-                                                        12,16,17,19,22,23),
-                                         show_col_types = FALSE))
+      # Can't directly col_types = "c_c_D____ccc___if_c__cc_____" because
+      # of dirt in some columns, still need to use characters.
+      metaData <- read_tsv(tsv_path,
+                           col_select = c(1,3,5,10,11,12,16,17,19,22,23),
+                           show_col_types = FALSE)
       message("\bDONE.")
       
       # Not removing raw date as I believe it is useful for sorting or can be
@@ -82,14 +83,12 @@ preprocess <- function(data_path, extract_path,
       metaData <- metaData %>%
         dplyr::mutate(variant = as.character(variant))
       
-      # Coerce some columns to correct types.
+      # Note: Cannot use tidyr::nest(fasta or tibble(fasta)), see reason below.
+      
+      # Coerce guessed column types to correct types.
       # NAs introduced by coercion will be dropped later because dropping
       # metadata rows must be consistent with dropping fasta entries for
-      # the reason that efficient df columns with lists are not well-supported
-      # in R. Tibbles on the other hand reduce efficiency and compatibility.
-      # Also, using tibbles add another need to extract the fasta from the tibble
-      # for later use (and for writeback), and rowwise operations in tibbles
-      # are said to be slow.
+      # the reason that nested DNAbin lists are not supported in R.
       metaData$age <- as.integer(metaData$age)
       metaData$sex <- as.character(metaData$sex)
       
@@ -158,9 +157,10 @@ preprocess <- function(data_path, extract_path,
   metadata_all <- metadata_all[is.na(pmatch(1:nrow(metadata_all), drop_idxs)),]
   
   # At this point, data has been stratified and randomly sampled.
-  # Now, get credits for the data that has been sampled.
-  # Only sampled rows will be credited.
-  # compile_overview(metadata_all)
+  
+  # Now, get overview for the data that has been sampled.
+  # Only sampled rows will be summarized.
+  # compile_overview(metadata_all, 'data/overview')
   
   # After getting credits, we can now drop submitting_lab and authors
   metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
@@ -247,9 +247,8 @@ preprocess <- function(data_path, extract_path,
                   sprintf("data/interm/metadata_all_%s.csv... ", stamp)),
             appendLF = FALSE)
     
-    write.csv(metadata_all,
-              sprintf("data/interm/metadata_all_%s.csv", stamp),
-              row.names = FALSE)
+    write_csv(metadata_all,
+              sprintf("data/interm/metadata_all_%s.csv", stamp))
     
     message("DONE.")
     
@@ -257,6 +256,8 @@ preprocess <- function(data_path, extract_path,
     fasta_all <- read.FASTA(sprintf("data/interm/fasta_all_%s.fasta", stamp))
   }
   
-  # Return fasta_all and metadata_all
+  # Return fasta_all and metadata_all, add final preprocess measures
+  metadata_all$sex <- as.factor(metadata_all$sex)
+  metadata_all$variant <- as.factor(metadata_all$variant)
   list(fasta_all, metadata_all)
 }
