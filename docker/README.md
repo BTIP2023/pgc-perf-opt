@@ -16,7 +16,7 @@ These containers will resolve all dependency issues brought up in all the `READM
 ### 1. Base Image (`pgc-perf-opt.Dockerfile`)
 
 This image serves as the base image of all research objectives. This attempts to ensure full
-compatibility with the project's entire codebase, from `code/` to `presentations/`.
+compatibility with the project's entire codebase, from `code/` to `presentations/`. Notable features include utilities like `tree`, `curl` and `nano`, pre-installation of all required packages (`tidyverse` *et al.*) for the current project, and out-of-the-box support for Conda and Reticulate for the default user `rstudio` (accessible through RStudio Server, and may be setup for `root` terminal by running `Rscript reticulate::use_miniconda('r-reticulate')`).
 
 To pull the latest version:
 
@@ -24,7 +24,7 @@ To pull the latest version:
 docker pull yshebron/pgc-perf-opt:latest
 ```
 
-**Important:** This image *natively supports* the CPU vulnerability performance evaluation and optimization objective.
+**Important:** This image *natively supports* the CPU vulnerability performance evaluation and optimization research objective.
 
 Examples of resolved issues:
 
