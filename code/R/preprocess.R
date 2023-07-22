@@ -228,28 +228,18 @@ preprocess <- function(data_path, extract_path,
   # Optimization: Check job order if want to write fasta and csv.
   if (write_fastacsv) {
     message("\nWriting generated fasta and csv files:")
-    
-    # Write parameters used to log file
-    write_to_log(output_dir = "data/interm", filename = "log.txt",
-                 log_string = sprintf("timestamp = %s\nseed = %d, strat_size = %d",
-                                      stamp, seed, strat_size))
-    
     message(paste0("Writing intermediate fasta to ",
                    sprintf("data/interm/fasta_all_%s.fasta... ", stamp)),
             appendLF = FALSE)
-    
     seqinr::write.fasta(fasta_all, names(fasta_all),
                         sprintf("data/interm/fasta_all_%s.fasta", stamp))
-    
     message("DONE.")
     
     message(paste0("Writing intermediate metadata to ",
                   sprintf("data/interm/metadata_all_%s.csv... ", stamp)),
             appendLF = FALSE)
-    
     write_csv(metadata_all,
               sprintf("data/interm/metadata_all_%s.csv", stamp))
-    
     message("DONE.")
     
     # Refetch fasta_all data using ape::read.FASTA to optimize for kcount.

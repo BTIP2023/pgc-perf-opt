@@ -130,6 +130,13 @@ results <- microbenchmark(
 
 print("All operations completed successfully!")
 
+# Write hardware specs and parameters used to log.txt
+message("Writing logs... ", appendLF = FALSE)
+write_to_log(output_dir = "results", filename = "log.txt",
+             log_string = sprintf("timestamp = %s\nseed = %d, strat_size = %d, k-value = %d",
+                                  stamp, seed, strat_size, k))
+message("DONE.")
+
 # CLEAN UP #################################################
 
 # Clear environment

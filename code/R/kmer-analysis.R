@@ -20,11 +20,5 @@ get_kmers <- function(fasta, metaData, k, stamp) {
   
   message(paste0("Writing kmer data to ", output_dir, "... "), appendLF = FALSE)
   write_csv(kmer_df, output_dir)
-  message(paste0("Done writing to", output_dir))
-  
-  message("Writing logs... ", appendLF = FALSE)
-  write_to_log(output_dir = "data/kmers", filename = "log.txt",
-               log_string = sprintf("timestamp = %s\nseed = %d, strat_size = %d, k-value = %d",
-                                    stamp, seed, strat_size, k))
-  message("Done writing logs.")
+  message(paste0("Done writing to ", output_dir))
 }
