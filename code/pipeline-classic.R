@@ -96,7 +96,7 @@ list[fasta_all, metadata_all] <- preprocess(gisaid_data_path,
                                             country_exposure, stamp)
 
 # Step 1.5: generate_interm()
-list[fasta_all, metadata_all] <- generate_interm(fasta_all, metadata_all)
+generate_interm(fasta_all, metadata_all)
 
 # Step 2: get_kmers()
 for (k in kmer_list) {

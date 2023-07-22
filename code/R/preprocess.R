@@ -70,9 +70,9 @@ preprocess <- function(gisaid_data_path, gisaid_extract_path,
       # Defer sanitation after random sampling so fasta and metaData kept 1:1.
       # Can't directly col_types = "c_c_D____ccc___if_c__cc_____" because
       # of dirt in some columns, still need to use characters.
-      metaData <- read_tsv(tsv_path,
-                           col_select = c(1,3,5,10,11,12,16,17,19,22,23),
-                           show_col_types = FALSE)
+      metaData <- readr::read_tsv(tsv_path,
+                                  col_select = c(1,3,5,10,11,12,16,17,19,22,23),
+                                  show_col_types = FALSE)
       message("\bDONE.")
       
       # Not removing raw date as I believe it is useful for sorting or can be
@@ -226,31 +226,21 @@ preprocess <- function(gisaid_data_path, gisaid_extract_path,
   list(fasta_all, metadata_all)
 }
 
-generate_interm <- function(metadata_all, fasta_all) {
+# Now always writes intermediate files. Thanks ape.
+generate_interm <- function(fasta_all, metadata_all) {
   message("\nWriting generated fasta and csv files:")
   message(paste0("Writing intermediate fasta to ",
                  sprintf("data/interm/fasta_all_%s.fasta... ", stamp)),
           appendLF = FALSE)
-  ape::as.character.DNAbin(fasta_all)
-  seqinr::write.fasta(fasta_all, names(fasta_all),
-                      sprintf("data/interm/fasta_all_%s.fasta", stamp))
+  ape::write.FASTA(fasta_all, file = sprintf("data/interm/fasta_all_%s.fasta",
+                                             stamp))
   message("DONE.")
-  
   message(paste0("Writing intermediate metadata to ",
                  sprintf("data/interm/metadata_all_%s.csv... ", stamp)),
           appendLF = FALSE)
-  write_csv(metadata_all,
-            sprintf("data/interm/metadata_all_%s.csv", stamp))
-  message("DONE.")
-  
-  # Now, get overview for the data that has been sampled.
-  # Only sampled rows will be summarized.
-  # compile_overview(metadata_all, 'data/overview')
-  
-  # After getting credits, we can now drop submitting_lab and authors
-  metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
-  
-  # Refetch fasta_all data using ape::read.FASTA to optimize for kcount.
-  # kcount using DNAbin is faster than characters.
-  fasta_all <- read.FASTA(sprintf("data/interm/fasta_all_%s.fasta", stamp))
+  readr::write_csv(metadata_all,
+                   sprintf("data/interm/metadata_all_%s.csv", stamp))
+  message(paste0("Writing intermediate metadata to ",
+                 sprintf("data/interm/metadata_all_%s.csv... ", stamp),
+                 "DONE."))
 }
