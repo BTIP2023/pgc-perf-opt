@@ -9,6 +9,8 @@
 
 # Auxiliary function(s):
 # generate_interm: generate intermediate fasta and metadata files
+# compile_overview: generate overview of metadata, mainly summaries and credits
+# generate_treemaps: generate treemaps to improve visualization of sampled data
 
 # preprocess assumes .tar.gz filename format is "country-variant-...".
 # Extract GISAID tars to data/GISAID/datasets/country-variant/
@@ -18,8 +20,7 @@
 # Note: Each tar = {tsv, fasta}
 preprocess <- function(gisaid_data_path, gisaid_extract_path,
                        seed = 1234, strat_size = 100,
-                       country_exposure = "Philippines",
-                       write_fastacsv = FALSE, stamp) {
+                       country_exposure = "Philippines", stamp) {
   # Extract GISAID data.
   if (dir.exists(gisaid_extract_path)) {
     message("GISAID data already extracted from tar archives.")
@@ -227,20 +228,49 @@ preprocess <- function(gisaid_data_path, gisaid_extract_path,
 }
 
 # Now always writes intermediate files. Thanks ape.
-generate_interm <- function(fasta_all, metadata_all) {
+generate_interm <- function(fasta_all, metadata_all, write_path) {
+  if (!dir.exists(write_path)) {
+    dir.create(write_path)
+  }
+  fasta_path <- sprintf("%s/fasta_all_%s.fasta", write_path, stamp)
+  csv_path <- sprintf("%s/metadata_all_%s.csv", write_path, stamp)
+  
   message("\nWriting generated fasta and csv files:")
-  message(paste0("Writing intermediate fasta to ",
-                 sprintf("data/interm/fasta_all_%s.fasta... ", stamp)),
+  message(sprintf("Writing intermediate fasta to %s... ", fasta_path),
           appendLF = FALSE)
-  ape::write.FASTA(fasta_all, file = sprintf("data/interm/fasta_all_%s.fasta",
-                                             stamp))
+  ape::write.FASTA(fasta_all, file = fasta_path)
   message("DONE.")
-  message(paste0("Writing intermediate metadata to ",
-                 sprintf("data/interm/metadata_all_%s.csv... ", stamp)),
+  message(sprintf("Writing intermediate metadata to %s... ", csv_path),
           appendLF = FALSE)
-  readr::write_csv(metadata_all,
-                   sprintf("data/interm/metadata_all_%s.csv", stamp))
-  message(paste0("Writing intermediate metadata to ",
-                 sprintf("data/interm/metadata_all_%s.csv... ", stamp),
-                 "DONE."))
+  readr::write_csv(metadata_all, file = csv_path)
+  message(sprintf("Writing intermediate metadata to %s... DONE.", csv_path))
+}
+
+# Compile overview of sampled data
+# Ex. Group by age_group and variant then count()
+# Ex. Group by authors and how many samples they've submitted
+# Mainly Accession Numbers, Submitting Institutions and Authors
+# Note: We only credit sampled authors (so credits may vary depending on seed)
+compile_overview <- function(metadata_all, compile_write_path) {
+  if (!dir.exists(compile_write_path)) {
+    dir.create(compile_write_path)
+  }
+  # Number of samples is from counting metadata_all$gisaid_esi_isl
+  
+  # Get submitting institutions, number of authors in them, and number
+  # of samples they have submitted
+  
+  
+  write_lines(c("pgc-perf-opt GISAID Accession Numbers",
+                metadata_all$gisaid_epi_isl), "data/credits/gisaid-accession.txt")
+  
+  institutions <- 
+    write_lines(c("pgc-perf-opt GISAID Authors"))
+  
+  # Now, get overview for the data that has been sampled.
+  # Only sampled rows will be summarized.
+  # compile_overview(metadata_all, 'data/overview')
+  
+  # After getting credits, we can now drop submitting_lab and authors
+  metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
 }

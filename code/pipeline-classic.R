@@ -60,12 +60,16 @@ stamp <- get_time()
 kmer_list <- c(3, 5, 7)
 
 # preprocess.R::preprocess() parameters
+# Note for strat_size: Current nrow(data) = 24671
 gisaid_tar_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
-strat_size <- 100
+strat_size <- 25000
 country_exposure <- "Philippines"
 
-# kmer-analysis.R::get_kmers() parameters
+# preprocess.R::auxiliary parameters
+interm_write_path <- "data/interm"
+compile_write_path <- "data/overview"
+treemaps_write_path <- "data/overview"
 
 # dim-reduce.R::dim_reduce() parameters
 data_path_kmers <- "data/kmers"
@@ -84,7 +88,7 @@ values1 <- c("Omicron", "Omicron Sub")
 factor2 <- "year"
 values2 <- c("2023")
 
-# AGNES Clustering Parameters :: dendogram_create_x()
+# clusterting-x.R::dendogram_create_x() parameters
 results_path_agnes <- "results/dendrogram"
 
 # RUN PIPELINE #############################################
@@ -95,8 +99,16 @@ list[fasta_all, metadata_all] <- preprocess(gisaid_data_path,
                                             seed, strat_size,
                                             country_exposure, stamp)
 
-# Step 1.5: generate_interm()
-generate_interm(fasta_all, metadata_all)
+# Step 1.5A: generate_interm()
+generate_interm(fasta_all, metadata_all, interm_write_path)
+
+# Step 1.5B: compile_overview()
+# After compilation, authors and submitting institutions are dropped,
+# hence the reassignment to metadata_all.
+metadata_all <- compile_overview(metadata_all, compile_write_path)
+
+# Step 1.5C: generate_treemap()
+generate_treemap(metadata_all, treemap_write_path)
 
 # Step 2: get_kmers()
 for (k in kmer_list) {

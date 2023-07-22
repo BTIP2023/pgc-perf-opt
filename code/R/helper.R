@@ -62,43 +62,9 @@ get_time <- function() {
   ret <- substring(ret, 1, nchar(ret)-3)
 }
 
-
-
-
-# Compile overview of sampled data
-# Ex. Group by age_group and variant then count()
-# Ex. Group by authors and how many samples they've submitted
-# Mainly Accession Numbers, Submitting Institutions and Authors
-# Note: We only credit sampled authors (so credits may vary depending on seed)
-compile_overview <- function(metadata_all) {
-  if (!dir.exists(write_path)) {
-    dir.create(write_path)
-  }
-  
-  # Number of samples is from counting metadata_all$gisaid_esi_isl
-  
-  # Get submitting institutions, number of authors in them, and number
-  # of samples they have submitted
-  
-  
-  write_lines(c("pgc-perf-opt GISAID Accession Numbers",
-                metadata_all$gisaid_epi_isl), "data/credits/gisaid-accession.txt")
-
-  institutions <- 
-  write_lines(c("pgc-perf-opt GISAID Authors"))
-  
-  # Now, get overview for the data that has been sampled.
-  # Only sampled rows will be summarized.
-  # compile_overview(metadata_all, 'data/overview')
-  
-  # After getting credits, we can now drop submitting_lab and authors
-  metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
-}
-
 # Plot treemap with appropriate drilldowns using highcharter
 make_treemap <- function(metadata) {
   set.seed(1234)
-  
   
   # Summary table
   summary.table <- metadata_all %>% 
