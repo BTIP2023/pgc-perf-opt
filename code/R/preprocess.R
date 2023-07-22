@@ -1,35 +1,36 @@
 # File: preprocess.R
 # Main function: preprocess
-# Note: See defaults in definition.
+# Preprocessing is also done by the other steps (i.e. dim-reduce and clustering)
+# so this is more accurately called `initial preprocess`.
 # Using the raw GISAID data, this function performs:
-# 1. Data extraction, parsing, and augmentation
+# 1. Data extraction, parsing, and augmentation (i.e. wrangling)
 # 2. Stratified random sampling
-# 3. Data Sanitation and Grouping
-# 4. Generation of intermediate fasta and metadata files
+# 3. Data sanitation and grouping
 
-# Assumption: .tar.gz filename format is "country-variant-...".
+# Auxiliary function(s):
+# generate_interm: generate intermediate fasta and metadata files
+
+# preprocess assumes .tar.gz filename format is "country-variant-...".
 # Extract GISAID tars to data/GISAID/datasets/country-variant/
 # If data/GISAID/datasets/ already exist, do not do this routine.
 # data_path is GISAID data directory.
 # extract_path is GISAID data extraction path after getting untarred.
 # Note: Each tar = {tsv, fasta}
-
-preprocess <- function(data_path, extract_path,
+preprocess <- function(gisaid_data_path, gisaid_extract_path,
                        seed = 1234, strat_size = 100,
                        country_exposure = "Philippines",
                        write_fastacsv = FALSE, stamp) {
-  
   # Extract GISAID data.
-  if (dir.exists(extract_path)) {
+  if (dir.exists(gisaid_extract_path)) {
     message("GISAID data already extracted from tar archives.")
   } else {
     message("Extracting GISAID data to data/GISAID/datasets/...")
-    tars <- list.files(data_path, pattern = ".+\\.tar")
+    tars <- list.files(gisaid_data_path, pattern = ".+\\.tar")
     for (file_name in tars) {
       subdir <- str_match(file_name, pattern = "[^-]+-[^-]+")
       message(paste("Extracting to:", subdir))
-      untar(paste(data_path, file_name, sep = "/"),
-            exdir = paste(extract_path, subdir, sep = "/"))
+      untar(paste(gisaid_data_path, file_name, sep = "/"),
+            exdir = paste(gisaid_extract_path, subdir, sep = "/"))
     }
   }
   
@@ -37,19 +38,21 @@ preprocess <- function(data_path, extract_path,
   ## fasta contains sequence, while tsv contains metadata.
   omicron_sub = c("ba275", "xbb", "xbb_1.5", "xbb_1.16", "xbb1.91")
   
-  fastas <- list.files(extract_path, recursive = TRUE, pattern = ".+\\.fasta")
-  tsvs <- list.files(extract_path, recursive = TRUE, pattern = ".+\\.tsv")
+  fastas <- list.files(gisaid_extract_path, recursive = TRUE,
+                       pattern = ".+\\.fasta")
+  tsvs <- list.files(gisaid_extract_path, recursive = TRUE,
+                     pattern = ".+\\.tsv")
   nfiles <- length(fastas)
   
-  ## Initialize accumulator data frames (faster than tibbles).
-  fasta_all <- data.frame()
-  metadata_all <- data.frame()
-  
+  ## Accumulators: fasta_all and metadata_all
+  fasta_all <- list()
+  metadata_all <- tibble()
+
   ## Warnings suppressed for data parsing, but handled cleanly so don't worry.
   suppressWarnings({
     for (i in 1:nfiles) {
-      fasta_path <- paste(extract_path, fastas[i], sep = "/")
-      tsv_path <- paste(extract_path, tsvs[i], sep = "/")
+      fasta_path <- paste(gisaid_extract_path, fastas[i], sep = "/")
+      tsv_path <- paste(gisaid_extract_path, tsvs[i], sep = "/")
       variant <- str_match(fasta_path, pattern = "(?<=-).*(?=\\/)")
       if (variant %vin% omicron_sub) {
         variant <- "Omicron Sub"
@@ -58,13 +61,8 @@ preprocess <- function(data_path, extract_path,
       
       message(paste0("\nReading ", fasta_path, "... "))
       # Parse then merge fasta file with accumulator.
-      # Optimization: If write_fasta == TRUE, then use seqinr, else use ape.
-      if (write_fastacsv) {
-        fasta <- seqinr::read.fasta(fasta_path, forceDNAtolower = FALSE)
-      } else {
-        fasta <- ape::read.FASTA(fasta_path)
-      }
-      fasta_all <- c(fasta_all, fasta)
+      fasta <- ape::read.FASTA(fasta_path)
+      fasta_all <- append(fasta_all, fasta)
       message("\bDONE.")
       
       message(paste0("Reading ", tsv_path, "... "))
@@ -85,7 +83,7 @@ preprocess <- function(data_path, extract_path,
       
       # Note: Cannot use tidyr::nest(fasta or tibble(fasta)), see reason below.
       
-      # Coerce guessed column types to correct types.
+      # Coerce guessed column types to correct types (also for bind_rows).
       # NAs introduced by coercion will be dropped later because dropping
       # metadata rows must be consistent with dropping fasta entries for
       # the reason that nested DNAbin lists are not supported in R.
@@ -104,7 +102,7 @@ preprocess <- function(data_path, extract_path,
               nrow(metadata_all)))
 
   # Addon: Filter by country_exposure.
-  drop_idxs <- which(metadata_all$country != country_exposure)
+  drop_idxs <- which(metadata_all$country_exposure != country_exposure)
   fasta_all <- fasta_all[is.na(pmatch(1:length(fasta_all), drop_idxs))]
   metadata_all <- metadata_all[is.na(pmatch(1:nrow(metadata_all), drop_idxs)),]
   
@@ -131,6 +129,9 @@ preprocess <- function(data_path, extract_path,
     meta_grouped <- sample_n(meta_grouped, strat_size)
   metadata_all <- bind_rows(meta_grouped, dropped_variants)
   
+  # Remove grouping information from tibble, let downstream handle it
+  metadata_all <- dplyr::ungroup(metadata_all)
+  
   rm(dropped_variants)
   rm(meta_grouped)
   
@@ -156,14 +157,9 @@ preprocess <- function(data_path, extract_path,
   fasta_all <- fasta_all[is.na(pmatch(1:length(fasta_all), drop_idxs))]
   metadata_all <- metadata_all[is.na(pmatch(1:nrow(metadata_all), drop_idxs)),]
   
+  rm(idxs, drop_idxs1, drop_idxs2, drop_idxs3, drop_idxs)
+  
   # At this point, data has been stratified and randomly sampled.
-  
-  # Now, get overview for the data that has been sampled.
-  # Only sampled rows will be summarized.
-  # compile_overview(metadata_all, 'data/overview')
-  
-  # After getting credits, we can now drop submitting_lab and authors
-  metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
   
   message(paste("Number of randomly selected samples in stratified data:",
                 nrow(metadata_all)))
@@ -224,30 +220,37 @@ preprocess <- function(data_path, extract_path,
                                   labels=c("0-14", "15-24", "25-64", "65+")),
                   .after = age)
   
-  # Lines below creates intermediate fasta_all.fasta and metadata_all.csv.
-  # Optimization: Check job order if want to write fasta and csv.
-  if (write_fastacsv) {
-    message("\nWriting generated fasta and csv files:")
-    message(paste0("Writing intermediate fasta to ",
-                   sprintf("data/interm/fasta_all_%s.fasta... ", stamp)),
-            appendLF = FALSE)
-    seqinr::write.fasta(fasta_all, names(fasta_all),
-                        sprintf("data/interm/fasta_all_%s.fasta", stamp))
-    message("DONE.")
-    
-    message(paste0("Writing intermediate metadata to ",
-                  sprintf("data/interm/metadata_all_%s.csv... ", stamp)),
-            appendLF = FALSE)
-    write_csv(metadata_all,
-              sprintf("data/interm/metadata_all_%s.csv", stamp))
-    message("DONE.")
-    
-    # Refetch fasta_all data using ape::read.FASTA to optimize for kcount.
-    fasta_all <- read.FASTA(sprintf("data/interm/fasta_all_%s.fasta", stamp))
-  }
-  
-  # Return fasta_all and metadata_all, add final preprocess measures
+  # Return fasta_all and metadata_all, do final preprocess measures
   metadata_all$sex <- as.factor(metadata_all$sex)
   metadata_all$variant <- as.factor(metadata_all$variant)
   list(fasta_all, metadata_all)
+}
+
+generate_interm <- function(metadata_all, fasta_all) {
+  message("\nWriting generated fasta and csv files:")
+  message(paste0("Writing intermediate fasta to ",
+                 sprintf("data/interm/fasta_all_%s.fasta... ", stamp)),
+          appendLF = FALSE)
+  ape::as.character.DNAbin(fasta_all)
+  seqinr::write.fasta(fasta_all, names(fasta_all),
+                      sprintf("data/interm/fasta_all_%s.fasta", stamp))
+  message("DONE.")
+  
+  message(paste0("Writing intermediate metadata to ",
+                 sprintf("data/interm/metadata_all_%s.csv... ", stamp)),
+          appendLF = FALSE)
+  write_csv(metadata_all,
+            sprintf("data/interm/metadata_all_%s.csv", stamp))
+  message("DONE.")
+  
+  # Now, get overview for the data that has been sampled.
+  # Only sampled rows will be summarized.
+  # compile_overview(metadata_all, 'data/overview')
+  
+  # After getting credits, we can now drop submitting_lab and authors
+  metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
+  
+  # Refetch fasta_all data using ape::read.FASTA to optimize for kcount.
+  # kcount using DNAbin is faster than characters.
+  fasta_all <- read.FASTA(sprintf("data/interm/fasta_all_%s.fasta", stamp))
 }

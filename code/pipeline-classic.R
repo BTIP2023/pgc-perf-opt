@@ -60,11 +60,10 @@ stamp <- get_time()
 kmer_list <- c(3, 5, 7)
 
 # preprocess.R::preprocess() parameters
-data_path_gisaid <- "data/GISAID"
-extract_path <- "data/GISAID/datasets"
+gisaid_tar_path <- "data/GISAID"
+gisaid_extract_path <- "data/GISAID/datasets"
 strat_size <- 100
 country_exposure <- "Philippines"
-write_fastacsv <- TRUE
 
 # kmer-analysis.R::get_kmers() parameters
 
@@ -91,9 +90,13 @@ results_path_agnes <- "results/dendrogram"
 # RUN PIPELINE #############################################
 
 # Step 1: preprocess()
-list[fasta_all, metadata_all] <- preprocess(data_path_gisaid, extract_path, seed,
-                                            strat_size, country_exposure,
-                                            write_fastacsv, stamp)
+list[fasta_all, metadata_all] <- preprocess(gisaid_data_path,
+                                            gisaid_extract_path,
+                                            seed, strat_size,
+                                            country_exposure, stamp)
+
+# Step 1.5: generate_interm()
+list[fasta_all, metadata_all] <- generate_interm(fasta_all, metadata_all)
 
 # Step 2: get_kmers()
 for (k in kmer_list) {

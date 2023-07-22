@@ -4,7 +4,7 @@
 # Appends system information and parameters used to a text file.
 # specified by output_path and filename.
 # This function only supports Windows 10/11 and Linux.
-# Assumes that there's only one processor installed.
+# In Windows, assumes that there's only one processor installed.
 write_to_log <- function(output_dir, filename, log_string) {
   if (!dir.exists(output_dir))
     dir.create(output_dir)
@@ -62,13 +62,23 @@ get_time <- function() {
   ret <- substring(ret, 1, nchar(ret)-3)
 }
 
+
+
+
 # Compile overview of sampled data
-# Ex. Group by age_group and variant, count()
+# Ex. Group by age_group and variant then count()
+# Ex. Group by authors and how many samples they've submitted
 # Mainly Accession Numbers, Submitting Institutions and Authors
 compile_overview <- function(metadata, write_path) {
   if (!dir.exists(write_path)) {
     dir.create(write_path)
   }
+  
+  # Number of samples is from counting metadata_all$gisaid_esi_isl
+  
+  # Get submitting institutions, number of authors in them, and number
+  # of samples they have submitted
+  
   
   write_lines(c("pgc-perf-opt GISAID Accession Numbers",
                 metadata$gisaid_epi_isl), "data/credits/gisaid-accession.txt")
