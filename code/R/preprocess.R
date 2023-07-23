@@ -338,9 +338,11 @@ sanitize_sample <- function(metadata_all) {
   # Collapse authors back to authors column
   # TODO: This seems redundant as we will unravel this again
   # for compile_overview, so think of workaround.
+  # Bug with .by in mutate, so use group_by, and also 
   metadata_all <- metadata_all %>%
-    dplyr::mutate(authors = paste(authors, collapse = ", "),
-                  .by = variant) %>%
+    dplyr::group_by(strain) %>%
+    dplyr::arrange(authors) %>%
+    dplyr::mutate(author_sum = paste(authors, collapse = ", ")) %>%
     dplyr::distinct(strain, variant, .keep_all = TRUE)
   message("DONE.")
   

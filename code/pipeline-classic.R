@@ -108,14 +108,14 @@ metadata_all <- sanitize_sample(metadata_all)
 # Note that at strat_size > nrow(Omicron), you'll be writing around 700MB
 # of fasta_all_stamp.csv, so be cautious of generate_interm's space usage.
 if (write_fastacsv)
-  metadata_allgenerate_interm(fasta_all, metadata_all, interm_write_path)
+  generate_interm(fasta_all, metadata_all, interm_write_path)
 
 # Step 1.5C: compile_overview()
 # compile_overview drops the submitting_lab and authors column
 # after compilation, hence the reassignment to metadata_all.
 metadata_all <- compile_overview(metadata_all, compile_write_path)
 
-# Step 1.5C: generate_treemap()
+# Step 1.5D: generate_treemap()
 generate_treemap(metadata_all, treemap_write_path)
 
 # Step 2: get_kmers()
