@@ -189,7 +189,8 @@ get_sample <- function(gisaid_data_path, gisaid_extract_path,
 
 # Note that this assumes that country_exposure was set to "Philippines"
 sanitize_sample <- function(metadata_all) {
-  # Fix regions
+  # Fix regions, following PH Atlas convention aside from MIMAROPA,
+  # https://www.philatlas.com/regions.html
   message("Cleaning division_exposure and adding division_code... ",
           appendLF = FALSE)
   metadata_all <- metadata_all %>%
@@ -198,13 +199,12 @@ sanitize_sample <- function(metadata_all) {
       "Bicol" ~ "Bicol Region",
       "Calabarzon" ~ "CALABARZON",
       "Mimaropa" ~ "MIMAROPA",
-      "National Capital Region" ~ "NCR",
-      "Cordillera Administrative Region" ~ "CAR",
       "Ilocos" ~ "Ilocos Region",
       "Davao" ~ "Davao Region",
-      "Bangsamoro Autonomous Region in Muslim Mindanao" ~ "BARMM",
-      "Autonomous Region In Muslim Mindanao(ARMM)" ~ "BARMM",
-      "Autonomous Region In Muslim Mindanao" ~ "BARMM",
+      "Autonomous Region In Muslim Mindanao(ARMM)" ~
+        "Bangsamoro Autonomous Region in Muslim Mindanao",
+      "Autonomous Region In Muslim Mindanao" ~
+        "Bangsamoro Autonomous Region in Muslim Mindanao",
       "Soccsksargen" ~ "SOCCSKSARGEN",
       "Region III" ~ "Central Luzon",
       "Region IV-B" ~ "MIMAROPA",
@@ -215,7 +215,7 @@ sanitize_sample <- function(metadata_all) {
       "Region X (Northern Mindanao)" ~ "Northern Mindanao",
       "Region XI (Davao Region)" ~ "Davao Region",
       "Region XII (Soccsksargen)" ~ "SOCCSKSARGEN",
-      "Metropolitan Manila" ~ "NCR",
+      "Metropolitan Manila" ~ "National Capital Region",
       .default = metadata_all$division_exposure))
   
   # Add shortened Regions in Roman Numerals, call it division_code
@@ -236,21 +236,18 @@ sanitize_sample <- function(metadata_all) {
       "Davao Region" ~ "XI",
       "SOCCSKSARGEN" ~ "XII",
       "Caraga" ~ "XIII",
+      "Cordillera Administrative Region" ~ "CAR",
+      "Bangsamoro Autonomous Region in Muslim Mindanao" ~ "BARMM",
+      "National Capital Region" ~ "NCR",
       .default = division_exposure
     ), .after = division_exposure)
   message("DONE.")
-  
-  message(paste0("ℹ Consider glue('{division_exposure} ({division_code})') ",
-          "if you need a column like CALABARZON (IV-A).\n"))
-
-  # Suggestion: Use glue("{division_exposure} ({division_code})") if
-  # you wish something like CALABARZON (IV-A). A caveat would be NCR (NCR) etc.
   
   # Clean up submitting labs
   # Optimized .*(?=.* -) to .*(?= -.*)
   # Labs with "name1 - name2" will only retain name1
   # Labs with "/" not separated into rows, converted "/" to "and"
-  message("Cleaning submitting labs and authors... ", appendLF = FALSE)
+  message("Cleaning submitting_lab... ", appendLF = FALSE)
   metadata_all <- metadata_all %>%
     dplyr::mutate(submitting_lab = dplyr::case_when(
       stringr::str_detect(submitting_lab, regex("\\w/\\w")) ~
@@ -262,9 +259,11 @@ sanitize_sample <- function(metadata_all) {
         stringr::str_extract(submitting_lab, ".*(?= -.*)"),
       .default = submitting_lab
     ))
+  message("DONE.")
   
   # Clean up authors
   # ",(?![A-Z]+)"
+  message("Cleaning authors... ", appendLF = FALSE)
   metadata_all <- metadata_all %>%
     tidyr::separate_rows(authors, sep = ",| and |nE|. Chel") %>%
     dplyr::mutate(authors =
@@ -334,11 +333,11 @@ sanitize_sample <- function(metadata_all) {
       "Mariko Siato-Obata" ~ "Mariko Saito-Obata",
       .default = authors
     ))
-  
+
   # Collapse authors back to authors column
   # TODO: This seems redundant as we will unravel this again
   # for compile_overview, so think of workaround.
-  # Bug with .by in mutate, so use group_by, and also 
+  # Bug with .by in mutate, so use group_by before mutate.
   metadata_all <- metadata_all %>%
     dplyr::group_by(strain) %>%
     dplyr::arrange(authors) %>%
@@ -346,7 +345,17 @@ sanitize_sample <- function(metadata_all) {
     dplyr::distinct(strain, variant, .keep_all = TRUE)
   message("DONE.")
   
-  # Coerce sex and variant to factors
+  # Add ph_region which is of the form "division_exposure (division_code)"
+  message("Adding ph_region to metadata... ", appendLF = FALSE)
+  abbregions <- list("BARMM", "CAR", "NCR")
+  df <- metadata_all %>%
+    dplyr::mutate(ph_region = dplyr::if_else(division_code %vin% abbregions,
+      stringr::str_glue("{division_exposure} ({division_code})"),
+      stringr::str_glue("{division_exposure} (Region {division_code})")),
+      .after = division_code)
+  message("DONE.")
+  
+  # Coerce sex and variant to factors to save space
   metadata_all$sex <- as.factor(metadata_all$sex)
   metadata_all$variant <- as.factor(metadata_all$variant)
   
@@ -382,16 +391,15 @@ compile_overview <- function(metadata_all, write_path) {
     dir.create(write_path)
   }
   
-  # Add ph_region which is of the form "division_exposure (division_code)"
-  df <- metadata_all %>%
-    dplyr::mutate(ph_region = str_glue("{division_exposure} ",
-                                       "({division_code})"),
-                  .after = division_code)
-  
   # Get relevant groups from the metadata
   df <- metadata_all %>%
     tidyr::separate_rows(authors, sep = ", ") %>%
-    dplyr::group_by(division_exposure, age_group, sex, pangolin_lineage, submitting_lab, authors)
+    dplyr::group_by(ph_region,
+                    age_group,
+                    sex,
+                    pangolin_lineage,
+                    submitting_lab,
+                    authors)
   
   # Get submitting lab, number of authors in them, and number
   # of samples each institution have submitted
