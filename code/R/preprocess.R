@@ -98,9 +98,13 @@ preprocess <- function(gisaid_data_path, gisaid_extract_path,
   rm(fasta)
   rm(metaData)
 
-  # Print out total samples beforehand to guide future strat_size.
+  # Print out number of samples beforehand to guide future strat_size.
   message(paste("\nTotal number of samples in complete, unpruned data:",
               nrow(metadata_all)))
+  message("Variant distribution in complete data:")
+  metadata_all %>%
+    dplyr::group_by(variant) %>%
+    dplyr::count() %>% print()
 
   # Addon: Filter by country_exposure.
   drop_idxs <- which(metadata_all$country_exposure != country_exposure)
@@ -113,7 +117,7 @@ preprocess <- function(gisaid_data_path, gisaid_extract_path,
   # Now do stratified random sampling.
   set.seed(seed)
   
-  # Append rowname column for fasta sampling.
+  # Append rowname column for fasta_all subsetting.
   # Drop this column before exporting.
   meta_grouped <- metadata_all %>%
     dplyr::group_by(variant) %>%
@@ -126,6 +130,7 @@ preprocess <- function(gisaid_data_path, gisaid_extract_path,
   # and place in meta_grouped, then randomly sample each of those groups
   dropped_variants <- filter(meta_grouped, n() < strat_size)
   meta_grouped <- filter(meta_grouped, n() >= strat_size)
+  # TODO: consider sample_frac()
   if (nrow(meta_grouped) >= strat_size)
     meta_grouped <- sample_n(meta_grouped, strat_size)
   metadata_all <- bind_rows(meta_grouped, dropped_variants)
@@ -141,8 +146,8 @@ preprocess <- function(gisaid_data_path, gisaid_extract_path,
   idxs <- as.integer(metadata_all$rowname)
   fasta_all <- fasta_all[idxs]
   
-  # Drop rowname column
-  metadata_all = subset(metadata_all, select = -c(rowname))  
+  # Drop explicit rowname column, already used to subset fasta_all.
+  metadata_all <- metadata_all %>% select(!rowname)
   
   # Drop rows with NA values and type mismatches.
   # Get the idxs of the dropped metadata_all rows then drop them in fasta_all.
@@ -162,8 +167,12 @@ preprocess <- function(gisaid_data_path, gisaid_extract_path,
   
   # At this point, data has been stratified and randomly sampled.
   
-  message(paste("Number of randomly selected samples in stratified data:",
+  message(paste("\nNumber of randomly selected samples in stratified data:",
                 nrow(metadata_all)))
+  message("Variant distribution in selected samples:")
+  metadata_all %>%
+    dplyr::group_by(variant) %>%
+    dplyr::count() %>% print()
   
   # Addon: Fix regions
   metadata_all$division_exposure <- case_match(
@@ -249,17 +258,106 @@ generate_interm <- function(fasta_all, metadata_all, write_path) {
 # Compile overview of sampled data
 # Ex. Group by age_group and variant then count()
 # Ex. Group by authors and how many samples they've submitted
-# Mainly Accession Numbers, Submitting Institutions and Authors
-# Note: We only credit sampled authors (so credits may vary depending on seed)
-compile_overview <- function(metadata_all, compile_write_path) {
-  if (!dir.exists(compile_write_path)) {
-    dir.create(compile_write_path)
+# Focus on Accession Numbers, Submitting Lab and Authors
+# We only credit sampled authors (so credits may vary depending on parameters)
+compile_overview <- function(metadata_all, write_path) {
+  if (!dir.exists(write_path)) {
+    dir.create(write_path)
   }
-  # Number of samples is from counting metadata_all$gisaid_esi_isl
   
-  # Get submitting institutions, number of authors in them, and number
-  # of samples they have submitted
+  # Clean up submitting labs
+  # Optimized .*(?=.* -) to .*(?= -.*)
+  # Labs with `name1 - name2` will only retain name1
+  df <- metadata_all %>%
+    tidyr::separate_rows(submitting_lab, sep = "/") %>%
+    dplyr::mutate(submitting_lab = dplyr::case_when(
+      stringr::str_detect(submitting_lab, regex("Center Visayas",
+                                                  ignore_case = TRUE)) ~
+        "Philippine Genome Center Visayas",
+      stringr::str_detect(submitting_lab, "-") ~
+        stringr::str_extract(submitting_lab, ".*(?= -.*)"),
+      .default = submitting_lab
+    ))
   
+  # Clean up authors
+  # ",(?![A-Z]+)"
+  df <- df %>%
+    tidyr::separate_rows(authors, sep = ",| and |nE|. Chel") %>%
+    dplyr::mutate(authors =
+                    str_replace(authors, "Dr.|PhD|MSc|MD|RMT|FPSP", "")) %>%
+    dplyr::mutate(authors = stringr::str_replace(authors, "√±", "ñ")) %>%
+    dplyr::mutate(authors = stringr::str_squish(authors)) %>%
+    dplyr::filter(authors != "") %>%
+    dplyr::mutate(authors = dplyr::case_match(
+      authors,
+      "Eva Maria C. Cutiongco-de la" ~ "Eva Maria C. Cutiongco-de la Paz",
+      "Eva Maria Cutiongco-de la Paz" ~ "Eva Maria C. Cutiongco-de la Paz",
+      "Jefferson Earl Halog" ~ "Jefferson Earl J. Halog",
+      "Joana Ina Manalo" ~ "Joanna Ina G. Manalo",
+      "lcid Aaron R. Pangilinan" ~ "Elcid Aaron R. Pangilinan",
+      "Marissa" ~ "Marissa M. Alejandria",
+      "Nina Francesca Bustamante" ~ "Niña Francesca M. Bustamante",
+      "Niña Francesca Bustamante" ~ "Niña Francesca M. Bustamante",
+      "Renato Jacinto Q. Manta" ~ "Renato Jacinto Q. Mantaring",
+      "Samantha Louise Bado" ~ "Samantha Luoise P. Bado",
+      "Vanessa Joy Diamante" ~ "Vanessa Joy F. Diamante",
+      "Yvonne Valerie Austria" ~ "Yvonne Valerie D. Austria",
+      "sea Joy M. Galutan" ~ "Chelsea Joy M. Galutan",
+      "Chelsea Joy Galutan" ~ "Chelsea Joy M. Galutan",
+      "Celia Carlos" ~ "Celia C. Carlos",
+      "Alyssa Joyce Telles" ~ "Alyssa Joyce E. Telles",
+      "Ardiane Ysabelle Dolor" ~ "Ardiane Ysabelle M. Dolor",
+      "Charalyn Babida" ~ "Charalyn A. Babida",
+      "Cynthia P. S" ~ "Cynthia P. Saloma",
+      "Devon Ray Pacial" ~ "Devon Ray O. Pacial",
+      "Diadem Ricarte" ~ "Diadem R. Ricarte",
+      "Edsel Maurice Salvana" ~ "Edsel Maurice T. Salvaña",
+      "Edsel Maurice T. Salva" ~ "Edsel Maurice T. Salvaña",
+      "Edsel Maurice T. Salvana" ~ "Edsel Maurice T. Salvaña",
+      "Florrianne D. Collantes" ~ "Florianne D. Collantes",
+      "Francisco Gerardo Polotan" ~ "Francisco Gerardo M. Polotan",
+      "Gerald Ivan Sotelo" ~ "Gerald Ivan S. Sotelo",
+      "Henrietta Marie Rodriguez" ~ "Henrietta Marie M. Rodriguez",
+      "J oshua Gregor E. Dizon" ~ "Joshua Gregor E. Dizon",
+      "Johnny A. Ong." ~ "Johnny A. Ong",
+      "Alethea R. De Guzma" ~ "Alethea R. de Guzman",
+      "Alethea R. de Guzma" ~ "Alethea R. de Guzman",
+      "Alethea R. De Guzman" ~ "Alethea R. de Guzman",
+      "Althea R. De Guzman" ~ "Alethea R. de Guzman",
+      "Diomedes A. Carino" ~ "Diomedes A. Cariño",
+      "Edsel Maurice Salvaña" ~ "Edsel Maurice T. Salvaña",
+      "Anna Ong-Lim" ~ "Anna Lisa T. Ong-Lim",
+      "Catalino Demetria" ~ "Catalino S. Demetria",
+      "Fe C.Villarama" ~ "Fe C. Villarama",
+      "John Michael Egana" ~ "John Michael C. Egana",
+      "Joshua Jose Endozo"~ "Joshua Jose S. Endozo",
+      "June Jay B.Tejano" ~ "June Jay B. Tejano",
+      "Krisitna Patriz Dela Cruz" ~ "Kristina Patriz Dela Cruz",
+      "Lei Lanna Dancel" ~ "Lei Lanna M. Dancel",
+      "Lindsay Clare D.L. Carandang" ~ "Lindsay Claire D.L. Carandang",
+      "Liza Mae De La Cruz" ~ "Liza Mae L. De La Cruz",
+      "Ma Angelica Tujan" ~ "Ma. Angelica A. Tujan",
+      "Ma Angelica A. Tujan" ~ "Ma. Angelica A. Tujan",
+      "Ma. Exanil Plantig" ~ "Ma. Exanil L. Plantig",
+      "Marielle M Gamboa" ~ "Marielle M. Gamboa",
+      "Marissa Alejandria" ~ "Marissa M. Alejandria",
+      "Renalyn SeNoran" ~ "Renalyn Señoran",
+      "Rona Clarisse B. Sobreca" ~ "Rona Clarisse B. Sobrecarey",
+      "Sophia Isabelle V. Diño" ~ "Sofia Isabelle V. Diño",
+      "Anne M. eco" ~ "Anne M. Eco",
+      "Elizabeth Freda O.Telan" ~ "Elizabeth Freda O. Telan",
+      "Ma. Angelica Tujan" ~ "Ma. Angelica A. Tujan",
+      "Mariko Siato-Obata" ~ "Mariko Saito-Obata",
+      .default = authors
+    ))
+  
+  # Get relevant groups from the metadata
+  df <- metadata_all %>%
+    dplyr::group_by(ph_region = glue("{division_exposure} ({division_code})"),
+                    age_group, sex, pangolin_lineage, submitting_lab, authors)
+  
+  # Get submitting lab, number of authors in them, and number
+  # of samples each institution have submitted
   
   write_lines(c("pgc-perf-opt GISAID Accession Numbers",
                 metadata_all$gisaid_epi_isl), "data/credits/gisaid-accession.txt")

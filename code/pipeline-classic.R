@@ -36,7 +36,7 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
                microbenchmark,
-               highcharter)
+               highcharter, glue)
 install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
 pacman::p_load(ggbiplot)
 
@@ -57,10 +57,12 @@ source("code/R/clustering-region.R")
 # pipeline.R general parameters
 seed <- 1234
 stamp <- get_time()
+write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
 
 # preprocess.R::preprocess() parameters
-# Note for strat_size: Current nrow(data) = 24671
+# strat_size: no. of samples per stratum. Current nrow(data) = 24671.
+# Also consider using sample_frac for proportionate allocation.
 gisaid_tar_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
 strat_size <- 25000
@@ -100,7 +102,10 @@ list[fasta_all, metadata_all] <- preprocess(gisaid_data_path,
                                             country_exposure, stamp)
 
 # Step 1.5A: generate_interm()
-generate_interm(fasta_all, metadata_all, interm_write_path)
+# Note that at strat_size > nrow(Omicron), you'll be writing around 700MB
+# of fasta_all_stamp.csv, so be alert with space usage of write_fastacsv.
+if (write_fastacsv)
+  generate_interm(fasta_all, metadata_all, interm_write_path)
 
 # Step 1.5B: compile_overview()
 # After compilation, authors and submitting institutions are dropped,
