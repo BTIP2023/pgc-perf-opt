@@ -1,16 +1,19 @@
 # File: preprocess.R
-# Main function: preprocess
 # Preprocessing is also done by the other steps (i.e. dim-reduce and clustering)
 # so this is more accurately called `initial preprocess`.
+
+# Main function: get_sample
 # Using the raw GISAID data, this function performs:
 # 1. Data extraction, parsing, and augmentation (i.e. wrangling)
 # 2. Stratified random sampling
-# 3. Data sanitation and grouping
 
 # Auxiliary function(s):
+# sanitize_sample: fix metadata column types and values
 # generate_interm: generate intermediate fasta and metadata files
 # compile_overview: generate overview of metadata, mainly summaries and credits
 # generate_treemaps: generate treemaps to improve visualization of sampled data
+
+# Note: All dropping of rows only done in get_sample.
 
 # preprocess assumes .tar.gz filename format is "country-variant-...".
 # Extract GISAID tars to data/GISAID/datasets/country-variant/
@@ -18,7 +21,7 @@
 # data_path is GISAID data directory.
 # extract_path is GISAID data extraction path after getting untarred.
 # Note: Each tar = {tsv, fasta}
-preprocess <- function(gisaid_data_path, gisaid_extract_path,
+get_sample <- function(gisaid_data_path, gisaid_extract_path,
                        seed = 1234, strat_size = 100,
                        country_exposure = "Philippines", stamp) {
   # Extract GISAID data.
@@ -165,8 +168,15 @@ preprocess <- function(gisaid_data_path, gisaid_extract_path,
   
   rm(idxs, drop_idxs1, drop_idxs2, drop_idxs3, drop_idxs)
   
-  # At this point, data has been stratified and randomly sampled.
+  # Addon: Add age_group, adjacent to age column
+  metadata_all <- metadata_all %>%
+    dplyr::mutate(age_group = cut(age, breaks=c(0,14,24,64,500),
+                                  include.lowest=T,
+                                  labels=c("0-14", "15-24", "25-64", "65+")),
+                  .after = age)
   
+  # At this point, data has been stratified and randomly sampled.
+  # We may now return it for further cleaning and downstream use.
   message(paste("\nNumber of randomly selected samples in stratified data:",
                 nrow(metadata_all)))
   message("Variant distribution in selected samples:")
@@ -174,34 +184,41 @@ preprocess <- function(gisaid_data_path, gisaid_extract_path,
     dplyr::group_by(variant) %>%
     dplyr::count() %>% print()
   
-  # Addon: Fix regions
-  metadata_all$division_exposure <- case_match(
-    metadata_all$division_exposure,
-    "Bicol" ~ "Bicol Region",
-    "Calabarzon" ~ "CALABARZON",
-    "Mimaropa" ~ "MIMAROPA",
-    "National Capital Region" ~ "NCR",
-    "Cordillera Administrative Region" ~ "CAR",
-    "Ilocos" ~ "Ilocos Region",
-    "Davao" ~ "Davao Region",
-    "Bangsamoro Autonomous Region in Muslim Mindanao" ~ "BARMM",
-    "Autonomous Region In Muslim Mindanao(ARMM)" ~ "BARMM",
-    "Autonomous Region In Muslim Mindanao" ~ "BARMM",
-    "Soccsksargen" ~ "SOCCSKSARGEN",
-    "Region III" ~ "Central Luzon",
-    "Region IV-B" ~ "MIMAROPA",
-    "Zamboanga" ~ "Zamboanga Peninsula",
-    "Region IV-A" ~ "CALABARZON",
-    "Region VIII (Eastern Visayas)" ~ "Eastern Visayas",
-    "Region VIII" ~ "Eastern Visayas",
-    "Region X (Northern Mindanao)" ~ "Northern Mindanao",
-    "Region XI (Davao Region)" ~ "Davao Region",
-    "Region XII (Soccsksargen)" ~ "SOCCSKSARGEN",
-    "Metropolitan Manila" ~ "NCR",
-    .default = metadata_all$division_exposure
-  )
+  list(fasta_all, metadata_all)
+}
+
+# Note that this assumes that country_exposure was set to "Philippines"
+sanitize_sample <- function(metadata_all) {
+  # Fix regions
+  message("Cleaning division_exposure and adding division_code... ",
+          appendLF = FALSE)
+  metadata_all <- metadata_all %>%
+    dplyr::mutate(division_exposure = case_match(
+      division_exposure,
+      "Bicol" ~ "Bicol Region",
+      "Calabarzon" ~ "CALABARZON",
+      "Mimaropa" ~ "MIMAROPA",
+      "National Capital Region" ~ "NCR",
+      "Cordillera Administrative Region" ~ "CAR",
+      "Ilocos" ~ "Ilocos Region",
+      "Davao" ~ "Davao Region",
+      "Bangsamoro Autonomous Region in Muslim Mindanao" ~ "BARMM",
+      "Autonomous Region In Muslim Mindanao(ARMM)" ~ "BARMM",
+      "Autonomous Region In Muslim Mindanao" ~ "BARMM",
+      "Soccsksargen" ~ "SOCCSKSARGEN",
+      "Region III" ~ "Central Luzon",
+      "Region IV-B" ~ "MIMAROPA",
+      "Zamboanga" ~ "Zamboanga Peninsula",
+      "Region IV-A" ~ "CALABARZON",
+      "Region VIII (Eastern Visayas)" ~ "Eastern Visayas",
+      "Region VIII" ~ "Eastern Visayas",
+      "Region X (Northern Mindanao)" ~ "Northern Mindanao",
+      "Region XI (Davao Region)" ~ "Davao Region",
+      "Region XII (Soccsksargen)" ~ "SOCCSKSARGEN",
+      "Metropolitan Manila" ~ "NCR",
+      .default = metadata_all$division_exposure))
   
-  # Addon: Add shortened Regions in Roman Numerals
+  # Add shortened Regions in Roman Numerals, call it division_code
   metadata_all <- metadata_all %>%
     dplyr::mutate(division_code = case_match(
       division_exposure,
@@ -221,58 +238,25 @@ preprocess <- function(gisaid_data_path, gisaid_extract_path,
       "Caraga" ~ "XIII",
       .default = division_exposure
     ), .after = division_exposure)
-  
-  # Addon: Add age_group, adjacent to age column
-  # Age group reference: https://www.statcan.gc.ca/en/concepts/definitions/age2
-  metadata_all <- metadata_all %>%
-    dplyr::mutate(age_group = cut(age, breaks=c(0,14,24,64,500),
-                                  include.lowest=T,
-                                  labels=c("0-14", "15-24", "25-64", "65+")),
-                  .after = age)
-  
-  # Return fasta_all and metadata_all, do final preprocess measures
-  metadata_all$sex <- as.factor(metadata_all$sex)
-  metadata_all$variant <- as.factor(metadata_all$variant)
-  list(fasta_all, metadata_all)
-}
-
-# Now always writes intermediate files. Thanks ape.
-generate_interm <- function(fasta_all, metadata_all, write_path) {
-  if (!dir.exists(write_path)) {
-    dir.create(write_path)
-  }
-  fasta_path <- sprintf("%s/fasta_all_%s.fasta", write_path, stamp)
-  csv_path <- sprintf("%s/metadata_all_%s.csv", write_path, stamp)
-  
-  message("\nWriting generated fasta and csv files:")
-  message(sprintf("Writing intermediate fasta to %s... ", fasta_path),
-          appendLF = FALSE)
-  ape::write.FASTA(fasta_all, file = fasta_path)
   message("DONE.")
-  message(sprintf("Writing intermediate metadata to %s... ", csv_path),
-          appendLF = FALSE)
-  readr::write_csv(metadata_all, file = csv_path)
-  message(sprintf("Writing intermediate metadata to %s... DONE.", csv_path))
-}
+  
+  message(paste0("ℹ Consider glue('{division_exposure} ({division_code})') ",
+          "if you need a column like CALABARZON (IV-A).\n"))
 
-# Compile overview of sampled data
-# Ex. Group by age_group and variant then count()
-# Ex. Group by authors and how many samples they've submitted
-# Focus on Accession Numbers, Submitting Lab and Authors
-# We only credit sampled authors (so credits may vary depending on parameters)
-compile_overview <- function(metadata_all, write_path) {
-  if (!dir.exists(write_path)) {
-    dir.create(write_path)
-  }
+  # Suggestion: Use glue("{division_exposure} ({division_code})") if
+  # you wish something like CALABARZON (IV-A). A caveat would be NCR (NCR) etc.
   
   # Clean up submitting labs
   # Optimized .*(?=.* -) to .*(?= -.*)
-  # Labs with `name1 - name2` will only retain name1
-  df <- metadata_all %>%
-    tidyr::separate_rows(submitting_lab, sep = "/") %>%
+  # Labs with "name1 - name2" will only retain name1
+  # Labs with "/" not separated into rows, converted "/" to "and"
+  message("Cleaning submitting labs and authors... ", appendLF = FALSE)
+  metadata_all <- metadata_all %>%
     dplyr::mutate(submitting_lab = dplyr::case_when(
+      stringr::str_detect(submitting_lab, regex("\\w/\\w")) ~
+        stringr::str_replace(submitting_lab, "/", " and "),
       stringr::str_detect(submitting_lab, regex("Center Visayas",
-                                                  ignore_case = TRUE)) ~
+                                                ignore_case = TRUE)) ~
         "Philippine Genome Center Visayas",
       stringr::str_detect(submitting_lab, "-") ~
         stringr::str_extract(submitting_lab, ".*(?= -.*)"),
@@ -281,7 +265,7 @@ compile_overview <- function(metadata_all, write_path) {
   
   # Clean up authors
   # ",(?![A-Z]+)"
-  df <- df %>%
+  metadata_all <- metadata_all %>%
     tidyr::separate_rows(authors, sep = ",| and |nE|. Chel") %>%
     dplyr::mutate(authors =
                     str_replace(authors, "Dr.|PhD|MSc|MD|RMT|FPSP", "")) %>%
@@ -350,6 +334,51 @@ compile_overview <- function(metadata_all, write_path) {
       "Mariko Siato-Obata" ~ "Mariko Saito-Obata",
       .default = authors
     ))
+  
+  # Collapse authors back to authors column
+  # TODO: This seems redundant as we will unravel this again
+  # for compile_overview, so think of workaround.
+  metadata_all <- metadata_all %>%
+    dplyr::mutate(authors = paste(authors, collapse = ", "),
+                  .by = variant) %>%
+    dplyr::distinct(strain, variant, .keep_all = TRUE)
+  message("DONE.")
+  
+  # Coerce sex and variant to factors
+  metadata_all$sex <- as.factor(metadata_all$sex)
+  metadata_all$variant <- as.factor(metadata_all$variant)
+  
+  return(metadata_all)
+}
+
+# Now always writes intermediate files. Thanks ape.
+generate_interm <- function(fasta_all, metadata_all, write_path) {
+  if (!dir.exists(write_path)) {
+    dir.create(write_path)
+  }
+  fasta_path <- sprintf("%s/fasta_all_%s.fasta", write_path, stamp)
+  csv_path <- sprintf("%s/metadata_all_%s.csv", write_path, stamp)
+  
+  message("\nWriting generated fasta and csv files:")
+  message(sprintf("Writing intermediate fasta to %s... ", fasta_path),
+          appendLF = FALSE)
+  ape::write.FASTA(fasta_all, file = fasta_path)
+  message("DONE.")
+  message(sprintf("Writing intermediate metadata to %s... ", csv_path),
+          appendLF = FALSE)
+  readr::write_csv(metadata_all, file = csv_path)
+  message(sprintf("Writing intermediate metadata to %s... DONE.", csv_path))
+}
+
+# Compile overview of sampled data
+# Ex. Group by age_group and variant then count()
+# Ex. Group by authors and how many samples they've submitted
+# Focus on Accession Numbers, Submitting Lab and Authors
+# We only credit sampled authors (so credits may vary depending on parameters)
+compile_overview <- function(metadata_all, write_path) {
+  if (!dir.exists(write_path)) {
+    dir.create(write_path)
+  }
   
   # Get relevant groups from the metadata
   df <- metadata_all %>%

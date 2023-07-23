@@ -60,7 +60,7 @@ stamp <- get_time()
 write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
 
-# preprocess.R::preprocess() parameters
+# preprocess.R::get_sample() parameters
 # strat_size: no. of samples per stratum. Current nrow(data) = 24671.
 # Also consider using sample_frac for proportionate allocation.
 gisaid_tar_path <- "data/GISAID"
@@ -95,21 +95,24 @@ results_path_agnes <- "results/dendrogram"
 
 # RUN PIPELINE #############################################
 
-# Step 1: preprocess()
-list[fasta_all, metadata_all] <- preprocess(gisaid_data_path,
+# Step 1: get_sample()
+list[fasta_all, metadata_all] <- get_sample(gisaid_data_path,
                                             gisaid_extract_path,
                                             seed, strat_size,
                                             country_exposure, stamp)
 
-# Step 1.5A: generate_interm()
-# Note that at strat_size > nrow(Omicron), you'll be writing around 700MB
-# of fasta_all_stamp.csv, so be alert with space usage of write_fastacsv.
-if (write_fastacsv)
-  generate_interm(fasta_all, metadata_all, interm_write_path)
+# Step 1.5A: sanitize_sample()
+metadata_all <- sanitize_sample(metadata_all)
 
-# Step 1.5B: compile_overview()
-# After compilation, authors and submitting institutions are dropped,
-# hence the reassignment to metadata_all.
+# Step 1.5B: generate_interm()
+# Note that at strat_size > nrow(Omicron), you'll be writing around 700MB
+# of fasta_all_stamp.csv, so be cautious of generate_interm's space usage.
+if (write_fastacsv)
+  metadata_allgenerate_interm(fasta_all, metadata_all, interm_write_path)
+
+# Step 1.5C: compile_overview()
+# compile_overview drops the submitting_lab and authors column
+# after compilation, hence the reassignment to metadata_all.
 metadata_all <- compile_overview(metadata_all, compile_write_path)
 
 # Step 1.5C: generate_treemap()
