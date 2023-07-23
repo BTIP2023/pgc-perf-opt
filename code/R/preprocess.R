@@ -342,7 +342,7 @@ sanitize_sample <- function(metadata_all) {
   metadata_all <- metadata_all %>%
     dplyr::group_by(strain) %>%
     dplyr::arrange(authors) %>%
-    dplyr::mutate(author_sum = paste(authors, collapse = ", ")) %>%
+    dplyr::mutate(authors = paste(authors, collapse = ", ")) %>%
     dplyr::distinct(strain, variant, .keep_all = TRUE)
   message("DONE.")
   
@@ -361,7 +361,7 @@ generate_interm <- function(fasta_all, metadata_all, write_path) {
   fasta_path <- sprintf("%s/fasta_all_%s.fasta", write_path, stamp)
   csv_path <- sprintf("%s/metadata_all_%s.csv", write_path, stamp)
   
-  message("\nWriting generated fasta and csv files:")
+  message("Writing generated fasta and csv files:")
   message(sprintf("Writing intermediate fasta to %s... ", fasta_path),
           appendLF = FALSE)
   ape::write.FASTA(fasta_all, file = fasta_path)
@@ -382,10 +382,16 @@ compile_overview <- function(metadata_all, write_path) {
     dir.create(write_path)
   }
   
+  # Add ph_region which is of the form "division_exposure (division_code)"
+  df <- metadata_all %>%
+    dplyr::mutate(ph_region = str_glue("{division_exposure} ",
+                                       "({division_code})"),
+                  .after = division_code)
+  
   # Get relevant groups from the metadata
   df <- metadata_all %>%
-    dplyr::group_by(ph_region = glue("{division_exposure} ({division_code})"),
-                    age_group, sex, pangolin_lineage, submitting_lab, authors)
+    tidyr::separate_rows(authors, sep = ", ") %>%
+    dplyr::group_by(division_exposure, age_group, sex, pangolin_lineage, submitting_lab, authors)
   
   # Get submitting lab, number of authors in them, and number
   # of samples each institution have submitted
