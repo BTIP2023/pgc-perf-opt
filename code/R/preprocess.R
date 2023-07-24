@@ -21,7 +21,8 @@
 # data_path is GISAID data directory.
 # extract_path is GISAID data extraction path after getting untarred.
 # Note: Each tar = {tsv, fasta}
-get_sample <- function(gisaid_data_path, gisaid_extract_path,
+get_sample <- function(gisaid_data_path = "data/GISAID",
+                       gisaid_extract_path = "data/GISAID/datasets",
                        seed = 1234, strat_size = 100,
                        country_exposure = "Philippines", stamp) {
   # Extract GISAID data.
@@ -365,7 +366,8 @@ sanitize_sample <- function(metadata_all) {
 }
 
 # Now always writes intermediate files. Thanks ape.
-generate_interm <- function(fasta_all, metadata_all, write_path) {
+generate_interm <- function(fasta_all, metadata_all,
+                            write_path = "data/interm") {
   if (!dir.exists(write_path)) {
     dir.create(write_path)
   }
@@ -387,7 +389,7 @@ generate_interm <- function(fasta_all, metadata_all, write_path) {
 # Ex. Group by age_group and variant then count()
 # Ex. Group by authors and how many samples they've submitted
 # Only sampled rows will be given overviews.
-compile_overview <- function(metadata_all, write_path) {
+compile_overview <- function(metadata_all, write_path = "data/overview") {
   # Get accession numbers and compile to a list
   gisaid_esp_isl <- sort(metadata_all$gisaid_epi_isl)
   
@@ -430,7 +432,7 @@ compile_overview <- function(metadata_all, write_path) {
   }
   
   # Write GISAID Accession Numbers
-  write_lines()
+  write_lines(gisaid_esp_isl, paste(write_path, "overview", sep = "/"))
   
   # After getting credits, we can now drop submitting_lab and authors
   metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
