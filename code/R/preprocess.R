@@ -21,7 +21,8 @@
 # data_path is GISAID data directory.
 # extract_path is GISAID data extraction path after getting untarred.
 # Note: Each tar = {tsv, fasta}
-get_sample <- function(gisaid_data_path, gisaid_extract_path,
+get_sample <- function(gisaid_data_path = "data/GISAID",
+                       gisaid_extract_path = "data/GISAID/datasets",
                        seed = 1234, strat_size = 100,
                        country_exposure = "Philippines", stamp) {
   # Extract GISAID data.
@@ -331,6 +332,7 @@ sanitize_sample <- function(metadata_all) {
       "Elizabeth Freda O.Telan" ~ "Elizabeth Freda O. Telan",
       "Ma. Angelica Tujan" ~ "Ma. Angelica A. Tujan",
       "Mariko Siato-Obata" ~ "Mariko Saito-Obata",
+      "April Mae Numeron" ~ "April Mae M. Numeron",
       .default = authors
     ))
 
@@ -342,13 +344,14 @@ sanitize_sample <- function(metadata_all) {
     dplyr::group_by(strain) %>%
     dplyr::arrange(authors) %>%
     dplyr::mutate(authors = paste(authors, collapse = ", ")) %>%
-    dplyr::distinct(strain, variant, .keep_all = TRUE)
+    dplyr::distinct(strain, variant, .keep_all = TRUE) %>%
+    dplyr::ungroup()
   message("DONE.")
   
   # Add ph_region which is of the form "division_exposure (division_code)"
   message("Adding ph_region to metadata... ", appendLF = FALSE)
   abbregions <- list("BARMM", "CAR", "NCR")
-  df <- metadata_all %>%
+  metadata_all <- metadata_all %>%
     dplyr::mutate(ph_region = dplyr::if_else(division_code %vin% abbregions,
       stringr::str_glue("{division_exposure} ({division_code})"),
       stringr::str_glue("{division_exposure} (Region {division_code})")),
@@ -363,7 +366,8 @@ sanitize_sample <- function(metadata_all) {
 }
 
 # Now always writes intermediate files. Thanks ape.
-generate_interm <- function(fasta_all, metadata_all, write_path) {
+generate_interm <- function(fasta_all, metadata_all,
+                            write_path = "data/interm", stamp) {
   if (!dir.exists(write_path)) {
     dir.create(write_path)
   }
@@ -384,36 +388,61 @@ generate_interm <- function(fasta_all, metadata_all, write_path) {
 # Compile overview of sampled data
 # Ex. Group by age_group and variant then count()
 # Ex. Group by authors and how many samples they've submitted
-# Focus on Accession Numbers, Submitting Lab and Authors
-# We only credit sampled authors (so credits may vary depending on parameters)
-compile_overview <- function(metadata_all, write_path) {
+# Only sampled rows will be given overviews.
+compile_overview <- function(metadata_all, write_path = "data/overview") {
+  # Get accession numbers and compile to a list
+  gisaid_esp_isl <- sort(metadata_all$gisaid_epi_isl)
+  
+  # Get authors and number of samples they've submitted: per variant and total n
+  df_authors <- metadata_all %>%
+    tidyr::separate_rows(authors, sep = ", ") %>%
+    dplyr::group_by(authors) %>%
+    variants_per_factor() %>%
+    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+  
+  # Get submitting labs and the number of samples they have submitted:
+  ## per variant and total n
+  df_labs <- metadata_all %>%
+    dplyr::group_by(submitting_lab) %>%
+    variants_per_factor() %>%
+    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+  
+  # Get number of variants and total samples n per division_exposure
+  # Included division_code and ph_region for utilitarian purposes
+  df_division <- metadata_all %>%
+    dplyr::group_by(division_exposure, division_code, ph_region) %>%
+    variants_per_factor() %>%
+    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+  
+  # Get number of variants and total samples n per sex
+  df_sex <- metadata_all %>%
+    dplyr::group_by(sex) %>%
+    variants_per_factor() %>%
+    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+  
+  # Get number of variants and total samples n per age_group
+  df_age_group <- metadata_all %>%
+    dplyr::group_by(age_group) %>%
+    variants_per_factor() %>%
+    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+  
+  # WRITE overviews to write_path
   if (!dir.exists(write_path)) {
     dir.create(write_path)
   }
   
-  # Get relevant groups from the metadata
-  df <- metadata_all %>%
-    tidyr::separate_rows(authors, sep = ", ") %>%
-    dplyr::group_by(ph_region,
-                    age_group,
-                    sex,
-                    pangolin_lineage,
-                    submitting_lab,
-                    authors)
+  # Write GISAID Accession Numbers
+  write_lines(gisaid_esp_isl, paste(write_path, "accession.txt", sep = "/"))
   
-  # Get submitting lab, number of authors in them, and number
-  # of samples each institution have submitted
-  
-  write_lines(c("pgc-perf-opt GISAID Accession Numbers",
-                metadata_all$gisaid_epi_isl), "data/credits/gisaid-accession.txt")
-  
-  institutions <- 
-    write_lines(c("pgc-perf-opt GISAID Authors"))
-  
-  # Now, get overview for the data that has been sampled.
-  # Only sampled rows will be summarized.
-  # compile_overview(metadata_all, 'data/overview')
+  # Write the rest of overviews to CSVs
+  write_csv(df_authors, paste(write_path, "authors.txt", sep = "/"))
+  write_csv(df_labs, paste(write_path, "labs.csv", sep = "/"))
+  write_csv(df_division, paste(write_path, "division.csv", sep = "/"))
+  write_csv(df_age_group, paste(write_path, "age_group.csv", sep = "/"))
+  write_csv(df_sex, paste(write_path, "sex.csv", sep = "/"))
   
   # After getting credits, we can now drop submitting_lab and authors
   metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
+  
+  return(metadata_all)
 }
