@@ -66,7 +66,7 @@ kmer_list <- c(3, 5, 7)
 # preprocess.R::get_sample() parameters
 # strat_size: no. of samples per stratum. Current nrow(data) = 24671.
 # Also consider using sample_frac for proportionate allocation.
-gisaid_tar_path <- "data/GISAID"
+gisaid_data_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
 strat_size <- 25000
 country_exposure <- "Philippines"
@@ -74,7 +74,7 @@ country_exposure <- "Philippines"
 # preprocess.R::auxiliary parameters
 interm_write_path <- "data/interm"
 compile_write_path <- "data/overview"
-treemaps_write_path <- "data/overview"
+treemap_write_path <- "data/overview"
 
 # dim-reduce.R::dim_reduce() parameters
 data_path_kmers <- "data/kmers"
