@@ -367,7 +367,7 @@ sanitize_sample <- function(metadata_all) {
 
 # Now always writes intermediate files. Thanks ape.
 generate_interm <- function(fasta_all, metadata_all,
-                            write_path = "data/interm") {
+                            write_path = "data/interm", stamp) {
   if (!dir.exists(write_path)) {
     dir.create(write_path)
   }
@@ -409,7 +409,7 @@ compile_overview <- function(metadata_all, write_path = "data/overview") {
   
   # Get number of variants and total samples n per division_exposure
   # Included division_code and ph_region for utilitarian purposes
-  df_region <- metadata_all %>%
+  df_division <- metadata_all %>%
     dplyr::group_by(division_exposure, division_code, ph_region) %>%
     variants_per_factor() %>%
     dplyr::mutate(n = rowSums(across(where(is.numeric))))
@@ -432,7 +432,14 @@ compile_overview <- function(metadata_all, write_path = "data/overview") {
   }
   
   # Write GISAID Accession Numbers
-  write_lines(gisaid_esp_isl, paste(write_path, "overview", sep = "/"))
+  write_lines(gisaid_esp_isl, paste(write_path, "accession.txt", sep = "/"))
+  
+  # Write the rest of overviews to CSVs
+  write_csv(df_authors, paste(write_path, "authors.txt", sep = "/"))
+  write_csv(df_labs, paste(write_path, "labs.csv", sep = "/"))
+  write_csv(df_division, paste(write_path, "division.csv", sep = "/"))
+  write_csv(df_age_group, paste(write_path, "age_group.csv", sep = "/"))
+  write_csv(df_sex, paste(write_path, "sex.csv", sep = "/"))
   
   # After getting credits, we can now drop submitting_lab and authors
   metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
