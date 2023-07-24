@@ -36,8 +36,9 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
                microbenchmark,
-               highcharter)
-install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
+               highcharter, glue)
+if (!require(ggbiplot))
+  install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
 pacman::p_load(ggbiplot)
 
 # validate used for %vin% operator 
@@ -55,22 +56,25 @@ source("code/R/clustering-region.R")
 
 # SET PARAMETERS ###########################################
 # pipeline.R general parameters
+# stamp <- [get_time():str|NULL]
+# if stamp = "", then generated files won't be timestamped
 seed <- 1234
 stamp <- get_time()
+write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
 
-# microbenchmark parameters
-bm_times <- 2L   # how many times should routine be evaluated
-bm_units <- "seconds"
-
-# preprocess.R::preprocess() parameters
-data_path_gisaid <- "data/GISAID"
-extract_path <- "data/GISAID/datasets"
-strat_size <- 100
+# preprocess.R::get_sample() parameters
+# strat_size: no. of samples per stratum. Current nrow(data) = 24671.
+# Also consider using sample_frac for proportionate allocation.
+gisaid_tar_path <- "data/GISAID"
+gisaid_extract_path <- "data/GISAID/datasets"
+strat_size <- 25000
 country_exposure <- "Philippines"
-write_fastacsv <- FALSE
 
-# kmer-analysis.R::get_kmers() parameters
+# preprocess.R::auxiliary parameters
+interm_write_path <- "data/interm"
+compile_write_path <- "data/overview"
+treemaps_write_path <- "data/overview"
 
 # dim-reduce.R::dim_reduce() parameters
 data_path_kmers <- "data/kmers"
@@ -83,10 +87,20 @@ umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 target_col <- "variant"
 
-# AGNES Clustering Parameters :: dendogram_create_x()
+# dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
+factor1 <- "variant"
+values1 <- c("Omicron", "Omicron Sub")
+factor2 <- "year"
+values2 <- c("2023")
+
+# clusterting-x.R::dendogram_create_x() parameters
 results_path_agnes <- "results/dendrogram"
 
 # RUN BENCHMARK #############################################
+# microbenchmark parameters
+bm_times <- 2L   # how many times should routine be evaluated
+bm_units <- "seconds"
+
 # Benchmark Notes:
 # preprocess, to start from extraction, delete: data/GISAID/datasets/
 # preprocess, to also generate data, set write_fastacsv = TRUE.
