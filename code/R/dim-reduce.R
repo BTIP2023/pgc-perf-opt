@@ -3,6 +3,25 @@
 
 # TO DO: Fix readability and documentation of this file
 
+# Time Complexity of PCA, t-SNE, and UMAP
+
+#   PCA:
+#     O(p^2n+p^3) -> n = no. of data-points, p = no. of features
+#     The covariance matrix computation is O(p^2n); 
+#     while the eigen-value decomposition is O(p^3).
+#   Reference:
+#   https://stackoverflow.com/questions/20507646/how-is-the-complexity-of-pca-ominp3-n3
+#   t-SNE: 
+#     O(n^2) -> n = no. of data-points
+#   Reference:
+#   https://arxiv.org/pdf/1512.01655.pdf
+#   UMAP:
+#     Average Case: O(d*n^1.14)
+#     Worst-Case: O(n^2) -> n = no. of data-points
+#   Reference:
+#   https://github.com/lmcinnes/umap/issues/8
+
+
 # FUNCTIONS ################################
 
 # Function to extract the timestamp from the kmer files
