@@ -331,6 +331,7 @@ sanitize_sample <- function(metadata_all) {
       "Elizabeth Freda O.Telan" ~ "Elizabeth Freda O. Telan",
       "Ma. Angelica Tujan" ~ "Ma. Angelica A. Tujan",
       "Mariko Siato-Obata" ~ "Mariko Saito-Obata",
+      "April Mae Numeron" ~ "April Mae M. Numeron",
       .default = authors
     ))
 
@@ -392,19 +393,55 @@ compile_overview <- function(metadata_all, write_path) {
     dir.create(write_path)
   }
   
-  # Get relevant groups from the metadata
-  df <- metadata_all %>%
-    tidyr::separate_rows(authors, sep = ", ") %>%
-    dplyr::group_by(ph_region,
-                    age_group,
-                    sex,
-                    pangolin_lineage,
-                    variant,
-                    submitting_lab,
-                    authors)
+  # Get accession numbers and compile to a list
+  gisaid_esp_isl <- sort(metadata_all$gisaid_epi_isl)
   
-  # Get submitting lab, number of authors in them, and number
-  # of samples each institution have submitted
+  # Get authors and the number of samples they have submitted
+  df_authors_n <- metadata_all %>%
+    tidyr::separate_rows(authors, sep = ", ") %>%
+    dplyr::count(authors, sort = TRUE)
+  
+  ## Get authors
+  authors <- sort(df_authors_n$authors)
+  
+  ## Get authors and number of samples they've submitted per variant
+  df_authors_variant <- metadata_all %>%
+    tidyr::separate_rows(authors, sep = ", ") %>%
+    dplyr::group_by(authors) %>%
+    dplyr::summarise(alpha = sum(variant == "Alpha"),
+                     beta = sum(variant == "Beta"),
+                     delta = sum(variant == "Delta"),
+                     gamma = sum(variant == "Gamma"),
+                     omicron = sum(variant == "Omicron"),
+                     omicron_sub = sum(variant == "Omicron Sub"))
+  
+  # Get submitting lab and the number of samples they have submitted
+  df_labs_n <- metadata_all %>%
+    dplyr::count(submitting_lab, sort = TRUE)
+  
+  ## Get submitting labs
+  df_labs <- sort(df_labs_n$submitting_lab)
+  
+  ## Get submitting labs and number of samples they've submitted per variant
+  df_labs_variant <- metadata_all %>%
+    dplyr::group_by(submitting_lab) %>%
+    dplyr::summarise(alpha = sum(variant == "Alpha"),
+                     beta = sum(variant == "Beta"),
+                     delta = sum(variant == "Delta"),
+                     gamma = sum(variant == "Gamma"),
+                     omicron = sum(variant == "Omicron"),
+                     omicron_sub = sum(variant == "Omicron Sub"))
+  
+  # Get number of variants and total samples per region
+  df_region <- metadata_all %>%
+    dplyr::group_by(ph_region, division_code) %>%
+    dplyr::summarise(alpha = sum(variant == "Alpha"),
+                     beta = sum(variant == "Beta"),
+                     delta = sum(variant == "Delta"),
+                     gamma = sum(variant == "Gamma"),
+                     omicron = sum(variant == "Omicron"),
+                     omicron_sub = sum(variant == "Omicron Sub")) %>%
+    dplyr::mutate(n = rowSums(across(where(is.numeric))))
   
   write_lines(c("pgc-perf-opt GISAID Accession Numbers",
                 metadata_all$gisaid_epi_isl), "data/credits/gisaid-accession.txt")
