@@ -70,23 +70,25 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
     # Create df containing the columns to summarize.
     summ <- df %>% select(...) %>% tibble(n = rep(1, nrow(df)))
     # Generate level JSONs
-    lvl_json <- list()
+    lvl_opts <- list()
     for (i in 1:...length()) {
       if (i == 1) {
-        lvl_json[[i]] <- list(
+        lvl_opts[[i]] <- list(
           level = 1,
-          dataLabels = list(enabled = TRUE,
-                            format = "{point.name}<br>{point.value}"),
-          borderColor = "white",
-          borderWidth = 1)
+          borderWidth = 0,
+          borderColor = "transparent",
+          dataLabels = list(
+            enabled = TRUE,
+            format = "{point.name}<br>{point.value}")
+          )
       } else if (i == 2) {
-        lvl_json[[i]] <- list(
+        lvl_opts[[i]] <- list(
           level = 2,
           dataLabels = list(enabled = TRUE,
                             style = list(fontSize = "0.8em"))
         )
       } else {
-        lvl_json[[i]] <- list(
+        lvl_opts[[i]] <- list(
           level = i,
           dataLabels = list(enabled = FALSE)
         )
@@ -96,10 +98,50 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
     # Create treemap object, to save as png and html later (outside this func)
     tm <- summ %>%
       data_to_hierarchical(c(...), n) %>%
-      hchart(type = "treemap",
-             allowTraversingTree = TRUE,
-             levelIsConstant = FALSE,
-             levels = lvl_json)
+      hchart(
+        type = "treemap",
+        allowTraversingTree = TRUE,
+        levelIsConstant = FALSE,
+        levels = lvl_opts
+      ) %>%
+      hc_drilldown(
+        breadcrumbs = list(
+          format = "back to {level.name} series",
+          enabled = TRUE,
+          showFullPath = TRUE,
+          allowPointDrilldown = TRUE
+        )
+      ) %>%
+      hc_tooltip(
+        headerFormat = "",
+        pointFormat = "{point.tooltip_text}",
+        useHTML = true
+      ) %>%
+      # hc_add_theme(
+      #   
+      # ) %>%
+      # hc_colorAxis(
+      #   
+      # ) %>%
+      hc_chart(
+        style = list(fontFamily = "Gloria Hallelujah")
+      ) %>%
+      hc_title(
+        text = "Gotta Catch 'Em All!",
+        style = list(fontFamily = "Glorria Hallelujah")
+      ) %>%
+      hc_subtitle(
+        text = "This is an intereseting subtitle to give
+        context for the chart or some interesting fact"
+      ) %>% 
+      hc_caption(
+        text = "This is a long text to give some 
+        subtle details of the data which can be relevant to the reader. 
+        This is usually a long text that's why I'm trying to put a 
+        <i>loooooong</i> text.", 
+          useHTML = TRUE
+      ) %>% 
+      hc_size(height = 700)
     tm
   }
   
