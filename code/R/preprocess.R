@@ -11,7 +11,7 @@
 # sanitize_sample: fix metadata column types and values
 # generate_interm: generate intermediate fasta and metadata files
 # compile_overview: generate overview of metadata, mainly summaries and credits
-# generate_treemaps: generate treemaps to improve visualization of sampled data
+# make_treemaps: generate treemaps to improve visualization of sampled data
 
 # Note: All dropping of rows only done in get_sample.
 
@@ -477,4 +477,34 @@ compile_overview <- function(metadata_all,
   metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
   
   return(metadata_all)
+}
+
+# Plot treemaps with appropriate drilldowns using highcharter.
+make_treemaps <- function(metadata_all, write_path, stamp) {
+  # For ease of viewing, convert Bicol Region (Region V) to
+  # simple Bicol Region (V)
+  df_tm <- metadata_all %>%
+    dplyr::mutate(ph_region =
+                    stringr::str_replace_all(ph_region, "\\(Region ", "\\("))
+  
+  std_sub <- paste0("Total number of samples are ", nrow(df_tm), 
+                    ". Most comes from the NCR followed ",
+                    "by Western Visayas.")
+  
+  tm_reg_var_lin <- df_tm %>%
+    treemap(ph_region, variant, pangolin_lineage,
+            tm_title = paste("COVID-19 Lineages per Region-Variant Group"),
+            tm_subtitle = std_sub)
+  
+  tm_var_reg_lin <- df_tm %>%
+    treemap(variant, ph_region, pangolin_lineage,
+            tm_title = paste("COVID-19 Lineages per Variant-Region Group"),
+            tm_subtitle = std_sub)
+  
+  tm_var_reg_lin <- df_tm %>%
+    treemap(pangolin_lineage, variant,
+            tm_title = paste("Philippine Regions per Variant-Lineage Group"),
+            tm_subtitle = std_sub)
+  
+  tm_var_reg_lin
 }

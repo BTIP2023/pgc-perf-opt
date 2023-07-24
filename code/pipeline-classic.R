@@ -118,7 +118,9 @@ if (write_fastacsv)
 # after compilation, hence the reassignment to metadata_all.
 metadata_all <- compile_overview(metadata_all, compile_write_path, stamp)
 
-# Step 1.5D: make_treemaps() (WIP)
+# Step 1.5D: make_treemaps()
+# NOTE: The treemap() function in helper.R
+# can generate any treemap you can think of, yeah!
 make_treemaps(metadata_all, treemaps_write_path, stamp)
 
 # Step 2: get_kmers()
