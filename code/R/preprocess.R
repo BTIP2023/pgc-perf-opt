@@ -386,13 +386,8 @@ generate_interm <- function(fasta_all, metadata_all, write_path) {
 # Compile overview of sampled data
 # Ex. Group by age_group and variant then count()
 # Ex. Group by authors and how many samples they've submitted
-# Focus on Accession Numbers, Submitting Lab and Authors
-# We only credit sampled authors (so credits may vary depending on parameters)
+# Only sampled rows will be given overviews.
 compile_overview <- function(metadata_all, write_path) {
-  if (!dir.exists(write_path)) {
-    dir.create(write_path)
-  }
-  
   # Get accession numbers and compile to a list
   gisaid_esp_isl <- sort(metadata_all$gisaid_epi_isl)
   
@@ -410,9 +405,10 @@ compile_overview <- function(metadata_all, write_path) {
     variants_per_factor() %>%
     dplyr::mutate(n = rowSums(across(where(is.numeric))))
   
-  # Get number of variants and total samples n per region
+  # Get number of variants and total samples n per division_exposure
+  # Included division_code and ph_region for utilitarian purposes
   df_region <- metadata_all %>%
-    dplyr::group_by(ph_region, division_code) %>%
+    dplyr::group_by(division_exposure, division_code, ph_region) %>%
     variants_per_factor() %>%
     dplyr::mutate(n = rowSums(across(where(is.numeric))))
   
@@ -428,16 +424,16 @@ compile_overview <- function(metadata_all, write_path) {
     variants_per_factor() %>%
     dplyr::mutate(n = rowSums(across(where(is.numeric))))
   
-  write_lines(c("pgc-perf-opt GISAID Accession Numbers",
-                metadata_all$gisaid_epi_isl), "data/credits/gisaid-accession.txt")
+  # WRITE overviews to write_path
+  if (!dir.exists(write_path)) {
+    dir.create(write_path)
+  }
   
-  institutions <- 
-    write_lines(c("pgc-perf-opt GISAID Authors"))
-  
-  # Now, get overview for the data that has been sampled.
-  # Only sampled rows will be summarized.
-  # compile_overview(metadata_all, 'data/overview')
+  # Write GISAID Accession Numbers
+  write_lines()
   
   # After getting credits, we can now drop submitting_lab and authors
   metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))
+  
+  return(metadata_all)
 }
