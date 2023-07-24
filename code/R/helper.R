@@ -65,8 +65,15 @@ get_time <- function() {
 # MAKE TREEMAPS
 # Plot treemaps with appropriate drilldowns using highcharter.
 make_treemaps <- function(metadata_all, write_path, stamp) {
+  # For ease of viewing, convert Bicol Region (Region V) to
+  # simple Bicol Region (V)
+  df_tm <- metadata_all %>%
+    dplyr::mutate(ph_region =
+                    stringr::str_replace_all(ph_region, "\\(Region ", "\\("))
+  
   # Wrapper function for making treemaps with ...length() levels
-  treemap <- function(df, ..., write_path, stamp) {
+  treemap <- function(df, ..., tm_title = "",
+                      tm_subtitle = "", tm_caption = "") {
     # Create df containing the columns to summarize.
     summ <- df %>% select(...) %>% tibble(n = rep(1, nrow(df)))
     # Generate level JSONs
@@ -77,22 +84,25 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
           level = 1,
           borderWidth = 2,
           borderColor = "white",
+          colorVariation = list(
+            key = "brightness",
+            to = 0.250
+          ),
           dataLabels = list(
             enabled = TRUE,
             align = "left",
             verticalAlign = "top",
             style = list(
-              fontSize = "12px",
-              textOutline = TRUE,
+              fontSize = "1.2em",
               color = "white",
+              textOutline = FALSE,
               fontWeight = "normal"
-              )
             )
           )
+        )
       } else if (i == 2) {
         lvl_opts[[i]] <- list(
           level = 2,
-          borderWidth = 1,
           colorVariation = list(
             key = "brightness",
             to = 0.250
@@ -100,12 +110,12 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
           dataLabels = list(
             enabled = TRUE,
             style = list(
-              fontSize = "8px",
-              textOutline = FALSE,
+              fontSize = "0.8em",
               color = "white",
+              textOutline = FALSE,
               fontWeight = "normal"
-              )
             )
+          )
         )
       } else {
         lvl_opts[[i]] <- list(
@@ -115,41 +125,54 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
       }
     }
     
+    test_n <- n_distinct(summ[1])
+    num_colors <- ifelse(test_n <= 8, test_n, 8)
+    
     # Create treemap object, to save as png and html later (outside this func)
     tm <- summ %>%
-      data_to_hierarchical(c(...), n) %>%
+      data_to_hierarchical(c(...), n,
+                           brewer.pal(n = num_colors, name = "Dark2")) %>%
       hchart(
         type = "treemap",
         allowTraversingTree = TRUE,
         levelIsConstant = FALSE,
         levels = lvl_opts
       ) %>%
-      hc_tooltip(
-        headerFormat = "Test",
-        pointFormat = "{point.tooltip_text}"
-      ) %>%
       hc_chart(
-        style = list(fontFamily = "Roboto")
+        style = list(fontFamily = "Lexend")
+      ) %>%
+      hc_tooltip(
+        pointFormat = "<b>{point.name}</b>: {point.value} samples<br/>",
+        useHTML = TRUE
       ) %>%
       hc_title(
-        text = "Geographic Distribution of COVID-19 Variants",
-        style = list(fontFamily = "Roboto")
+        text = tm_title,
+        align = "left"
       ) %>%
       hc_subtitle(
-        text = "This is an intereseting subtitle to give
-        context for the chart or some interesting fact"
+        text = tm_subtitle,
+        align = "justify"
       ) %>% 
       hc_caption(
-        text = "This is a long text to give some 
-        subtle details of the data which can be relevant to the reader. 
-        This is usually a long text that's why I'm trying to put a 
-        <i>loooooong</i> text.", 
-          useHTML = TRUE
-      )  
+        text = tm_caption,
+        align = "justify"
+      ) %>%
+      hc_credits(
+        enabled = TRUE, text = "Data Source: GISAID (2020-2023)",
+        href = "https://gisaid.org/"
+      )
     
-    tm
   }
   
-  metadata_all %>% treemap(variant, ph_region, pangolin_lineage)
+  df_tm %>%
+    treemap(variant, ph_region, pangolin_lineage,
+            tm_title = paste("Distribution of Sampled COVID-19 Variants",
+                             "across Philippine Regions"),
+            tm_subtitle = paste0("Total number of samples are ", nrow(df_tm), 
+                                ". Most comes from the NCR followed ",
+                                "by Western Visayas.")
+    )
+  
+  
 }
 
