@@ -75,17 +75,37 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
       if (i == 1) {
         lvl_opts[[i]] <- list(
           level = 1,
-          borderWidth = 0,
-          borderColor = "transparent",
+          borderWidth = 2,
+          borderColor = "white",
           dataLabels = list(
             enabled = TRUE,
-            format = "{point.name}<br>{point.value}")
+            align = "left",
+            verticalAlign = "top",
+            style = list(
+              fontSize = "12px",
+              textOutline = TRUE,
+              color = "white",
+              fontWeight = "normal"
+              )
+            )
           )
       } else if (i == 2) {
         lvl_opts[[i]] <- list(
           level = 2,
-          dataLabels = list(enabled = TRUE,
-                            style = list(fontSize = "0.8em"))
+          borderWidth = 1,
+          colorVariation = list(
+            key = "brightness",
+            to = 0.250
+          ),
+          dataLabels = list(
+            enabled = TRUE,
+            style = list(
+              fontSize = "8px",
+              textOutline = FALSE,
+              color = "white",
+              fontWeight = "normal"
+              )
+            )
         )
       } else {
         lvl_opts[[i]] <- list(
@@ -104,31 +124,16 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
         levelIsConstant = FALSE,
         levels = lvl_opts
       ) %>%
-      hc_drilldown(
-        breadcrumbs = list(
-          format = "back to {level.name} series",
-          enabled = TRUE,
-          showFullPath = TRUE,
-          allowPointDrilldown = TRUE
-        )
-      ) %>%
       hc_tooltip(
-        headerFormat = "",
-        pointFormat = "{point.tooltip_text}",
-        useHTML = true
+        headerFormat = "Test",
+        pointFormat = "{point.tooltip_text}"
       ) %>%
-      # hc_add_theme(
-      #   
-      # ) %>%
-      # hc_colorAxis(
-      #   
-      # ) %>%
       hc_chart(
-        style = list(fontFamily = "Gloria Hallelujah")
+        style = list(fontFamily = "Roboto")
       ) %>%
       hc_title(
-        text = "Gotta Catch 'Em All!",
-        style = list(fontFamily = "Glorria Hallelujah")
+        text = "Geographic Distribution of COVID-19 Variants",
+        style = list(fontFamily = "Roboto")
       ) %>%
       hc_subtitle(
         text = "This is an intereseting subtitle to give
@@ -140,8 +145,8 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
         This is usually a long text that's why I'm trying to put a 
         <i>loooooong</i> text.", 
           useHTML = TRUE
-      ) %>% 
-      hc_size(height = 700)
+      )  
+    
     tm
   }
   
