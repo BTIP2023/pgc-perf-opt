@@ -12,7 +12,7 @@ a timestamp is generated at the top of the pipeline and only passed to succeedin
 Some pipeline functions can also work without getting a timestamp by ordering the files
 and selecting the most recent one (cc: @d1w1rm4 and @JohnFelices528).
 
-**[^1]:** Untimestamped files in `data/interm`, `data/overview`, and `data/kmers` are
+[^1]: Untimestamped files in `data/interm`, `data/overview`, and `data/kmers` are
 files that contain generated data pertaining to the ENTIRE dataset (all samples in GISAID included).
 
 ## On GISAID Data
