@@ -342,13 +342,14 @@ sanitize_sample <- function(metadata_all) {
     dplyr::group_by(strain) %>%
     dplyr::arrange(authors) %>%
     dplyr::mutate(authors = paste(authors, collapse = ", ")) %>%
-    dplyr::distinct(strain, variant, .keep_all = TRUE)
+    dplyr::distinct(strain, variant, .keep_all = TRUE) %>%
+    dplyr::ungroup()
   message("DONE.")
   
   # Add ph_region which is of the form "division_exposure (division_code)"
   message("Adding ph_region to metadata... ", appendLF = FALSE)
   abbregions <- list("BARMM", "CAR", "NCR")
-  df <- metadata_all %>%
+  metadata_all <- metadata_all %>%
     dplyr::mutate(ph_region = dplyr::if_else(division_code %vin% abbregions,
       stringr::str_glue("{division_exposure} ({division_code})"),
       stringr::str_glue("{division_exposure} (Region {division_code})")),
@@ -398,6 +399,7 @@ compile_overview <- function(metadata_all, write_path) {
                     age_group,
                     sex,
                     pangolin_lineage,
+                    variant,
                     submitting_lab,
                     authors)
   

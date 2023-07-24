@@ -123,6 +123,9 @@ for (k in kmer_list) {
   get_kmers(fasta_all, metadata_all, k, stamp)
 }
 
+# Step 2.5: generate_heatmap()
+
+
 # Step 3: dim_reduce()
 for (k in kmer_list) {
   dim_reduce(k, data_path_kmers, results_path_dimreduce,
