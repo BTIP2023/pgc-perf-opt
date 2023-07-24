@@ -37,7 +37,8 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                ggdendro, dendextend, cluster, colorspace,
                microbenchmark,
                highcharter, glue)
-install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
+if (!require(ggbiplot))
+  install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
 pacman::p_load(ggbiplot)
 
 # validate used for %vin% operator 

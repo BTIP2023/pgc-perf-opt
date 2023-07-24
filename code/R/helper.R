@@ -62,6 +62,17 @@ get_time <- function() {
   ret <- substring(ret, 1, nchar(ret)-3)
 }
 
+# Get number of variants per factor
+variants_per_factor <- function(df) {
+  dplyr::summarise(df, alpha = sum(variant == "Alpha"),
+                   beta = sum(variant == "Beta"),
+                   delta = sum(variant == "Delta"),
+                   gamma = sum(variant == "Gamma"),
+                   omicron = sum(variant == "Omicron"),
+                   omicron_sub = sum(variant == "Omicron Sub"),
+                   .groups = "keep")
+}
+
 # Plot treemap with appropriate drilldowns using highcharter
 make_treemap <- function(metadata) {
   set.seed(1234)

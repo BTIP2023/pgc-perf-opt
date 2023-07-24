@@ -396,51 +396,36 @@ compile_overview <- function(metadata_all, write_path) {
   # Get accession numbers and compile to a list
   gisaid_esp_isl <- sort(metadata_all$gisaid_epi_isl)
   
-  # Get authors and the number of samples they have submitted
-  df_authors_n <- metadata_all %>%
-    tidyr::separate_rows(authors, sep = ", ") %>%
-    dplyr::count(authors, sort = TRUE)
-  
-  ## Get authors
-  authors <- sort(df_authors_n$authors)
-  
-  ## Get authors and number of samples they've submitted per variant
-  df_authors_variant <- metadata_all %>%
+  # Get authors and number of samples they've submitted: per variant and total n
+  df_authors <- metadata_all %>%
     tidyr::separate_rows(authors, sep = ", ") %>%
     dplyr::group_by(authors) %>%
-    dplyr::summarise(alpha = sum(variant == "Alpha"),
-                     beta = sum(variant == "Beta"),
-                     delta = sum(variant == "Delta"),
-                     gamma = sum(variant == "Gamma"),
-                     omicron = sum(variant == "Omicron"),
-                     omicron_sub = sum(variant == "Omicron Sub"))
+    variants_per_factor() %>%
+    dplyr::mutate(n = rowSums(across(where(is.numeric))))
   
-  # Get submitting lab and the number of samples they have submitted
-  df_labs_n <- metadata_all %>%
-    dplyr::count(submitting_lab, sort = TRUE)
-  
-  ## Get submitting labs
-  df_labs <- sort(df_labs_n$submitting_lab)
-  
-  ## Get submitting labs and number of samples they've submitted per variant
-  df_labs_variant <- metadata_all %>%
+  # Get submitting labs and the number of samples they have submitted:
+  ## per variant and total n
+  df_labs <- metadata_all %>%
     dplyr::group_by(submitting_lab) %>%
-    dplyr::summarise(alpha = sum(variant == "Alpha"),
-                     beta = sum(variant == "Beta"),
-                     delta = sum(variant == "Delta"),
-                     gamma = sum(variant == "Gamma"),
-                     omicron = sum(variant == "Omicron"),
-                     omicron_sub = sum(variant == "Omicron Sub"))
+    variants_per_factor() %>%
+    dplyr::mutate(n = rowSums(across(where(is.numeric))))
   
-  # Get number of variants and total samples per region
+  # Get number of variants and total samples n per region
   df_region <- metadata_all %>%
     dplyr::group_by(ph_region, division_code) %>%
-    dplyr::summarise(alpha = sum(variant == "Alpha"),
-                     beta = sum(variant == "Beta"),
-                     delta = sum(variant == "Delta"),
-                     gamma = sum(variant == "Gamma"),
-                     omicron = sum(variant == "Omicron"),
-                     omicron_sub = sum(variant == "Omicron Sub")) %>%
+    variants_per_factor() %>%
+    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+  
+  # Get number of variants and total samples n per sex
+  df_sex <- metadata_all %>%
+    dplyr::group_by(sex) %>%
+    variants_per_factor() %>%
+    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+  
+  # Get number of variants and total samples n per age_group
+  df_age_group <- metadata_all %>%
+    dplyr::group_by(age_group) %>%
+    variants_per_factor() %>%
     dplyr::mutate(n = rowSums(across(where(is.numeric))))
   
   write_lines(c("pgc-perf-opt GISAID Accession Numbers",
