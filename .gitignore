@@ -77,6 +77,7 @@ data/overview/*_*.txt
 data/overview/*_*.csv
 !data/overview/age_group.csv
 data/kmers/kmer_*_*.csv
+data/kmers/log.txt
 
 # Local Files YH
 backup/
