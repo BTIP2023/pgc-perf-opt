@@ -1,0 +1,90 @@
+2023-07-22 20:29:09.02944
+OS Name:                   Microsoft Windows 11 Home Single Language
+OS Version:                10.0.22621 N/A Build 22621
+System Manufacturer:       LENOVO
+System Model:              82K2
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
+Total Physical Memory:     14,188 MB
+DeviceID  NumberOfCores  NumberOfLogicalProcessors  
+CPU0      8              16                         
+timestamp = 20230722202823603
+seed = 1234, strat_size = 100, k-value = 3
+------
+
+2023-07-22 20:29:14.697529
+OS Name:                   Microsoft Windows 11 Home Single Language
+OS Version:                10.0.22621 N/A Build 22621
+System Manufacturer:       LENOVO
+System Model:              82K2
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
+Total Physical Memory:     14,188 MB
+DeviceID  NumberOfCores  NumberOfLogicalProcessors  
+CPU0      8              16                         
+timestamp = 20230722202823603
+seed = 1234, strat_size = 100, k-value = 5
+------
+
+2023-07-22 20:29:21.261744
+OS Name:                   Microsoft Windows 11 Home Single Language
+OS Version:                10.0.22621 N/A Build 22621
+System Manufacturer:       LENOVO
+System Model:              82K2
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
+Total Physical Memory:     14,188 MB
+DeviceID  NumberOfCores  NumberOfLogicalProcessors  
+CPU0      8              16                         
+timestamp = 20230722202823603
+seed = 1234, strat_size = 100, k-value = 7
+------
+
+2023-07-22 20:32:13.380197
+OS Name:                   Microsoft Windows 11 Home Single Language
+OS Version:                10.0.22621 N/A Build 22621
+System Manufacturer:       LENOVO
+System Model:              82K2
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
+Total Physical Memory:     14,188 MB
+DeviceID  NumberOfCores  NumberOfLogicalProcessors  
+CPU0      8              16                         
+timestamp = 20230722203159076
+seed = 1234, strat_size = 100, k-value = 3
+------
+
+2023-07-22 20:32:22.154869
+OS Name:                   Microsoft Windows 11 Home Single Language
+OS Version:                10.0.22621 N/A Build 22621
+System Manufacturer:       LENOVO
+System Model:              82K2
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
+Total Physical Memory:     14,188 MB
+DeviceID  NumberOfCores  NumberOfLogicalProcessors  
+CPU0      8              16                         
+timestamp = 20230722203159076
+seed = 1234, strat_size = 100, k-value = 5
+------
+
+2023-07-22 20:32:32.821502
+OS Name:                   Microsoft Windows 11 Home Single Language
+OS Version:                10.0.22621 N/A Build 22621
+System Manufacturer:       LENOVO
+System Model:              82K2
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
+Total Physical Memory:     14,188 MB
+DeviceID  NumberOfCores  NumberOfLogicalProcessors  
+CPU0      8              16                         
+timestamp = 20230722203159076
+seed = 1234, strat_size = 100, k-value = 7
+------
+

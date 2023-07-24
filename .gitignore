@@ -75,9 +75,8 @@ data/interm/*
 !data/interm/metadata_all.csv
 data/overview/*_*.txt
 data/overview/*_*.csv
-data/kmers/kmer_3*.csv
-data/kmers/kmer_5*.csv
-data/kmers/
+!data/overview/age_group.csv
+data/kmers/kmer_*_*.csv
 
 # Local Files YH
 backup/
