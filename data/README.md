@@ -1,5 +1,19 @@
 # Data
-This directory will contain the raw `.fasta` files to be processed using k-mer analysis, generating `.csv` files.
+`data/GISAID` contains the raw GISAID data to be fed to the pipeline's entry point, `code/R/preprocess.R`.
+If `write_fastacsv <- TRUE` in the `code/pipeline-X.R` files, `data/interm` will additionally contain intermediate but thoroughly sanitized FASTA and metadata files of the entire[^1] and the subsampled dataset.
+As such, `data/interm` can be used to fix value issues in the raw GISAID datasets.
+See `get_sample` and `sanitize_sample` in code/R/preprocess.R for all the relevant issues and fixes.
+Moreover, `data/overview` contains overviews (in .txt, .csv, and plots) of the entire[^1] and the subsampled dataset.
+
+## On Timestamps[^1]
+Generated files in `data/interm`, `data/overview`, and `data/kmers` are timestamped according to
+when they were generated. The timestamps have the format `YYYYMMDDHHMMSSNNN`. Note that
+a timestamp is generated at the top of the pipeline and only passed to succeeding functions.
+Some pipeline functions can also work without getting a timestamp by ordering the files
+and selecting the most recent one (cc: @d1w1rm4 and @JohnFelices528).
+
+**[^1]:** Untimestamped files in `data/interm`, `data/overview`, and `data/kmers` are
+files that contain generated data pertaining to the ENTIRE dataset (all samples in GISAID included).
 
 ## On GISAID Data
 For data obtained from GISAID, only **accession numbers** will be included in this and the root README files' references. GISAID (2012) gives the following reason:

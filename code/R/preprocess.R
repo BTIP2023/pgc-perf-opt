@@ -24,7 +24,7 @@
 get_sample <- function(gisaid_data_path = "data/GISAID",
                        gisaid_extract_path = "data/GISAID/datasets",
                        seed = 1234, strat_size = 100,
-                       country_exposure = "Philippines", stamp) {
+                       country_exposure = "Philippines") {
   # Extract GISAID data.
   if (dir.exists(gisaid_extract_path)) {
     message("GISAID data already extracted from tar archives.")
@@ -371,8 +371,13 @@ generate_interm <- function(fasta_all, metadata_all,
   if (!dir.exists(write_path)) {
     dir.create(write_path)
   }
+  
   fasta_path <- sprintf("%s/fasta_all_%s.fasta", write_path, stamp)
   csv_path <- sprintf("%s/metadata_all_%s.csv", write_path, stamp)
+  if (is.null(stamp)) {
+    fasta_path <- sprintf("%s/fasta_all.fasta", write_path)
+    csv_path <- sprintf("%s/metadata_all.csv", write_path)
+  }
   
   message("Writing generated fasta and csv files:")
   message(sprintf("Writing intermediate fasta to %s... ", fasta_path),
@@ -389,7 +394,20 @@ generate_interm <- function(fasta_all, metadata_all,
 # Ex. Group by age_group and variant then count()
 # Ex. Group by authors and how many samples they've submitted
 # Only sampled rows will be given overviews.
-compile_overview <- function(metadata_all, write_path = "data/overview") {
+compile_overview <- function(metadata_all,
+                             write_path = "data/overview", stamp) {
+  # Get number of variants per factor, then append total number of samples
+  variants_per_factor_n <- function(df) {
+    dplyr::summarise(df, alpha = sum(variant == "Alpha"),
+                     beta = sum(variant == "Beta"),
+                     delta = sum(variant == "Delta"),
+                     gamma = sum(variant == "Gamma"),
+                     omicron = sum(variant == "Omicron"),
+                     omicron_sub = sum(variant == "Omicron Sub"),
+                     .groups = "keep") %>%
+    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+  }
+  
   # Get accession numbers and compile to a list
   gisaid_esp_isl <- sort(metadata_all$gisaid_epi_isl)
   
@@ -397,49 +415,59 @@ compile_overview <- function(metadata_all, write_path = "data/overview") {
   df_authors <- metadata_all %>%
     tidyr::separate_rows(authors, sep = ", ") %>%
     dplyr::group_by(authors) %>%
-    variants_per_factor() %>%
-    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+    variants_per_factor_n()
   
   # Get submitting labs and the number of samples they have submitted:
   ## per variant and total n
   df_labs <- metadata_all %>%
     dplyr::group_by(submitting_lab) %>%
-    variants_per_factor() %>%
-    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+    variants_per_factor_n()
   
   # Get number of variants and total samples n per division_exposure
   # Included division_code and ph_region for utilitarian purposes
   df_division <- metadata_all %>%
     dplyr::group_by(division_exposure, division_code, ph_region) %>%
-    variants_per_factor() %>%
-    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+    variants_per_factor_n()
   
   # Get number of variants and total samples n per sex
   df_sex <- metadata_all %>%
     dplyr::group_by(sex) %>%
-    variants_per_factor() %>%
-    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+    variants_per_factor_n()
   
   # Get number of variants and total samples n per age_group
   df_age_group <- metadata_all %>%
     dplyr::group_by(age_group) %>%
-    variants_per_factor() %>%
-    dplyr::mutate(n = rowSums(across(where(is.numeric))))
+    variants_per_factor_n()
   
   # WRITE overviews to write_path
+  write_overview <- function(df, write_path, file, stamp) {
+    if (!is.null(stamp)) {
+      write_csv(df, paste(write_path, sprintf("%s_%s.csv",
+                                              file, stamp), sep = "/"))
+    } else {
+      write_csv(df, paste(write_path, sprintf("%s.csv", file), sep = "/"))
+    }
+  }
+  
+  # Create write_path if not exists
   if (!dir.exists(write_path)) {
     dir.create(write_path)
   }
   
   # Write GISAID Accession Numbers
-  write_lines(gisaid_esp_isl, paste(write_path, "accession.txt", sep = "/"))
+  if (!is.null(stamp)) {
+    write_lines(gisaid_esp_isl, paste(write_path, sprintf("accession_%s.txt",
+                                                          stamp), sep = "/"))
+  } else {
+    write_lines(gisaid_esp_isl, paste(write_path, "accession.txt", sep = "/"))
+  }
   
   # Write the rest of overviews to CSVs
-  write_csv(df_authors, paste(write_path, "authors.txt", sep = "/"))
-  write_csv(df_labs, paste(write_path, "labs.csv", sep = "/"))
-  write_csv(df_division, paste(write_path, "division.csv", sep = "/"))
-  write_csv(df_age_group, paste(write_path, "age_group.csv", sep = "/"))
-  write_csv(df_sex, paste(write_path, "sex.csv", sep = "/"))
+  write_overview(df_authors, write_path, "authors", stamp)
+  write_overview(df_labs, write_path, "labs", stamp)
+  write_overview(df_division, write_path, "division", stamp)
+  write_overview(df_age_group, write_path, "age_group", stamp)
+  write_overview(df_sex, write_path, "sex", stamp)
   
   # After getting credits, we can now drop submitting_lab and authors
   metadata_all <- subset(metadata_all, select = -c(submitting_lab, authors))

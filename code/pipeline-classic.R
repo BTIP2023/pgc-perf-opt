@@ -56,6 +56,8 @@ source("code/R/clustering-region.R")
 
 # SET PARAMETERS ###########################################
 # pipeline.R general parameters
+# stamp <- [get_time():str|NULL]
+# if stamp = "", then generated files won't be timestamped
 seed <- 1234
 stamp <- get_time()
 write_fastacsv <- TRUE
@@ -100,7 +102,7 @@ results_path_agnes <- "results/dendrogram"
 list[fasta_all, metadata_all] <- get_sample(gisaid_data_path,
                                             gisaid_extract_path,
                                             seed, strat_size,
-                                            country_exposure, stamp)
+                                            country_exposure)
 
 # Step 1.5A: sanitize_sample()
 metadata_all <- sanitize_sample(metadata_all)
