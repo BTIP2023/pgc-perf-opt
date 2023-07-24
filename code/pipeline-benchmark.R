@@ -74,7 +74,7 @@ country_exposure <- "Philippines"
 # preprocess.R::auxiliary parameters
 interm_write_path <- "data/interm"
 compile_write_path <- "data/overview"
-treemap_write_path <- "data/overview"
+treemaps_write_path <- "data/overview/treemaps"
 
 # dim-reduce.R::dim_reduce() parameters
 data_path_kmers <- "data/kmers"

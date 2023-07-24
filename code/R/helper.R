@@ -62,35 +62,9 @@ get_time <- function() {
   ret <- substring(ret, 1, nchar(ret)-3)
 }
 
-# Plot treemap with appropriate drilldowns using highcharter
-make_treemap <- function(metadata) {
-  set.seed(1234)
-  
-  # Summary table
-  summary.table <- metadata_all %>% 
-    group_by(variant) %>% 
-    summarise(
-      nb_variant = n(), 
-      nb_division_exposure = length(unique(division_exposure))
-    ) %>% 
-    arrange(-nb_variant, -nb_division_exposure)
-  summary.table
-  
-  hc <- summary.table %>%
-    hchart(
-      "treemap", 
-      hcaes(x = variant, value = nb_variant)
-    ) %>%
-    hc_add_theme(hc_theme_ggplot2()) %>%
-    hc_colorAxis(stops = color_stops(colors = viridis::inferno(n = 6, direction = -1)),
-                 max =  50)
-  hc
-  
-  hc <- data_to_hierarchical(metadata_all, c(division_exposure, variant), division_exposure)
-  hchart(hc, type = "treemap")
-  
-  set.seed(110)
-  
+# MAKE TREEMAPS
+# Plot treemaps with appropriate drilldowns using highcharter.
+make_treemaps <- function(metadata_all, write_path) {
   ex <- data.frame(
     l1 = metadata_all$division_exposure,
     l2 = metadata_all$variant,

@@ -426,7 +426,7 @@ compile_overview <- function(metadata_all,
     variants_per_factor_n()
   
   # Get number of variants and total samples n per division_exposure
-  # Included division_code and ph_region for utilitarian purposes
+  # Included division_code and ph_region for added utility
   df_division <- metadata_all %>%
     dplyr::group_by(division_exposure, division_code, ph_region) %>%
     variants_per_factor_n()
@@ -443,7 +443,7 @@ compile_overview <- function(metadata_all,
   
   message("DONE.")
   
-  # WRITE overviews to write_path
+  # WRITE OVERVIEWS TO WRITE_PATH ########################################
   write_overview <- function(df, write_path, file, stamp) {
     if (!is.null(stamp)) {
       write_csv(df, paste(write_path, sprintf("%s_%s.csv",

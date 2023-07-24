@@ -74,7 +74,7 @@ country_exposure <- "Philippines"
 # preprocess.R::auxiliary parameters
 interm_write_path <- "data/interm"
 compile_write_path <- "data/overview"
-treemap_write_path <- "data/overview"
+treemaps_write_path <- "data/overview/treemaps"
 
 # dim-reduce.R::dim_reduce() parameters
 data_path_kmers <- "data/kmers"
@@ -118,8 +118,9 @@ if (write_fastacsv)
 # after compilation, hence the reassignment to metadata_all.
 metadata_all <- compile_overview(metadata_all, compile_write_path, stamp)
 
-# Step 1.5D: generate_treemap() WIP
-generate_treemap(metadata_all, treemap_write_path)
+# Step 1.5D: make_treemaps() (WIP)
+make_treemaps(metadata_all, treemaps_write_path, stamp)
+
 
 # Step 2: get_kmers()
 for (k in kmer_list) {
