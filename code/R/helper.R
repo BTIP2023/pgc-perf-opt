@@ -65,31 +65,44 @@ get_time <- function() {
 # MAKE TREEMAPS
 # Plot treemaps with appropriate drilldowns using highcharter.
 make_treemaps <- function(metadata_all, write_path, stamp) {
-  # Write wrapper function for making treemaps with length(...) levels
+  # Wrapper function for making treemaps with ...length() levels
   treemap <- function(df, ..., write_path, stamp) {
     # Create df containing the columns to summarize.
-    summ <- df %>% select(...)
-    
-    tm <- tibble(summ, n = rep(1, nrow(df)))
+    summ <- df %>% select(...) %>% tibble(n = rep(1, nrow(df)))
+    # Generate level JSONs
+    lvl_json <- list()
+    for (i in 1:...length()) {
+      if (i == 1) {
+        lvl_json[[i]] <- list(
+          level = 1,
+          dataLabels = list(enabled = TRUE,
+                            format = "{point.name}<br>{point.value}"),
+          borderColor = "white",
+          borderWidth = 1)
+      } else if (i == 2) {
+        lvl_json[[i]] <- list(
+          level = 2,
+          dataLabels = list(enabled = TRUE,
+                            style = list(fontSize = "0.8em"))
+        )
+      } else {
+        lvl_json[[i]] <- list(
+          level = i,
+          dataLabels = list(enabled = FALSE)
+        )
+      }
+    }
     
     # Create treemap object, to save as png and html later (outside this func)
-    tm %>% 
-      data_to_hierarchical(..., n) %>%
+    tm <- summ %>%
+      data_to_hierarchical(c(...), n) %>%
       hchart(type = "treemap",
              allowTraversingTree = TRUE,
              levelIsConstant = FALSE,
-             levels = list(
-               list(level = 1, dataLabels = list(enabled = TRUE,
-                                                 format = "{point.name}<br>
-                                               <center>{point.value}</center>"),
-                    borderColor = "white", borderWidth = 1),
-               list(level = 2, dataLabels = list(enabled = TRUE,
-                                                 style = list(fontSize = "0.8em"))),
-               list(level = 3, dataLabels = list(enabled = FALSE))
-             )
-      )
-
+             levels = lvl_json)
+    tm
   }
-  metadata_all %>% treemap(ph_region)
+  
+  metadata_all %>% treemap(variant, ph_region, pangolin_lineage)
 }
 
