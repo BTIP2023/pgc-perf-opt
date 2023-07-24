@@ -41,20 +41,24 @@ benchmark_backends <- function(operation, args_list, backends, times, unit,
     
     # Run the benchmark for the current backend
     if (use_profiling) {
+      # Simulate 2 rounds of warm-up process of microbenchmark
+      for (i in 1:2) {
+        do.call(operation, args_list)
+      }
+      # Start benchmark
       all_times <- c()
       for (i in 1:times) {
         bm_result <- system.time(do.call(operation, args_list))
         all_times <- c(all_times, bm_result["elapsed"])
       }
-      elapsed_time <- mean(all_times) # Unit of time is in ms already
+      elapsed_time <- mean(all_times*1e3) # Convert unit of time to ms
     }
     else {
+      # Start benchmark
       bm_result <- microbenchmark(do.call(operation, args_list),
                                   times = times, unit = unit)
       # Get mean time
       elapsed_time <- summary(bm_result)$mean
-      # print(colnames(bm_result))
-      print(elapsed_time)
     }
     # Store the results
     results[[backend]] <- elapsed_time
@@ -66,18 +70,19 @@ benchmark_backends <- function(operation, args_list, backends, times, unit,
 # Benchmark plotting function
 plot_results <- function(method_benchmark, method) {
   # Combine the results into a data frame
-  results_df <- data.frame(Backend = selected_backends, 
+  results_df <- data.frame(Backend = as.character(selected_backends), 
                            Time = unlist(method_benchmark))
   
   # Create the bar plot
-  p <- ggplot(results_df, aes(x = Backend, y = Time, fill = Backend)) +
-    geom_bar(stat = "identity") +
-    geom_text(aes(label = round(Time, 4)), vjust = -0.3, size = 3) +
-    labs(title = paste0("Benchmark: ", method),
-         x = "Backend",
-         y = "Execution Time (milliseconds)",
-         subtitle = "Execution Time in ms; lower is better") +
-    theme_minimal()
+  p <- ggplot(results_df, aes(y = Backend, x = Time, fill = Backend)) +
+    geom_bar(stat = "identity", width = 0.3) +
+    geom_text(aes(label = round(Time, 3), hjust = 1.25)) +
+    labs(title = paste0("Benchmark: ", toupper(method)),
+         y = "Backend",
+         x = "Execution Time (milliseconds)",
+         subtitle = "Note: Execution Time in ms; lower is better") +
+    theme_minimal() +
+    theme(plot.title = element_text(hjust = 0.5))
   
   # Create directory for storing plots
   results_path <- "results/benchmark/R/FlexiBLAS"
@@ -91,21 +96,30 @@ plot_results <- function(method_benchmark, method) {
   # Save the bar plot
   ggsave(filename=paste0(method, "-", k, "-benchmark.png"), 
          plot = p, path = results_path, 
-         device = "png", width = 5, height = 5,
+         device = "png", width = 12, height = 6,
          dpi = 300, bg = "white")
   
   # Convert ggplot object to ggplotly
-  p <- ggplotly(p) 
+  p <- ggplotly(p, width = 1500, height = 700, tooltip = c("x"))
+  p <- p %>% layout(title = list(text = paste0("Benchmark: ", toupper(method)),
+                                 x = 0.5,
+                                 xref = "paper"))
+  p <- p %>% layout(annotations = list(
+                      text = "Note: Execution Time in ms; lower is better",
+                      x = 0, y = 5.6,
+                      showarrow = FALSE,
+                      font = list(size = 12)
+                    ))
   
   # Save as HTML
-  html_file <- paste0(results_path, "/", method, "-", k, ".html")
+  html_file <- paste0(results_path, "/", method, "-", k, "-benchmark.html")
   htmlwidgets::saveWidget(p, file = html_file, selfcontained = TRUE)
 }
 
 # SET PARAMETERS ###########################################
 # dim-reduce.R::dim_reduce() parameters
 seed <- 1234
-k_vals <- c(3, 5, 7)
+k_vals <- c(3)
 data_path_kmers <- "data/kmers"
 results_path_dimreduce <- "results/dim-reduce/R"
 tsne_perplexity <- 40
@@ -140,7 +154,7 @@ for (k in k_vals) {
                                selected_backends,
                                bm_times,
                                bm_unit,
-                               use_profiling = TRUE)
+                               use_profiling = FALSE)
   
   # Plot PCA benchmark results
   plot_results(pca_bm, "pca")
