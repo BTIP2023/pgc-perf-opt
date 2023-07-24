@@ -408,6 +408,8 @@ compile_overview <- function(metadata_all,
     dplyr::mutate(n = rowSums(across(where(is.numeric))))
   }
   
+  message("Compiling overview on dataset subsample... ", appendLF = FALSE)
+  
   # Get accession numbers and compile to a list
   gisaid_esp_isl <- sort(metadata_all$gisaid_epi_isl)
   
@@ -438,6 +440,8 @@ compile_overview <- function(metadata_all,
   df_age_group <- metadata_all %>%
     dplyr::group_by(age_group) %>%
     variants_per_factor_n()
+  
+  message("DONE.")
   
   # WRITE overviews to write_path
   write_overview <- function(df, write_path, file, stamp) {
