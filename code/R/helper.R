@@ -64,28 +64,92 @@ get_time <- function() {
 
 # MAKE TREEMAPS
 # Plot treemaps with appropriate drilldowns using highcharter.
-make_treemaps <- function(metadata_all, write_path) {
-  ex <- data.frame(
-    l1 = metadata_all$division_exposure,
-    l2 = metadata_all$variant,
-    l3 = metadata_all$pangolin_lineage,
-    count = rep(1,nrow(metadata_all))
-  )
+make_treemaps <- function(metadata_all, write_path, stamp) {
+  # Wrapper function for making treemaps with ...length() levels
+  treemap <- function(df, ..., write_path, stamp) {
+    # Create df containing the columns to summarize.
+    summ <- df %>% select(...) %>% tibble(n = rep(1, nrow(df)))
+    # Generate level JSONs
+    lvl_opts <- list()
+    for (i in 1:...length()) {
+      if (i == 1) {
+        lvl_opts[[i]] <- list(
+          level = 1,
+          borderWidth = 2,
+          borderColor = "white",
+          dataLabels = list(
+            enabled = TRUE,
+            align = "left",
+            verticalAlign = "top",
+            style = list(
+              fontSize = "12px",
+              textOutline = TRUE,
+              color = "white",
+              fontWeight = "normal"
+              )
+            )
+          )
+      } else if (i == 2) {
+        lvl_opts[[i]] <- list(
+          level = 2,
+          borderWidth = 1,
+          colorVariation = list(
+            key = "brightness",
+            to = 0.250
+          ),
+          dataLabels = list(
+            enabled = TRUE,
+            style = list(
+              fontSize = "8px",
+              textOutline = FALSE,
+              color = "white",
+              fontWeight = "normal"
+              )
+            )
+        )
+      } else {
+        lvl_opts[[i]] <- list(
+          level = i,
+          dataLabels = list(enabled = FALSE)
+        )
+      }
+    }
+    
+    # Create treemap object, to save as png and html later (outside this func)
+    tm <- summ %>%
+      data_to_hierarchical(c(...), n) %>%
+      hchart(
+        type = "treemap",
+        allowTraversingTree = TRUE,
+        levelIsConstant = FALSE,
+        levels = lvl_opts
+      ) %>%
+      hc_tooltip(
+        headerFormat = "Test",
+        pointFormat = "{point.tooltip_text}"
+      ) %>%
+      hc_chart(
+        style = list(fontFamily = "Roboto")
+      ) %>%
+      hc_title(
+        text = "Geographic Distribution of COVID-19 Variants",
+        style = list(fontFamily = "Roboto")
+      ) %>%
+      hc_subtitle(
+        text = "This is an intereseting subtitle to give
+        context for the chart or some interesting fact"
+      ) %>% 
+      hc_caption(
+        text = "This is a long text to give some 
+        subtle details of the data which can be relevant to the reader. 
+        This is usually a long text that's why I'm trying to put a 
+        <i>loooooong</i> text.", 
+          useHTML = TRUE
+      )  
+    
+    tm
+  }
   
-  ex %>% 
-    data_to_hierarchical(c(l1, l2, l3), count) %>%
-    hchart(type = "treemap",
-           allowTraversingTree = TRUE,
-           levelIsConstant = FALSE,
-           levels = list(
-             list(level = 1, dataLabels = list(enabled = TRUE,
-                                               format = "{point.name}<br>
-                                               {point.value}"),
-                  borderColor = "white", borderWidth = 1),
-             list(level = 2, dataLabels = list(enabled = TRUE,
-                                               style = list(fontSize = "0.8em"))),
-             list(level = 3, dataLabels = list(enabled = FALSE))
-           )
-    )
+  metadata_all %>% treemap(variant, ph_region, pangolin_lineage)
 }
 

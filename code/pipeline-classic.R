@@ -59,7 +59,7 @@ source("code/R/clustering-region.R")
 # stamp <- [get_time():str|NULL]
 # if stamp = "", then generated files won't be timestamped
 seed <- 1234
-stamp <- get_time()
+stamp <- NULL
 write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
 
@@ -120,7 +120,6 @@ metadata_all <- compile_overview(metadata_all, compile_write_path, stamp)
 
 # Step 1.5D: make_treemaps() (WIP)
 make_treemaps(metadata_all, treemaps_write_path, stamp)
-
 
 # Step 2: get_kmers()
 for (k in kmer_list) {
