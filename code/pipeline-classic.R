@@ -36,7 +36,7 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
                microbenchmark,
-               highcharter)
+               highcharter, glue)
 install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
 pacman::p_load(ggbiplot)
 
@@ -57,16 +57,21 @@ source("code/R/clustering-region.R")
 # pipeline.R general parameters
 seed <- 1234
 stamp <- get_time()
+write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
 
-# preprocess.R::preprocess() parameters
-data_path_gisaid <- "data/GISAID"
-extract_path <- "data/GISAID/datasets"
-strat_size <- 100
+# preprocess.R::get_sample() parameters
+# strat_size: no. of samples per stratum. Current nrow(data) = 24671.
+# Also consider using sample_frac for proportionate allocation.
+gisaid_tar_path <- "data/GISAID"
+gisaid_extract_path <- "data/GISAID/datasets"
+strat_size <- 25000
 country_exposure <- "Philippines"
-write_fastacsv <- TRUE
 
-# kmer-analysis.R::get_kmers() parameters
+# preprocess.R::auxiliary parameters
+interm_write_path <- "data/interm"
+compile_write_path <- "data/overview"
+treemaps_write_path <- "data/overview"
 
 # dim-reduce.R::dim_reduce() parameters
 data_path_kmers <- "data/kmers"
@@ -85,15 +90,33 @@ values1 <- c("Omicron", "Omicron Sub")
 factor2 <- "year"
 values2 <- c("2023")
 
-# AGNES Clustering Parameters :: dendogram_create_x()
+# clusterting-x.R::dendogram_create_x() parameters
 results_path_agnes <- "results/dendrogram"
 
 # RUN PIPELINE #############################################
 
-# Step 1: preprocess()
-list[fasta_all, metadata_all] <- preprocess(data_path_gisaid, extract_path, seed,
-                                            strat_size, country_exposure,
-                                            write_fastacsv, stamp)
+# Step 1: get_sample()
+list[fasta_all, metadata_all] <- get_sample(gisaid_data_path,
+                                            gisaid_extract_path,
+                                            seed, strat_size,
+                                            country_exposure, stamp)
+
+# Step 1.5A: sanitize_sample()
+metadata_all <- sanitize_sample(metadata_all)
+
+# Step 1.5B: generate_interm()
+# Note that at strat_size > nrow(Omicron), you'll be writing around 700MB
+# of fasta_all_stamp.csv, so be cautious of generate_interm's space usage.
+if (write_fastacsv)
+  generate_interm(fasta_all, metadata_all, interm_write_path)
+
+# Step 1.5C: compile_overview()
+# compile_overview drops the submitting_lab and authors column
+# after compilation, hence the reassignment to metadata_all.
+metadata_all <- compile_overview(metadata_all, compile_write_path)
+
+# Step 1.5D: generate_treemap()
+generate_treemap(metadata_all, treemap_write_path)
 
 # Step 2: get_kmers()
 for (k in kmer_list) {
