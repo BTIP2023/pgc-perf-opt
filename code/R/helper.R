@@ -64,28 +64,32 @@ get_time <- function() {
 
 # MAKE TREEMAPS
 # Plot treemaps with appropriate drilldowns using highcharter.
-make_treemaps <- function(metadata_all, write_path) {
-  ex <- data.frame(
-    l1 = metadata_all$division_exposure,
-    l2 = metadata_all$variant,
-    l3 = metadata_all$pangolin_lineage,
-    count = rep(1,nrow(metadata_all))
-  )
-  
-  ex %>% 
-    data_to_hierarchical(c(l1, l2, l3), count) %>%
-    hchart(type = "treemap",
-           allowTraversingTree = TRUE,
-           levelIsConstant = FALSE,
-           levels = list(
-             list(level = 1, dataLabels = list(enabled = TRUE,
-                                               format = "{point.name}<br>
-                                               {point.value}"),
-                  borderColor = "white", borderWidth = 1),
-             list(level = 2, dataLabels = list(enabled = TRUE,
-                                               style = list(fontSize = "0.8em"))),
-             list(level = 3, dataLabels = list(enabled = FALSE))
-           )
-    )
+make_treemaps <- function(metadata_all, write_path, stamp) {
+  # Write wrapper function for making treemaps with length(...) levels
+  treemap <- function(df, ..., write_path, stamp) {
+    # Create df containing the columns to summarize.
+    summ <- df %>% select(...)
+    
+    tm <- tibble(summ, n = rep(1, nrow(df)))
+    
+    # Create treemap object, to save as png and html later (outside this func)
+    tm %>% 
+      data_to_hierarchical(..., n) %>%
+      hchart(type = "treemap",
+             allowTraversingTree = TRUE,
+             levelIsConstant = FALSE,
+             levels = list(
+               list(level = 1, dataLabels = list(enabled = TRUE,
+                                                 format = "{point.name}<br>
+                                               <center>{point.value}</center>"),
+                    borderColor = "white", borderWidth = 1),
+               list(level = 2, dataLabels = list(enabled = TRUE,
+                                                 style = list(fontSize = "0.8em"))),
+               list(level = 3, dataLabels = list(enabled = FALSE))
+             )
+      )
+
+  }
+  metadata_all %>% treemap(ph_region)
 }
 
