@@ -98,8 +98,8 @@ values2 <- c("2023")
 results_path_agnes <- "results/dendrogram"
 
 # HELPER FUNCTIONS ##########################################
-benchmark_backends <- function(operation, args_list, backends, times, unit, 
-                               use_profiling=FALSE) {
+# Benchmarker
+bm_cpu <- function(operation, args_list, backends, times, unit) {
   results <- list()
   for (backend in backends) {
     # Set backend before performing benchmark
@@ -119,15 +119,6 @@ benchmark_backends <- function(operation, args_list, backends, times, unit,
       }
       elapsed_time <- mean(all_times*1e3) # Convert unit of time to ms
     }
-    else {
-      # Start benchmark
-      bm_result <- microbenchmark(do.call(operation, args_list),
-                                  times = times, unit = unit)
-      # Get mean time
-      elapsed_time <- summary(bm_result)$mean
-    }
-    # Store the results
-    results[[backend]] <- elapsed_time
   }
   
   return(results)
@@ -219,7 +210,20 @@ results <- microbenchmark(
 print("All operations completed successfully!")
 
 # Write hardware specs and parameters used to log.txt
-param_string <- 
+
+param_string <- paste(c(paste0("seed:\t\t\t", seed),
+                      paste0("kmer_list:\t\t", kmer_list),
+                      paste0("strat_size:\t\t", strat_size),
+                      paste0("country_exposure:\t", country_exposure),
+                      paste0("tsne_perplexity:\t", tsne_perplexity),
+                      paste0("tsne_max_iter:\t\t", tsne_max_iter),
+                      paste0("umap_n_neighbors:\t", umap_n_neighbors),
+                      paste0("umap_metric:\t\t", umap_metric),
+                      paste0("umap_min_dist:\t\t", umap_min_dist),
+                      paste0("color:\t\t\t", color),
+                      paste0("shape:\t\t\t", shape, "\n")),
+                      collapse = "\n")
+write_lines(param_string, "test.txt")
 
 message("Writing logs... ", appendLF = FALSE)
 write_to_log(bm_log_path, "bm_log.txt",
