@@ -28,4 +28,25 @@ apt_install \
     build-essential \
     fakeroot
 
+# More lib dependencies
+apt_install libopenblas-openmp-dev \
+    libopenblas-serial-dev \
+    libopenblas64-openmp-dev \
+    libopenblas64-pthread-dev \
+    libopenblas64-serial-dev \
+    libblis-openmp-dev \
+    libblis-pthread-dev \
+    libblis-serial-dev \
+    libblis64-openmp-dev \
+    libblis64-pthread-dev \
+    libblis64-serial-dev \
+    libblas64-dev \
+    liblapack64-dev
+
+# update-alternatives --config libblas.so
+# update-alternatives --config libblas.so.3
+
+# update-alternatives --config liblapack.so
+# update-alternatives --config liblapack.so.3
+
 echo -e "\nInstall Flexiblas packages, done!"
