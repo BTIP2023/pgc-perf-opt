@@ -97,6 +97,42 @@ values2 <- c("2023")
 # clusterting-x.R::dendogram_create_x() parameters
 results_path_agnes <- "results/dendrogram"
 
+# HELPER FUNCTIONS ##########################################
+benchmark_backends <- function(operation, args_list, backends, times, unit, 
+                               use_profiling=FALSE) {
+  results <- list()
+  for (backend in backends) {
+    # Set backend before performing benchmark
+    flexiblas_load_backend(backend)
+    
+    # Run the benchmark for the current backend
+    if (use_profiling) {
+      # Simulate 2 rounds of warm-up process of microbenchmark
+      for (i in 1:2) {
+        do.call(operation, args_list)
+      }
+      # Start benchmark
+      all_times <- c()
+      for (i in 1:times) {
+        bm_result <- system.time(do.call(operation, args_list))
+        all_times <- c(all_times, bm_result["elapsed"])
+      }
+      elapsed_time <- mean(all_times*1e3) # Convert unit of time to ms
+    }
+    else {
+      # Start benchmark
+      bm_result <- microbenchmark(do.call(operation, args_list),
+                                  times = times, unit = unit)
+      # Get mean time
+      elapsed_time <- summary(bm_result)$mean
+    }
+    # Store the results
+    results[[backend]] <- elapsed_time
+  }
+  
+  return(results)
+}
+
 # RUN BENCHMARK #############################################
 # Benchmark parameters
 bm_times <- 3L   # how many times should routine be evaluated
@@ -104,7 +140,12 @@ bm_units <- "seconds"
 bm_log_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 # valid values: ["ALL"|"SOME" (Linux only)|"NONE"]
+# Mitigations are automatically detected in Linux by write_to_log.
+# Don't forget to set this to current runtime configuration of the benchmark.
 mitigations <- "ALL"
+
+message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations
+                = "))
 
 # Benchmark Notes:
 # get_sample: to start from extraction, delete data/GISAID/datasets/
