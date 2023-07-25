@@ -110,19 +110,15 @@ treemap <- function(df, ..., tm_title = "",
     }
   }
   
-  # Get number of colors, maximum 8 for brewer.pal(Dark2)
-  test_n <- n_distinct(summ[1])
-  num_colors <- ifelse(test_n <= 8, test_n, 8)
-  
   # Create treemap object, to save as png and html later (outside this func)
   tm <- summ %>%
-    data_to_hierarchical(c(...), n,
-                         brewer.pal(n = num_colors, name = "Dark2")) %>%
+    data_to_hierarchical(c(...), n, brewer.pal(n = 8, name = "Dark2")) %>%
     hchart(
       type = "treemap",
       allowTraversingTree = TRUE,
       levelIsConstant = FALSE,
-      levels = lvl_opts) %>%
+      levels = lvl_opts,
+      drillUpButton = list(text = "←")) %>%
     hc_chart(
       style = list(fontFamily = "Lexend")) %>%
     hc_tooltip(

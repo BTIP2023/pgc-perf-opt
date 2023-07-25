@@ -480,7 +480,9 @@ compile_overview <- function(metadata_all,
 }
 
 # Plot treemaps with appropriate drilldowns using highcharter.
+# Note that highcharter (compared to JS highcharts) has a lot of limitations.
 make_treemaps <- function(metadata_all, write_path, stamp) {
+  message(sprintf("Generating treemaps in %s... ", write_path), appendLF = FALSE)
   # For ease of viewing, convert Bicol Region (Region V) to
   # simple Bicol Region (V)
   df_tm <- metadata_all %>%
@@ -491,20 +493,74 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
                     ". Most comes from the NCR followed ",
                     "by Western Visayas.")
   
-  tm_reg_var_lin <- df_tm %>%
+  reg_var_lin <- df_tm %>%
     treemap(ph_region, variant, pangolin_lineage,
-            tm_title = paste("COVID-19 Lineages per Region-Variant Group"),
+            tm_title = "COVID-19 Lineages across Region-Variant Groups",
             tm_subtitle = std_sub)
   
-  tm_var_reg_lin <- df_tm %>%
+  var_reg_lin <- df_tm %>%
     treemap(variant, ph_region, pangolin_lineage,
-            tm_title = paste("COVID-19 Lineages per Variant-Region Group"),
+            tm_title = "COVID-19 Lineages across Variant-Region Groups",
             tm_subtitle = std_sub)
   
-  tm_var_reg_lin <- df_tm %>%
-    treemap(pangolin_lineage, variant,
-            tm_title = paste("Philippine Regions per Variant-Lineage Group"),
+  var_lin_reg <- df_tm %>%
+    treemap(pangolin_lineage, variant, ph_region,
+            tm_title = "Philippine Region Samples per COVID-19 Variant-Lineage Group",
             tm_subtitle = std_sub)
   
-  tm_var_reg_lin
+  sex_var_lin <- df_tm %>%
+    treemap(sex, variant, pangolin_lineage,
+            tm_title = "COVID-19 Lineages across Sex-Variant Groups",
+            tm_subtitle = std_sub)
+  
+  sex_var_sex_lin <- df_tm %>%
+    treemap(variant, sex, pangolin_lineage,
+            tm_title = "COVID-19 Lineages across Variant-Sex Groups",
+            tm_subtitle = std_sub)
+  
+  var_lin_sex <- df_tm %>%
+    treemap(variant, pangolin_lineage, sex,
+            tm_title = "Male-Female Samples across Variant-Lineage Groups",
+            tm_subtitle = std_sub)
+  
+  age_var_lin <- df_tm %>%
+    treemap(age_group, variant, pangolin_lineage,
+            tm_title = "COVID-19 Lineages across Age-Variant Groups",
+            tm_subtitle = std_sub)
+  
+  var_age_lin <- df_tm %>%
+    treemap(variant, age_group, pangolin_lineage,
+            tm_title = "COVID-19 Lineages across Variant-Age Groups",
+            tm_subtitle = std_sub)
+  
+  var_lin_age <- df_tm %>%
+    treemap(variant, pangolin_lineage, age_group,
+            tm_title = "Age Group Samples across Variant-Lineage Groups",
+            tm_subtitle = std_sub)
+  
+  if (!dir.exists(write_path))
+    dir.create(write_path)
+  
+  save_treemap <- function(tm, write_path, file, stamp) {
+    if (!is.null(stamp))
+      path <- sprintf("%s/%s_%s.html", write_path, file, stamp)
+    else
+      path <- sprintf("%s/%s.html", write_path, file)
+    saveWidget(tm, path)
+  }
+  
+  save_treemap(reg_var_lin, write_path, "reg_var_lin", stamp)
+  save_treemap(var_reg_lin, write_path, "var_reg_lin", stamp)
+  save_treemap(var_lin_reg, write_path, "var_lin_reg", stamp)
+  
+  save_treemap(sex_var_lin, write_path, "sex_var_lin", stamp)
+  save_treemap(var_sex_lin, write_path, "var_sex_lin", stamp)
+  save_treemap(var_lin_sex, write_path, "var_lin_sex", stamp)
+  
+  save_treemap(age_var_lin, write_path, "age_var_lin", stamp)
+  save_treemap(var_age_lin, write_path, "var_age_lin", stamp)
+  save_treemap(var_lin_age, write_path, "var_lin_age", stamp)
+  
+  message("DONE.")
+  
 }
