@@ -211,24 +211,23 @@ print("All operations completed successfully!")
 
 # Write hardware specs and parameters used to log.txt
 
-param_string <- paste(c(paste0("seed:\t\t\t", seed),
-                      paste0("kmer_list:\t\t", kmer_list),
-                      paste0("strat_size:\t\t", strat_size),
-                      paste0("country_exposure:\t", country_exposure),
-                      paste0("tsne_perplexity:\t", tsne_perplexity),
-                      paste0("tsne_max_iter:\t\t", tsne_max_iter),
-                      paste0("umap_n_neighbors:\t", umap_n_neighbors),
-                      paste0("umap_metric:\t\t", umap_metric),
-                      paste0("umap_min_dist:\t\t", umap_min_dist),
-                      paste0("color:\t\t\t", color),
-                      paste0("shape:\t\t\t", shape, "\n")),
-                      collapse = "\n")
-write_lines(param_string, "test.txt")
+param_string <- paste(c("---------PARAMETERS---------",
+  paste0("MITIGATIONS STATUS:\t", mitigations),
+  paste0("seed:\t\t\t", seed),
+  paste0("kmer_list:\t\t", paste(kmer_list, collapse = ", ")),
+  paste0("strat_size:\t\t", strat_size),
+  paste0("country_exposure:\t", country_exposure),
+  paste0("tsne_perplexity:\t", tsne_perplexity),
+  paste0("tsne_max_iter:\t\t", tsne_max_iter),
+  paste0("umap_n_neighbors:\t", umap_n_neighbors),
+  paste0("umap_metric:\t\t", umap_metric),
+  paste0("umap_min_dist:\t\t", umap_min_dist),
+  paste0("color:\t\t\t", color),
+  paste0("shape:\t\t\t", shape, "\n")),
+  collapse = "\n")
 
 message("Writing logs... ", appendLF = FALSE)
-write_to_log(bm_log_path, "bm_log.txt",
-             sprintf("timestamp = %s\nseed = %d, strat_size = %d, k-value = %d",
-                                  stamp, seed, strat_size, k))
+write_to_log(bm_log_path, "bm_log.txt", param_string, stamp)
 message("DONE.")
 
 # CLEAN UP #################################################
