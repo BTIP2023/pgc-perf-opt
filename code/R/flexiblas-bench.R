@@ -129,7 +129,8 @@ tsne_initial_dims <- 50
 umap_n_neighbors <- 15
 umap_metric <- "euclidean"
 umap_min_dist <- 0.1
-target_col <- "variant"
+color <- "variant"
+shape <- "sex"
 
 # Benchmarking parameters
 bm_times <- 3 
@@ -143,9 +144,7 @@ for (k in k_vals) {
                                data_path_kmers, k, target_col)
   
   df <- pre_reduce_res$df                # df is the original dataset
-  x <- pre_reduce_res$data$x             # x is the scaled data
-  target <- target_col                   # target is the column used for
-                                         # clustering
+  x <- pre_reduce_res$x                  # x is the scaled data
   
   # Run an iteration of PCA for t-SNE use
   pca_df <- pca_fn(x)
@@ -159,83 +158,83 @@ for (k in k_vals) {
   
   # Plot PCA benchmark results
   plot_results(pca_bm, "pca")
-  #
-  # # Benchmark backends on tsne_fn (2-dimensions)
-  # tsne_bm <- benchmark_backends(tsne_fn,
-  #                                      list(pca_df$x, 2, tsne_initial_dims,
-  #                                           tsne_perplexity, tsne_max_iter,
-  #                                           tsne_seed = seed),
-  #                                      selected_backends,
-  #                                      bm_times,
-  #                                      bm_unit)
-  #
-  # # Plot t-SNE benchmark results (2D)
-  # plot_results(tsne_bm, "tsne-2d")
-  #
-  # # Benchmark backends on tsne_fn (3-dimensions)
-  # tsne_bm <- benchmark_backends(tsne_fn,
-  #                                      list(pca_df$x, 3, tsne_initial_dims,
-  #                                           tsne_perplexity, tsne_max_iter,
-  #                                           tsne_seed = seed),
-  #                                      selected_backends,
-  #                                      bm_times,
-  #                                      bm_unit)
-  #
-  # # Plot t-SNE benchmark results (3D)
-  # plot_results(tsne_bm, "tsne-3d")
-  #
-  # # Benchmark backends on umap_fn (2-dimensions)
-  # umap_bm <- benchmark_backends(umap_fn,
-  #                                      list(x, 2, umap_n_neighbors,
-  #                                           umap_metric, umap_min_dist,
-  #                                           umap_seed = seed),
-  #                                      selected_backends,
-  #                                      bm_times,
-  #                                      bm_unit)
-  #
-  # # Plot UMAP benchmark results (2D)
-  # plot_results(umap_bm, "umap-2d")
-  #
-  # # Benchmark backends on umap_fn (3-dimensions)
-  # umap_bm <- benchmark_backends(umap_fn,
-  #                               list(x, 3, umap_n_neighbors,
-  #                                    umap_metric, umap_min_dist,
-  #                                    umap_seed = seed),
-  #                               selected_backends,
-  #                               bm_times,
-  #                               bm_unit)
-  #
-  # # Plot UMAP benchmark results (3D)
-  # plot_results(umap_bm, "umap-3d")
-  #
-  # # Benchmark backends on dim_reduce
-  # dimred_bm <- benchmark_backends(dim_reduce,
-  #                                 list(k, data_path_kmers,
-  #                                      results_path_dimreduce,
-  #                                      tsne_seed = seed, tsne_perplexity,
-  #                                      tsne_max_iter, tsne_initial_dims,
-  #                                      umap_seed = seed, umap_n_neighbors,
-  #                                      umap_metric, umap_min_dist,
-  #                                      col_name = target_col),
-  #                                 selected_backends,
-  #                                 bm_times,
-  #                                 bm_unit,
-  #                                 use_profiling = TRUE)
-  #
-  # # Plot dim_reduce benchmark results
-  # plot_results(dimred_bm, "dim-red")
-  
-  # # Benchmark backends on entire pipeline
-  # pipeline_file <- "code/pipeline-classic.R"
-  # pipeline_bm <- benchmark_backends(source, 
-  #                                   list(pipeline_file), 
-  #                                   selected_backends, 
-  #                                   bm_times, 
-  #                                   bm_unit, 
-  #                                   use_profiling = TRUE)
-  # 
-  # # Plot pipeline benchmark results
-  # plot_results(pipeline_bm, "pipeline")
+
+  # Benchmark backends on tsne_fn (2-dimensions)
+  tsne_bm <- benchmark_backends(tsne_fn,
+                                list(pca_df$x, 2, tsne_initial_dims,
+                                     tsne_perplexity, tsne_max_iter,
+                                     tsne_seed = seed),
+                                selected_backends,
+                                bm_times,
+                                bm_unit)
+
+  # Plot t-SNE benchmark results (2D)
+  plot_results(tsne_bm, "tsne-2d")
+
+  # Benchmark backends on tsne_fn (3-dimensions)
+  tsne_bm <- benchmark_backends(tsne_fn,
+                                list(pca_df$x, 3, tsne_initial_dims,
+                                     tsne_perplexity, tsne_max_iter,
+                                     tsne_seed = seed),
+                                selected_backends,
+                                bm_times,
+                                bm_unit)
+
+  # Plot t-SNE benchmark results (3D)
+  plot_results(tsne_bm, "tsne-3d")
+
+  # Benchmark backends on umap_fn (2-dimensions)
+  umap_bm <- benchmark_backends(umap_fn,
+                                list(x, 2, umap_n_neighbors,
+                                     umap_metric, umap_min_dist,
+                                     umap_seed = seed),
+                                selected_backends,
+                                bm_times,
+                                bm_unit)
+
+  # Plot UMAP benchmark results (2D)
+  plot_results(umap_bm, "umap-2d")
+
+  # Benchmark backends on umap_fn (3-dimensions)
+  umap_bm <- benchmark_backends(umap_fn,
+                                list(x, 3, umap_n_neighbors,
+                                     umap_metric, umap_min_dist,
+                                     umap_seed = seed),
+                                selected_backends,
+                                bm_times,
+                                bm_unit)
+
+  # Plot UMAP benchmark results (3D)
+  plot_results(umap_bm, "umap-3d")
+
+  # Benchmark backends on dim_reduce
+  dimred_bm <- benchmark_backends(dim_reduce,
+                                  list(k, data_path_kmers,
+                                       results_path_dimreduce,
+                                       tsne_seed = seed, tsne_perplexity,
+                                       tsne_max_iter, tsne_initial_dims,
+                                       umap_seed = seed, umap_n_neighbors,
+                                       umap_metric, umap_min_dist,
+                                       col_name = target_col),
+                                  selected_backends,
+                                  bm_times,
+                                  bm_unit,
+                                  use_profiling = TRUE)
+
+  # Plot dim_reduce benchmark results
+  plot_results(dimred_bm, "dim-red")
+
+  # Benchmark backends on entire pipeline
+  pipeline_file <- "code/pipeline-classic.R"
+  pipeline_bm <- benchmark_backends(source,
+                                    list(pipeline_file),
+                                    selected_backends,
+                                    bm_times,
+                                    bm_unit,
+                                    use_profiling = TRUE)
+
+  # Plot pipeline benchmark results
+  plot_results(pipeline_bm, "pipeline")
   
   print(paste0("Benchmarking ", k, "-mer Done :>"))
 }
