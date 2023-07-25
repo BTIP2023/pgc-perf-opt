@@ -94,33 +94,39 @@ values1 <- c("Omicron", "Omicron Sub")
 factor2 <- "year"
 values2 <- c("2023")
 
-# clusterting-x.R::dendogram_create_x() parameters
+# clustering-x.R::dendogram_create_x() parameters
 results_path_agnes <- "results/dendrogram"
 
 # HELPER FUNCTIONS ##########################################
-# Benchmarker
-bm_cpu <- function(operation, args_list, backends, times, unit) {
-  results <- list()
-  for (backend in backends) {
-    # Set backend before performing benchmark
-    flexiblas_load_backend(backend)
-    
-    # Run the benchmark for the current backend
-    if (use_profiling) {
-      # Simulate 2 rounds of warm-up process of microbenchmark
-      for (i in 1:2) {
-        do.call(operation, args_list)
-      }
-      # Start benchmark
-      all_times <- c()
-      for (i in 1:times) {
-        bm_result <- system.time(do.call(operation, args_list))
-        all_times <- c(all_times, bm_result["elapsed"])
-      }
-      elapsed_time <- mean(all_times*1e3) # Convert unit of time to ms
+# Benchmark passed operation.
+# Returns list of benchmark results.
+bm_cpu <- function(operation, args_list,
+                   times = 3L, warmup = 10L,
+                   unit = "seconds", use_profiling = FALSE) {
+  # system.time: better for longer running code chunks
+  # microbenchmark: better for fast-running code chunks
+  if (use_profiling) {
+    # Warmup before actual benchmarking operation
+    for (i in 1:warmup) {
+      A = matrix(c(15,20,25,15,20,25,15,20,25), ncol=3, nrow=3)
+      B = matrix(c(35,26,18,30,25,17,37,28,20), ncol=3, nrow=3)
+      warmer = A %*% B
     }
+    # Start benchmark
+    all_times <- c()
+    for (i in 1:times) {
+      bm_result <- system.time(do.call(operation, args_list))
+      all_times <- c(all_times, bm_result["elapsed"])
+    }
+    elapsed_time <- mean(all_times*1e3) # Convert unit of time to ms
   }
-  
+  else {
+    # Start benchmark
+    bm_result <- microbenchmark(do.call(operation, args_list),
+                                times = times, unit = unit)
+    # Get mean time
+    elapsed_time <- summary(bm_result)$mean
+  }
   return(results)
 }
 

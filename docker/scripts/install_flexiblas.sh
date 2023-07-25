@@ -41,7 +41,8 @@ apt_install libopenblas-openmp-dev \
     libblis64-pthread-dev \
     libblis64-serial-dev \
     libblas64-dev \
-    liblapack64-dev
+    liblapack64-dev \
+    libmkl-dev
 
 # update-alternatives --config libblas.so
 # update-alternatives --config libblas.so.3

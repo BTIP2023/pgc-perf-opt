@@ -94,7 +94,7 @@ values1 <- c("Omicron", "Omicron Sub")
 factor2 <- "year"
 values2 <- c("2023")
 
-# clusterting-x.R::dendogram_create_x() parameters
+# clustering-x.R::dendogram_create_x() parameters
 results_path_agnes <- "results/dendrogram"
 
 # RUN PIPELINE #############################################
