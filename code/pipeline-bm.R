@@ -151,6 +151,18 @@ results <- microbenchmark(
                             tsne_max_iter, tsne_initial_dims,
                             umap_seed = seed, umap_n_neighbors,
                             umap_metric, umap_min_dist, col_name = target_col),
+  dendo_create_variant_all = for (k in kmer_list) {
+    dendogram_create_variant(k, data_path_kmers, results_path_agnes)
+  },
+  dendo_create_variant_3 = dendogram_create_variant(3, data_path_kmers, results_path_agnes),
+  dendo_create_variant_5 = dendogram_create_variant(5, data_path_kmers, results_path_agnes),
+  dendo_create_variant_7 = dendogram_create_variant(7, data_path_kmers, results_path_agnes),
+  dendo_create_region_all = for (k in kmer_list) {
+    dendogram_create_region(k, data_path_kmers, results_path_agnes)
+  },
+  dendo_create_region_3 = dendogram_create_region(3, data_path_kmers, results_path_agnes),
+  dendo_create_region_5 = dendogram_create_region(5, data_path_kmers, results_path_agnes),
+  dendo_create_region_7 = dendogram_create_region(7, data_path_kmers, results_path_agnes),
   times = bm_times,
   unit = bm_units,
   control = list(order = "inorder", warmup = 2L)
