@@ -59,7 +59,7 @@ source("code/R/clustering-region.R")
 # stamp <- [get_time():str|NULL]
 # if stamp = "", then generated files won't be timestamped
 seed <- 1234
-stamp <- NULL
+stamp <- get_time()
 write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
 

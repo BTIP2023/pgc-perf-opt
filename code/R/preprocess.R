@@ -513,7 +513,7 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
             tm_title = "COVID-19 Lineages across Sex-Variant Groups",
             tm_subtitle = std_sub)
   
-  sex_var_sex_lin <- df_tm %>%
+  var_sex_lin <- df_tm %>%
     treemap(variant, sex, pangolin_lineage,
             tm_title = "COVID-19 Lineages across Variant-Sex Groups",
             tm_subtitle = std_sub)
@@ -546,7 +546,8 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
       path <- sprintf("%s/%s_%s.html", write_path, file, stamp)
     else
       path <- sprintf("%s/%s.html", write_path, file)
-    saveWidget(tm, path)
+    # Added workaround for broken saveWidget
+    saveWidget2(tm, path)
   }
   
   save_treemap(reg_var_lin, write_path, "reg_var_lin", stamp)
