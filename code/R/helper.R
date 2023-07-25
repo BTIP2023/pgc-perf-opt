@@ -19,8 +19,9 @@ write_to_log <- function(output_dir, filename, log_string, stamp) {
                       intern = TRUE)
     cpuinfo <- cpuinfo[-length(cpuinfo)]
     specs <- c(systeminfo, "----------------------------", cpuinfo)
-    write_lines(c(sprintf("=============%s=============", stamp),
-                  specs, log_string), output_path, append = TRUE)
+    readr::write_lines(c(sprintf("=============%s=============", stamp),
+                         specs, log_string),
+                       file = output_path, append = TRUE)
   } else if (pacman::p_detectOS() == "Linux") {
     device <- paste(as.list(Sys.info())[c("sysname", "release")], collapse = ' ')
     lsb_release <- as.list(system("lsb_release -a", intern = TRUE,
@@ -46,12 +47,13 @@ write_to_log <- function(output_dir, filename, log_string, stamp) {
                     use.names = FALSE)
     mem <- system("grep MemTotal /proc/meminfo", intern=T)
     specs <- c(device, lsb_release, lscpu, mem)
-    write_lines(c(sprintf("=============%s=============", stamp),
-                  specs, log_string), output_path, append = TRUE)
+    readr::write_lines(c(sprintf("=============%s=============", stamp),
+                         specs, log_string),
+                       file = output_path, append = TRUE)
   } else {
-    write_lines(c(sprintf("=============%s=============", stamp),
-                  "OS not supported by logger!", log_string),
-                output_path, append = TRUE)
+    readr::write_lines(c(sprintf("=============%s=============", stamp),
+                         "OS not supported by logger!", log_string),
+                       file = output_path, append = TRUE)
   }
   close(fileConn)
 }

@@ -35,7 +35,7 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                umap, htmlwidgets, factoextra, scales,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
-               microbenchmark,
+               microbenchmark, data.table,
                highcharter, glue)
 if (!require(ggbiplot))
   install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
@@ -99,35 +99,43 @@ results_path_agnes <- "results/dendrogram"
 
 # HELPER FUNCTIONS ##########################################
 # Benchmark passed operation.
-# Returns list of benchmark results.
+# Returns dataframe of benchmark results with the ff format:
+# [ expr units min lq mean median uq max neval ]
 bm_cpu <- function(operation, args_list,
-                   times = 3L, warmup = 10L,
+                   times = 3L, warmup = 100000L,
                    unit = "seconds", use_profiling = FALSE) {
   # system.time: better for longer running code chunks
   # microbenchmark: better for fast-running code chunks
+  columns <-  c("op", "units", "min", "lq", "median", "mean", "uq", "max", "neval")
+  result <- data.frame(matrix(nrow = 0, ncol = length(columns)))
+  colnames(result) <- columns
+  op <- as.character(substitute(operation))
   if (use_profiling) {
     # Warmup before actual benchmarking operation
     for (i in 1:warmup) {
-      A = matrix(c(15,20,25,15,20,25,15,20,25), ncol=3, nrow=3)
-      B = matrix(c(35,26,18,30,25,17,37,28,20), ncol=3, nrow=3)
-      warmer = A %*% B
+      A <- matrix(c(15,20,25,15,20,25,15,20,25), ncol=3, nrow=3)
+      B <- matrix(c(35,26,18,30,25,17,37,28,20), ncol=3, nrow=3)
+      warmer <- A %*% B
     }
-    # Start benchmark
     all_times <- c()
     for (i in 1:times) {
-      bm_result <- system.time(do.call(operation, args_list))
-      all_times <- c(all_times, bm_result["elapsed"])
+      profile <- system.time(do.call(operation, args_list))
+      all_times <- c(all_times, profile["elapsed"])
     }
-    elapsed_time <- mean(all_times*1e3) # Convert unit of time to ms
-  }
-  else {
+    # Compute min, lq, mean, median, uq, and max
+    summ <- validate::summary(all_times)
+    row <- c(op, unit, as.vector(summ), times)
+    result[1, ] <- row 
+    result[, 3:9] <- sapply(result[, 3:9], as.numeric)
+  } else {
     # Start benchmark
-    bm_result <- microbenchmark(do.call(operation, args_list),
-                                times = times, unit = unit)
-    # Get mean time
-    elapsed_time <- summary(bm_result)$mean
+    summ <- summary(microbenchmark(do.call(operation, args_list),
+                                   times = times, unit = unit))
+    row <- c(op, unit, as.vector(summ)[-1])
+    result[1, ] <- row
+    result[, 3:9] <- sapply(result[, 3:9], as.numeric)
   }
-  return(results)
+  return(result)  
 }
 
 # RUN BENCHMARK #############################################
