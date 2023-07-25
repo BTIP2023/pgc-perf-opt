@@ -65,6 +65,7 @@ data/
 docker/
 !docker/scripts/install_pgc_base.sh
 !docker/scripts/install_pgc_aux.R
+!/docker/scripts/install_flexiblas.sh
 presentations/
 results/
 
