@@ -99,9 +99,9 @@ results_path_agnes <- "results/dendrogram"
 
 # RUN BENCHMARK #############################################
 # Benchmark parameters
-bm_times <- 2L   # how many times should routine be evaluated
+bm_times <- 3L   # how many times should routine be evaluated
 bm_units <- "seconds"
-bm_log_path <- "benchmarks"
+bm_log_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 # valid values: ["ALL"|"SOME" (Linux only)|"NONE"]
 mitigations <- "ALL"
