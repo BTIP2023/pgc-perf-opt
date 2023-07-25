@@ -1,40 +1,16 @@
 dendrogram_create_region = function(k, data_path, results_path)
 {
   
-  get_time <- function(string) {
-    parts <- strsplit(string, "_")[[1]]
-    as.numeric(gsub(".csv", "", parts[3]))
-  }
-  
-  file_pattern <- paste0("kmer_", k, "_", ".*\\.csv$")
-  file_list <- list.files(
-    path = data_path, pattern = file_pattern,
-    full.names = FALSE
-  )
-  
-  # Check if any files are found
-  if (length(file_list) == 0) {
-    message("No files found for k = ", k)
-    return(NULL)
-  }
-  
-  # Sort the strings based on the timestamp in descending order
-  sorted_strings <- file_list[order(sapply(file_list, get_time),
-                                    decreasing = TRUE
-  )]
-  
-  data <- read_csv(paste(data_path, sorted_strings[1], sep = "/"))
-  
   # read kmer file
-  df = subset(data, select = -c(...1))
+  df <- read_kmer_csv(data_path, k)
   dat <- df %>%
-    mutate(sample_name = paste('var', seq(1:nrow(data)), sep = '_')) # 
+    mutate(sample_name = paste('var', seq(1:nrow(df)), sep = '_')) # 
   metadata <- dat %>%
     select(sample_name, division_exposure)
   numeric_data <- dat %>% select(-c(division_exposure))
   
   # normalize data to values from 0 to 1
-  slice_col <- which(colnames(data) == "strain")
+  slice_col <- which(colnames(df) == "strain")
   numeric_data_norm <- numeric_data %>%
     select(sample_name, everything()) %>%
     pivot_longer(cols = 2:(slice_col - 1), values_to = 'value', names_to = 'type') %>%
