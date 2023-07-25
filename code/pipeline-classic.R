@@ -75,6 +75,7 @@ country_exposure <- "Philippines"
 interm_write_path <- "data/interm"
 compile_write_path <- "data/overview"
 treemaps_write_path <- "data/overview/treemaps"
+heatmaps_write_path <- "data/overview/heatmaps"
 
 # dim-reduce.R::dim_reduce() parameters
 data_path_kmers <- "data/kmers"
@@ -129,7 +130,10 @@ for (k in kmer_list) {
   get_kmers(fasta_all, metadata_all, k, stamp)
 }
 
-# Step 2.5: generate_heatmap() WIP
+# Step 2.5: generate_heatmap()
+for (k in kmer_list){
+  generate_heatmap(data_path_kmers, heatmaps_write_path, k)
+}
 
 
 # Step 3: dim_reduce()
