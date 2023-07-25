@@ -3,23 +3,35 @@
 
 # TO DO: Fix readability and documentation of this file
 
-# Time Complexity of PCA, t-SNE, and UMAP
-
+## Time Complexity of PCA, t-SNE, and UMAP
+#
 #   PCA:
-#     O(p^2n+p^3) -> n = no. of data-points, p = no. of features
-#     The covariance matrix computation is O(p^2n); 
-#     while the eigen-value decomposition is O(p^3).
-#   Reference:
-#   https://stackoverflow.com/questions/20507646/how-is-the-complexity-of-pca-ominp3-n3
+#     Worst-Case (based on definition):
+#         O(p^2n+p^3) -> n = no. of data-points, p = no. of features
+#       The covariance matrix computation is O(p^2n); 
+#       while the eigen-value decomposition is O(p^3).
+#     Reference:
+#       https://stackoverflow.com/questions/20507646/how-is-the-complexity-of-pca-ominp3-n3
+#       https://alekhyo.medium.com/computational-complexity-of-pca-4cb61143b7e5
+#     prcomp with scaling in R implements PCA as SVD of the correlation matrix     
+#     For using the correlation matrix:
+#      O(find me)
+#     SVD implementation to speed up PCA (https://www.slideshare.net/YounesCharfaoui/principal-component-analysis-code-and-time-complexity-127431697):
+#        The time-complexity for computing the SVD factorization of an arbitrary m x n  matrix is proportional to 
+#        m^2n+n^3, where the constant of proportionality ranges from 4 to 10 (or more) depending on the algorithm.
+#        Reference: 
+#          https://courses.engr.illinois.edu/cs357/sp2021/notes/ref-16-svd.html#:~:text=Time%20Complexity,more)%20depending%20on%20the%20algorithm.
+#      
 #   t-SNE: 
 #     O(n^2) -> n = no. of data-points
-#   Reference:
-#   https://arxiv.org/pdf/1512.01655.pdf
+#     Reference:
+#       https://arxiv.org/pdf/1512.01655.pdf
+#
 #   UMAP:
-#     Average Case: O(d*n^1.14)
-#     Worst-Case: O(n^2) -> n = no. of data-points
-#   Reference:
-#   https://github.com/lmcinnes/umap/issues/8
+#     Average Case: O(d*n^1.14) where d is ... and n = no. of data-points
+#     Worst-Case: O(n^2) where n = no. of data-points
+#     Reference:
+#       https://github.com/lmcinnes/umap/issues/8
 
 
 # FUNCTIONS ################################
