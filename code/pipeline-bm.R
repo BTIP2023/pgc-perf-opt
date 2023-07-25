@@ -100,17 +100,29 @@ results_path_agnes <- "results/dendrogram"
 # Benchmark parameters
 bm_times <- 2L   # how many times should routine be evaluated
 bm_units <- "seconds"
-bm_units <- 
+bm_log_path <- "benchmarks"
+OS <- pacman::p_detectOS()
+# valid values: ["ALL"|"SOME" (Linux only)|"NONE"]
+mitigations <- "ALL"
 
 # Benchmark Notes:
-# preprocess, to start from extraction, delete: data/GISAID/datasets/
-# preprocess, to also generate data, set write_fastacsv = TRUE.
+# get_sample: to start from extraction, delete data/GISAID/datasets/
+# generate_interm always happens for this benchmark
+# TODO: Add descriptions for my functions to the plot results
 results <- microbenchmark(
-  preprocess = list[fasta_all, metadata_all] <-
-    preprocess(data_path, extract_path, seed,
-               strat_size, country_exposure,
-               write_fastacsv, stamp),
-  get_kmers_loop = for (k in kmer_list) {
+  get_sample = list[fasta_all, metadata_all] <-
+    get_sample(gisaid_data_path,
+               gisaid_extract_path,
+               seed, strat_size,
+               country_exposure),
+  sanitize_sample = metadata_all <- sanitize_sample(metadata_all),
+  generate_interm = generate_interm(fasta_all, metadata_all,
+                                    interm_write_path, stamp),
+  compile_overview = metadata_all <- compile_overview(metadata_all,
+                                                      compile_write_path,
+                                                      stamp),
+  make_treemaps = make_treemaps(metadata_all, treemaps_write_path, stamp),
+  get_kmers_all = for (k in kmer_list) {
     get_kmers(fasta_all, metadata_all, k, stamp)
   },
   get_kmers_3 = get_kmers(fasta_all, metadata_all, 3, stamp),
