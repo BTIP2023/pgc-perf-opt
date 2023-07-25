@@ -7,31 +7,46 @@
 #
 #   PCA:
 #     Worst-Case (based on definition):
-#         O(p^2n+p^3) -> n = no. of data-points, p = no. of features
+#         O(p^2n+p^3) where n = no. of data-points, p = no. of features
 #       The covariance matrix computation is O(p^2n); 
 #       while the eigen-value decomposition is O(p^3).
 #     Reference:
 #       https://stackoverflow.com/questions/20507646/how-is-the-complexity-of-pca-ominp3-n3
 #       https://alekhyo.medium.com/computational-complexity-of-pca-4cb61143b7e5
-#     prcomp with scaling in R implements PCA as SVD of the correlation matrix     
-#     For using the correlation matrix:
-#      O(find me)
+#     prcomp with scaling in R implements PCA as SVD of the Dataset matrix     
+#     For using the Dataset matrix:
+#       O(2np+n^2p+p^3) => O(n^2p+p^3) where n = no. of data-points, p = no. of features
+#      Notes:
+#      Time complexity of SVD dominates that of scaling and centering.      
+#
+#      Time complexity of centering is O(np) since we need to calculate the 
+#      mean of each column and then subtract this mean from each element in the 
+#      respective column. Calculating the mean of a single column takes O(n) 
+#      time, and we need to do this for each of the p columns.
+#
+#      Time complexity of scaling is O(np) since we need to calculate the 
+#      mean of each column and then divide each element in the respective column
+#      by its standard deviation Calculating the standard deviation of a single
+#      column takes O(n) time, and we need to do this for each of the p columns.
+#
 #     SVD implementation to speed up PCA (https://www.slideshare.net/YounesCharfaoui/principal-component-analysis-code-and-time-complexity-127431697):
 #        The time-complexity for computing the SVD factorization of an arbitrary m x n  matrix is proportional to 
 #        m^2n+n^3, where the constant of proportionality ranges from 4 to 10 (or more) depending on the algorithm.
 #        Reference: 
 #          https://courses.engr.illinois.edu/cs357/sp2021/notes/ref-16-svd.html#:~:text=Time%20Complexity,more)%20depending%20on%20the%20algorithm.
+#          https://github.com/SurajGupta/r-source/blob/master/src/library/stats/R/prcomp.R
 #      
 #   t-SNE: 
-#     O(n^2) -> n = no. of data-points
+#     O(n^2) where n = no. of data-points
 #     Reference:
 #       https://arxiv.org/pdf/1512.01655.pdf
 #
 #   UMAP:
-#     Average Case: O(d*n^1.14) where d is ... and n = no. of data-points
+#     Average Case: O(d*n^1.14) where d is the dimension of the target reduced space and n = no. of data-points
 #     Worst-Case: O(n^2) where n = no. of data-points
 #     Reference:
 #       https://github.com/lmcinnes/umap/issues/8
+#       https://www.researchgate.net/publication/323141395
 
 
 # FUNCTIONS ################################
@@ -134,15 +149,15 @@ pre_reduce <- function(results_path, data_path, k, filter1_factor,
   # Making filter values optional
   if(missing(filter1_factor) && missing(filter1_values) &&
      missing(filter2_factor) && missing(filter2_values)){
-
+    
   } else if(missing(filter2_factor) && missing(filter2_values)){
-
+    
     df <- filter(df, df[[filter1_factor]] %in% filter1_values)
-
+    
   } else if(missing(filter1_factor) && missing(filter1_values)){
-
+    
     df <- filter(df, df[[filter2_factor]] %in% filter2_values)
-
+    
   } else {
     df <- filter(df, df[[filter1_factor]] %in% filter1_values)
     df <- filter(df, df[[filter2_factor]] %in% filter2_values)
