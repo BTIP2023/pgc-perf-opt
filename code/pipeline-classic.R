@@ -89,10 +89,10 @@ color <- "variant"
 shape <- "sex"
 
 # dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
-factor1 <- "variant"
-values1 <- c("Omicron", "Omicron Sub")
-factor2 <- "year"
-values2 <- c("2023")
+#factor1 <- "variant"
+#values1 <- c("Omicron", "Omicron Sub")
+#factor2 <- "year"
+#values2 <- c("2023")
 
 # clustering-x.R::dendogram_create_x() parameters
 results_path_agnes <- "results/dendrogram"
