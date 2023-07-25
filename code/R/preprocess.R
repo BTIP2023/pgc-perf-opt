@@ -379,7 +379,6 @@ generate_interm <- function(fasta_all, metadata_all,
     csv_path <- sprintf("%s/metadata_all.csv", write_path)
   }
   
-  message("Writing generated fasta and csv files:")
   message(sprintf("Writing intermediate fasta to %s... ", fasta_path),
           appendLF = FALSE)
   ape::write.FASTA(fasta_all, file = fasta_path)

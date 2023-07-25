@@ -35,7 +35,7 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                umap, htmlwidgets, factoextra, scales,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
-               microbenchmark, flexiblas,
+               microbenchmark,
                highcharter, glue)
 if (!require(ggbiplot))
   install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
@@ -97,9 +97,10 @@ values2 <- c("2023")
 results_path_agnes <- "results/dendrogram"
 
 # RUN BENCHMARK #############################################
-# microbenchmark parameters
+# Benchmark parameters
 bm_times <- 2L   # how many times should routine be evaluated
 bm_units <- "seconds"
+bm_units <- 
 
 # Benchmark Notes:
 # preprocess, to start from extraction, delete: data/GISAID/datasets/
