@@ -142,6 +142,6 @@ treemap <- function(df, ..., tm_title = "",
 
 # Workaround for broken saveWidget
 saveWidget2 <- function(widget, path) {
-  saveWidget(widget, file = "tmp.html", selfcontained = TRUE)
+  htmlwidgets::saveWidget(widget, file = "tmp.html", selfcontained = TRUE)
   file.rename("tmp.html", path)
 }

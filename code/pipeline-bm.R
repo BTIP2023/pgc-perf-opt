@@ -68,7 +68,7 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 gisaid_data_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
-strat_size <- 25000
+strat_size <- 100
 country_exposure <- "Philippines"
 
 # preprocess.R::auxiliary parameters
@@ -85,7 +85,8 @@ tsne_initial_dims <- 50
 umap_n_neighbors <- 15
 umap_metric <- "euclidean"
 umap_min_dist <- 0.1
-target_col <- "variant"
+color <- "variant"
+shape <- "sex"
 
 # dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
 factor1 <- "variant"
@@ -128,28 +129,28 @@ results <- microbenchmark(
   get_kmers_3 = get_kmers(fasta_all, metadata_all, 3, stamp),
   get_kmers_5 = get_kmers(fasta_all, metadata_all, 5, stamp),
   get_kmers_7 = get_kmers(fasta_all, metadata_all, 7, stamp),
-  # dim_reduce = for (k in kmer_list) {
-  #   dim_reduce(k, data_path_kmers, results_path_dimreduce,
-  #              tsne_seed = seed, tsne_perplexity,
-  #              tsne_max_iter, tsne_initial_dims,
-  #              umap_seed = seed, umap_n_neighbors,
-  #              umap_metric, umap_min_dist, col_name = target_col)
-  # },
-  # dim_reduce_3 = dim_reduce(3, data_path_kmers, results_path_dimreduce,
-  #                           tsne_seed = seed, tsne_perplexity,
-  #                           tsne_max_iter, tsne_initial_dims,
-  #                           umap_seed = seed, umap_n_neighbors,
-  #                           umap_metric, umap_min_dist, col_name = target_col),
-  # dim_reduce_5 = dim_reduce(5, data_path_kmers, results_path_dimreduce,
-  #                           tsne_seed = seed, tsne_perplexity,
-  #                           tsne_max_iter, tsne_initial_dims,
-  #                           umap_seed = seed, umap_n_neighbors,
-  #                           umap_metric, umap_min_dist, col_name = target_col),
-  # dim_reduce_7 = dim_reduce(7, data_path_kmers, results_path_dimreduce,
-  #                           tsne_seed = seed, tsne_perplexity,
-  #                           tsne_max_iter, tsne_initial_dims,
-  #                           umap_seed = seed, umap_n_neighbors,
-  #                           umap_metric, umap_min_dist, col_name = target_col),
+  dim_reduce_all = for (k in kmer_list) {
+    dim_reduce(k, data_path_kmers, results_path_dimreduce,
+               tsne_seed = seed, tsne_perplexity,
+               tsne_max_iter, tsne_initial_dims,
+               umap_seed = seed, umap_n_neighbors,
+               umap_metric, umap_min_dist, col_name = target_col)
+  },
+  dim_reduce_3 = dim_reduce(3, data_path_kmers, results_path_dimreduce,
+                            tsne_seed = seed, tsne_perplexity,
+                            tsne_max_iter, tsne_initial_dims,
+                            umap_seed = seed, umap_n_neighbors,
+                            umap_metric, umap_min_dist, col_name = target_col),
+  dim_reduce_5 = dim_reduce(5, data_path_kmers, results_path_dimreduce,
+                            tsne_seed = seed, tsne_perplexity,
+                            tsne_max_iter, tsne_initial_dims,
+                            umap_seed = seed, umap_n_neighbors,
+                            umap_metric, umap_min_dist, col_name = target_col),
+  dim_reduce_7 = dim_reduce(7, data_path_kmers, results_path_dimreduce,
+                            tsne_seed = seed, tsne_perplexity,
+                            tsne_max_iter, tsne_initial_dims,
+                            umap_seed = seed, umap_n_neighbors,
+                            umap_metric, umap_min_dist, col_name = target_col),
   times = bm_times,
   unit = bm_units,
   control = list(order = "inorder", warmup = 2L)

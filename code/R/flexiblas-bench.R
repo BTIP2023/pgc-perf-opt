@@ -29,6 +29,7 @@ pacman::p_load(ggbiplot)
 
 # LOAD SOURCE #############################################
 source("code/R/dim-reduce.R")
+source("code/R/helper.R")
 
 # FUNCTIONS ################################
 # Benchmarking function
