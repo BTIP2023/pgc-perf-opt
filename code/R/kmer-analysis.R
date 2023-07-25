@@ -20,5 +20,5 @@ get_kmers <- function(fasta, metaData, k, stamp) {
   
   message(paste0("Writing kmer data to ", output_dir, "... "), appendLF = FALSE)
   write_csv(kmer_df, output_dir)
-  message(paste0("Done writing to ", output_dir))
+  message(paste0("Writing kmer data to ", output_dir, "... DONE."))
 }

@@ -35,7 +35,7 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                umap, htmlwidgets, factoextra, scales,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
-               microbenchmark, flexiblas,
+               microbenchmark,
                highcharter, glue)
 if (!require(ggbiplot))
   install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
@@ -68,7 +68,7 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 gisaid_data_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
-strat_size <- 25000
+strat_size <- 100
 country_exposure <- "Philippines"
 
 # preprocess.R::auxiliary parameters
