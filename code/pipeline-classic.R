@@ -85,7 +85,8 @@ tsne_initial_dims <- 50
 umap_n_neighbors <- 15
 umap_metric <- "euclidean"
 umap_min_dist <- 0.1
-target_col <- "variant"
+color <- "variant"
+shape <- "sex"
 
 # dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
 factor1 <- "variant"
@@ -137,7 +138,7 @@ for (k in kmer_list) {
              tsne_seed = seed, tsne_perplexity,
              tsne_max_iter, tsne_initial_dims,
              umap_seed = seed, umap_n_neighbors,
-             umap_metric, umap_min_dist, col_name = target_col,
+             umap_metric, umap_min_dist, color = color, shape = shape,
              filter1_factor = factor1, filter1_values = values1, # OPTIONAL
              filter2_factor = factor2, filter2_values = values2) # OPTIONAL
 }
