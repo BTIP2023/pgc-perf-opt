@@ -5,7 +5,7 @@
 # specified by output_path and filename.
 # This function only supports Windows 10/11 and Linux.
 # In Windows, assumes that there's only one processor installed.
-write_to_log <- function(output_dir, filename, log_string) {
+write_to_log <- function(output_dir, filename, stamp, log_string) {
   if (!dir.exists(output_dir))
     dir.create(output_dir)
   output_path <- paste(output_dir, filename, sep = "/")
@@ -19,7 +19,8 @@ write_to_log <- function(output_dir, filename, log_string) {
                       intern = TRUE)
     cpuinfo <- cpuinfo[-length(cpuinfo)]
     specs <- c(systeminfo, cpuinfo)
-    write_lines(c(as.character(Sys.time()), specs, log_string,
+    write_lines(c(sprintf("STAMP: %s", stamp),
+                  specs, log_string,
                   "------\n"), output_path, append = TRUE)
   } else if (pacman::p_detectOS() == "Linux") {
     device <- paste(as.list(Sys.info())[c("sysname", "release")], collapse = ' ')
@@ -46,12 +47,13 @@ write_to_log <- function(output_dir, filename, log_string) {
                     use.names = FALSE)
     mem <- system("grep MemTotal /proc/meminfo", intern=T)
     specs <- c(device, lsb_release, lscpu, mem)
-    write_lines(c(as.character(Sys.time()), specs, log_string,
+    write_lines(c(sprintf("STAMP: %s", stamp),
+                  specs, log_string,
                   "------\n"), output_path, append = TRUE)
   } else {
-    write_lines(c(as.character(Sys.time()),
+    write_lines(c(sprintf("STAMP: %s", stamp),
                   "OS not supported by logger!", log_string,
-                  "------\n"), output_path, append=TRUE)
+                  "------\n"), output_path, append = TRUE)
   }
   close(fileConn)
 }
