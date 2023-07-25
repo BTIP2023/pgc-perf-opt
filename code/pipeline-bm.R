@@ -97,9 +97,10 @@ values2 <- c("2023")
 results_path_agnes <- "results/dendrogram"
 
 # RUN BENCHMARK #############################################
-# microbenchmark parameters
+# Benchmark parameters
 bm_times <- 2L   # how many times should routine be evaluated
 bm_units <- "seconds"
+bm_units <- 
 
 # Benchmark Notes:
 # preprocess, to start from extraction, delete: data/GISAID/datasets/
