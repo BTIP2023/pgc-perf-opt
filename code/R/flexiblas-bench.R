@@ -114,7 +114,7 @@ plot_results <- function(method_benchmark, method) {
   
   # Save as HTML
   html_file <- paste0(results_path, "/", method, "-", k, "-benchmark.html")
-  htmlwidgets::saveWidget(p, file = html_file, selfcontained = TRUE)
+  saveWidget2(p, file = html_file)
 }
 
 # SET PARAMETERS ###########################################

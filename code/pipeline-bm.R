@@ -144,8 +144,7 @@ OS <- pacman::p_detectOS()
 # Don't forget to set this to current runtime configuration of the benchmark.
 mitigations <- "ALL"
 
-message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations
-                = "))
+message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS, mitigations))
 
 # Benchmark Notes:
 # get_sample: to start from extraction, delete data/GISAID/datasets/
@@ -175,35 +174,43 @@ results <- microbenchmark(
                tsne_seed = seed, tsne_perplexity,
                tsne_max_iter, tsne_initial_dims,
                umap_seed = seed, umap_n_neighbors,
-               umap_metric, umap_min_dist, col_name = target_col)
+               umap_metric, umap_min_dist, color = color, shape = shape,
+               filter1_factor = factor1, filter1_values = values1, # OPTIONAL
+               filter2_factor = factor2, filter2_values = values2) # OPTIONAL
   },
   dim_reduce_3 = dim_reduce(3, data_path_kmers, results_path_dimreduce,
                             tsne_seed = seed, tsne_perplexity,
                             tsne_max_iter, tsne_initial_dims,
                             umap_seed = seed, umap_n_neighbors,
-                            umap_metric, umap_min_dist, col_name = target_col),
+                            umap_metric, umap_min_dist, color = color, shape = shape,
+                            filter1_factor = factor1, filter1_values = values1,
+                            filter2_factor = factor2, filter2_values = values2),
   dim_reduce_5 = dim_reduce(5, data_path_kmers, results_path_dimreduce,
                             tsne_seed = seed, tsne_perplexity,
                             tsne_max_iter, tsne_initial_dims,
                             umap_seed = seed, umap_n_neighbors,
-                            umap_metric, umap_min_dist, col_name = target_col),
+                            umap_metric, umap_min_dist, color = color, shape = shape,
+                            filter1_factor = factor1, filter1_values = values1,
+                            filter2_factor = factor2, filter2_values = values2),
   dim_reduce_7 = dim_reduce(7, data_path_kmers, results_path_dimreduce,
                             tsne_seed = seed, tsne_perplexity,
                             tsne_max_iter, tsne_initial_dims,
                             umap_seed = seed, umap_n_neighbors,
-                            umap_metric, umap_min_dist, col_name = target_col),
-  dendo_create_variant_all = for (k in kmer_list) {
-    dendogram_create_variant(k, data_path_kmers, results_path_agnes)
-  },
-  dendo_create_variant_3 = dendogram_create_variant(3, data_path_kmers, results_path_agnes),
-  dendo_create_variant_5 = dendogram_create_variant(5, data_path_kmers, results_path_agnes),
-  dendo_create_variant_7 = dendogram_create_variant(7, data_path_kmers, results_path_agnes),
-  dendo_create_region_all = for (k in kmer_list) {
-    dendogram_create_region(k, data_path_kmers, results_path_agnes)
-  },
-  dendo_create_region_3 = dendogram_create_region(3, data_path_kmers, results_path_agnes),
-  dendo_create_region_5 = dendogram_create_region(5, data_path_kmers, results_path_agnes),
-  dendo_create_region_7 = dendogram_create_region(7, data_path_kmers, results_path_agnes),
+                            umap_metric, umap_min_dist, color = color, shape = shape,
+                            filter1_factor = factor1, filter1_values = values1,
+                            filter2_factor = factor2, filter2_values = values2),
+  # dendo_create_variant_all = for (k in kmer_list) {
+  #   dendogram_create_variant(k, data_path_kmers, results_path_agnes)
+  # },
+  # dendo_create_variant_3 = dendogram_create_variant(3, data_path_kmers, results_path_agnes),
+  # dendo_create_variant_5 = dendogram_create_variant(5, data_path_kmers, results_path_agnes),
+  # dendo_create_variant_7 = dendogram_create_variant(7, data_path_kmers, results_path_agnes),
+  # dendo_create_region_all = for (k in kmer_list) {
+  #   dendogram_create_region(k, data_path_kmers, results_path_agnes)
+  # },
+  # dendo_create_region_3 = dendogram_create_region(3, data_path_kmers, results_path_agnes),
+  # dendo_create_region_5 = dendogram_create_region(5, data_path_kmers, results_path_agnes),
+  # dendo_create_region_7 = dendogram_create_region(7, data_path_kmers, results_path_agnes),
   times = bm_times,
   unit = bm_units,
   control = list(order = "inorder", warmup = 2L)
@@ -212,9 +219,11 @@ results <- microbenchmark(
 print("All operations completed successfully!")
 
 # Write hardware specs and parameters used to log.txt
+param_string <- 
+
 message("Writing logs... ", appendLF = FALSE)
-write_to_log(output_dir = "results", filename = "log.txt",
-             log_string = sprintf("timestamp = %s\nseed = %d, strat_size = %d, k-value = %d",
+write_to_log(bm_log_path, "bm_log.txt",
+             sprintf("timestamp = %s\nseed = %d, strat_size = %d, k-value = %d",
                                   stamp, seed, strat_size, k))
 message("DONE.")
 
