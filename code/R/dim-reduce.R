@@ -106,7 +106,7 @@ save_plot <- function(method, results_path, k, p, is_3d = FALSE) {
   
   # Save as HTML
   html_file <- paste0(results_path, "/", method, "-", k, ".html")
-  saveWidget2(p, file = html_file, selfcontained = TRUE)
+  saveWidget2(p, path = html_file)
 }
 
 # Function for pre-processing and scaling of data
@@ -178,7 +178,7 @@ pca_fn <- function(x) {
 }
 
 # Function for 2D PCA plot
-pca_plot <- function(pca_df, df, k, color, shape, results_path) {
+pca_2d <- function(pca_df, df, k, color, shape, results_path) {
   color <- df[[color]]
   shape <- df[[shape]]
   print("Generating 2D PCA plot...")
@@ -198,7 +198,7 @@ pca_plot <- function(pca_df, df, k, color, shape, results_path) {
 }
 
 # Function for 3D PCA plot
-pca_3d <- function(pca_df, df, color, shape, k, results_path) {
+pca_3d <- function(pca_df, df, k, color, shape, results_path) {
   print("Generating 3D PCA plot...")
   pc <- as.data.frame(pca_df$x[, 1:3])
   
@@ -369,7 +369,7 @@ tsne_fn <- function(pca_results, tsne_dims, tsne_initial_dims, tsne_perplexity,
 }
 
 # Function for 2D t-SNE plot
-tsne_plot <- function(tsne_df, df, color, shape, k, is_tsne, results_path) {
+tsne_2d <- function(tsne_df, df, color, shape, k, is_tsne, results_path) {
   print("Generating 2D t-SNE plot...")
   if (is_tsne) {
     tsne_df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], 
@@ -433,7 +433,7 @@ umap_fn <- function(x, umap_dims, umap_n_neighbors, umap_metric,
 }
 
 # Function for 2D UMAP plot
-umap_plot <- function(umap_df, df, color, shape, k, results_path) {
+umap_2d <- function(umap_df, df, color, shape, k, results_path) {
   print("Generating 2D UMAP plot...")
   emb <- umap_df$layout
   
@@ -510,16 +510,16 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   pca_df <- pca_fn(x)
   
   # Generate 2D PCA plot
-  pca_plot(pca_df, df, k, color, shape, results_path)
+  pca_2d(pca_df, df, k, color, shape, results_path)
   
-  # Generate 3D PCA plot (does not run PCA again)
-  pca_3d(pca_df, df, color, shape, k, results_path)
+  # Generate 3D PCA plot
+  pca_3d(pca_df, df, k, color, shape, results_path)
   
   # Generate screeplot
   screeplot(pca_df, k, results_path)
   
   # Generate factor loadings plot of first 3 principal components
-  # factor_loadings(pca_df, x, k, 3)
+  factor_loadings(pca_df, x, k, 3)
   
   # Generate graph of individuals
   indiv(pca_df, k, results_path)
@@ -530,42 +530,37 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   # Generate biplot
   biplot(pca_df, k, results_path)
   
-  # Perform t-SNE via 'tsne' library using PCA results (in 2 dimensions)
+  # Perform t-SNE via 'tsne' library using PCA results (in 3 dimensions)
   # # Note: Uncomment the next two line to use tsne; otherwise, comment them
   is_tsne <- TRUE
-  tsne_df <- tsne_fn(pca_df$x, 2, tsne_initial_dims, tsne_perplexity, 
-                     tsne_max_iter, tsne_seed)
-  
-  # Perform t-SNE via 'Rtsne' library using PCA results (in 2 dimensions)
-  # # Note: Uncomment the next two line to use Rtsne; otherwise, comment them
-  # is_tsne <- FALSE
-  # tsne_df <- rtsne_fn(pca_df$x, 2)
-  
-  # Generate 2D t-SNE plot
-  tsne_plot(tsne_df, df, color, shape, k, is_tsne, results_path)
-  
-  # Generate 3D t-SNE plot (runs t-SNE again in 3 dimensions)
-  # # Note: Uncomment the two succeeding lines to use tsne;
-  # # otherwise, comment them
   tsne_df <- tsne_fn(pca_df$x, 3, tsne_initial_dims, tsne_perplexity, 
                      tsne_max_iter, tsne_seed)
+  
+  # Perform t-SNE via 'Rtsne' library using PCA results (in 3 dimensions)
+  # # Note: Uncomment the next two lines to use Rtsne; otherwise, comment them
+  # is_tsne <- FALSE
+  # tsne_df <- rtsne_fn(pca_df$x, 3, tsne_perplexity, tsne_max_iter, tsne_seed)
+  
+  # Generate 2D t-SNE plot
+  tsne_2d(tsne_df, df, color, shape, k, is_tsne, results_path)
+  
+  # # Note: Uncomment the succeeding line for Rtsne;
+  # # otherwise, comment it
+  # Generate 3D t-SNE plot
   tsne_3d(tsne_df, df, color, shape, k, results_path)
   
-  # # Note: Uncomment the two succeeding lines to use Rtsne;
-  # # otherwise, comment them
-  # tsne_df <- rtsne_fn(pca_df$x, 3, tsne_perplexity, tsne_max_iter, tsne_seed)
-  # tsne_3d(tsne_df$Y, df, color, k)
+  # # Note: Uncomment the succeeding line for Rtsne;
+  # # otherwise, comment it
+  # tsne_3d(tsne_df$Y, df, color, shape, k, results_path)
   
-  # Perform UMAP (in 2 dimensions)
-  umap_df <- umap_fn(x, 2, umap_n_neighbors, umap_metric, 
+  # Perform UMAP (in 3 dimensions)
+  umap_df <- umap_fn(x, 3, umap_n_neighbors, umap_metric, 
                      umap_min_dist, umap_seed)
   
   # Generate 2D UMAP plot
-  umap_plot(umap_df, df, color, shape, k, results_path)
+  umap_2d(umap_df, df, color, shape, k, results_path)
   
-  # Generate 3D UMAP plot (runs t-SNE again in 3 dimensions)
-  umap_df <- umap_fn(x, 3, umap_n_neighbors, umap_metric, 
-                     umap_min_dist, umap_seed)
+  # Generate 3D UMAP plot
   umap_3d(umap_df, df, color, shape, k, results_path)
   
   # -----END-----
