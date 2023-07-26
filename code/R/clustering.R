@@ -1,7 +1,7 @@
 dendrogram_create_variant <- function(k, kmers, results_path)
 {
   
-  # read kmer file
+  # process kmers dataframe, note that this was read outside the function 
   df <- kmers
   dat <- df %>%
     mutate(sample_name = paste('var', seq(1:nrow(df)), sep = '_')) # 
@@ -64,7 +64,7 @@ dendrogram_create_variant <- function(k, kmers, results_path)
 dendrogram_create_region = function(k, kmers, results_path)
 {
   
-  # read kmer file
+  # process kmers dataframe, note that this was read outside the function 
   df <- kmers
   dat <- df %>%
     mutate(sample_name = paste('var', seq(1:nrow(df)), sep = '_')) # 

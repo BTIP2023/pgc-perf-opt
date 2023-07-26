@@ -89,13 +89,13 @@ color <- "variant"
 shape <- "sex"
 
 # dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
-#factor1 <- "variant"
-#values1 <- c("Omicron", "Omicron Sub")
-#factor2 <- "year"
-#values2 <- c("2023")
+# factor1 <- "variant"
+# values1 <- c("Omicron", "Omicron Sub")
+# factor2 <- "year"
+# values2 <- c("2023")
 
 # clustering-x.R::dendogram_create_x() parameters
-results_path_agnes <- "results/dendrogram"
+agnes_write_path <- "results/dendrogram"
 
 # RUN PIPELINE #############################################
 
@@ -129,15 +129,24 @@ for (k in kmer_list) {
   get_kmers(fasta_all, metadata_all, k, stamp)
 }
 
-# Step 2.5: generate_heatmap()
-for (k in kmer_list){
-  generate_heatmap(kmers_data_path, heatmaps_write_path, k)
+# GET KMERS FROM PRE-WRITTEN FILES (depends on strat_size)
+# kmers is list of kmer dataframes
+kmers <- list()
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  kmers[[i]] <- readr::read_csv(sprintf("data/kmers/kmer_%d_%d", k, strat_size))
 }
 
+# Step 2.5: generate_heatmap()
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  generate_heatmap(kmers[[i]], heatmaps_write_path, k)
+}
 
 # Step 3: dim_reduce()
-for (k in kmer_list) {
-  dim_reduce(k, kmers_data_path, dimreduce_write_path,
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  dim_reduce(k, kmers[[i]], dimreduce_write_path,
              tsne_seed = seed, tsne_perplexity,
              tsne_max_iter, tsne_initial_dims,
              umap_seed = seed, umap_n_neighbors,
@@ -147,13 +156,15 @@ for (k in kmer_list) {
 }
 
 #Step 4: AGNES Clustering by Variant
-for (k in kmer_list) {
-  dendrogram_create_variant(k, kmers_data_path, results_path_agnes)
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  dendrogram_create_variant(k, kmers[[i]], agnes_write_path)
 }
 
 #Step 5: AGNES Clustering by Region
-for (k in kmer_list){
-  dendrogram_create_region(k, kmers_data_path, results_path_agnes)
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  dendrogram_create_region(k, kmers[[i]], agnes_write_path)
 }
 
 print("All operations completed successfully!")

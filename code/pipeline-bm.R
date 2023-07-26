@@ -79,6 +79,7 @@ country_exposure <- "Philippines"
 interm_write_path <- "data/interm"
 compile_write_path <- "data/overview"
 treemaps_write_path <- "data/overview/treemaps"
+heatmaps_write_path <- "data/overview/heatmaps"
 
 # dim-reduce.R::dim_reduce() parameters
 kmers_data_path <- "data/kmers"
@@ -170,6 +171,7 @@ bm_cpu <- function(op, args, use_profiling, unit,
   }
 }
 
+# TODO!
 plot_bm <- function(results) {
   
 }
@@ -210,21 +212,33 @@ umap_fn_all <- function(draux, D, umap_n_neighbors,
 }
 
 # Loopers for clustering functions
-dendo_var_all <- function(kmer_list, kmers_data_path, agnes_write_path) {
-  for (k in kmer_list) {
-    dendrogram_create_variant(k, kmers_data_path, agnes_write_path)
+dendo_var_all <- function(kmer_list, kmers, agnes_write_path) {
+  for (i in 1:length(kmer_list)) {
+    k <- kmer_list[i]
+    dendrogram_create_variant(k, kmers[[i]], agnes_write_path)
   }
 }
 
-dendo_reg_all <- function(kmer_list, kmers_data_path, agnes_write_path) {
-  for (k in kmer_list){
-    dendrogram_create_region(k, kmers_data_path, agnes_write_path)
+dendo_reg_all <- function(kmer_list, kmers, agnes_write_path) {
+  for (i in 1:length(kmer_list)) {
+    k <- kmer_list[i]
+    dendrogram_create_region(k, kmers[[i]], agnes_write_path)
   }
+}
+
+# PARSE DATA FILES ##########################################
+fasta_all <- 
+  ape::read.FASTA(sprintf("data/interm/fasta_all_%s.fasta", strat_size))
+metadata_all <- 
+  readr::read_csv(sprintf("data/interm/metadata_all_%s.csv", strat_size))
+# kmers is list of kmer dataframes
+kmers <- list()
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  kmers[[i]] <- readr::read_csv(sprintf("data/kmers/kmer_%d_%d", k, strat_size))
 }
 
 # RUN BENCHMARK #############################################
-fasta_all <- ape::read.FASTA(sprintf("benchmarks/ro3/interm/fasta_all_%s.fasta", strat_size))
-metadata_all <- readr::read_csv(sprintf("benchmarks/ro3/interm/metadata_all_%s.csv", strat_size))
 NROWS <- nrow(metadata_all)
 message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS, mitigations))
 message(sprintf("Number of selected samples are: %d", NROWS))
@@ -234,7 +248,7 @@ message(sprintf("Number of selected samples are: %d", NROWS))
 draux <- list()
 for (i in 1:length(kmer_list)) {
   pre_reduce_res <- pre_reduce(dimreduce_write_path,
-                               kmers_data_path, kmer_list[i],
+                               kmers[[i]], kmer_list[i],
                                factor1, values1, factor2, values2)
   df <- pre_reduce_res$df                # df is the original dataset
   x <- pre_reduce_res$x                  # x is the scaled data
@@ -252,7 +266,7 @@ for (i in 1:length(kmer_list)) {
 # TODO: Add descriptions for my functions to the plot results
 
 # Initialize list of operations to benchmark and their arguments
-# Format: {operation:function, args:list, use_profiling:bool}
+# Format: {operation:function, args:list}
 ops <- list(
             # preprocess.R
             list(get_sample,
@@ -355,19 +369,19 @@ ops <- list(
                       umap_seed = seed)),
             # Clustering AGNES
             list(dendogram_create_variant,
-                 list(3, kmers_data_path, agnes_write_path)),
+                 list(3, kmers[[1]], agnes_write_path)),
             list(dendogram_create_variant,
-                 list(5, kmers_data_path, agnes_write_path)),
+                 list(5, kmers[[2]], agnes_write_path)),
             list(dendogram_create_variant,
-                 list(7, kmers_data_path, agnes_write_path)),
+                 list(7, kmers[[3]], agnes_write_path)),
             list(dendo_var_all,
                  list(kmer_list, kmers_data_path, agnes_write_path)),
             list(dendogram_create_region,
-                 list(3, kmers_data_path, agnes_write_path)),
+                 list(3, kmers[[1]], agnes_write_path)),
             list(dendogram_create_region,
-                 list(5, kmers_data_path, agnes_write_path)),
+                 list(5, kmers[[2]], agnes_write_path)),
             list(dendogram_create_region,
-                 list(7, kmers_data_path, agnes_write_path)),
+                 list(7, kmers[[3]], agnes_write_path)),
             list(dendo_reg_all,
                  list(kmer_list, kmers_data_path, agnes_write_path)),
             )
@@ -498,6 +512,7 @@ for (i in 1:length(ops)) {
   results[nrow(results), 3:8] <- res[1:6]
   results[nrow(results), 9] <- res[[7]]
   results[nrow(results), 10:12] <- c(profiler, mitigations, stamp)
+  results[nrow(results), 13] <- strat_size
 }
 
 # Write (append) results to accumulator file in bm_write_path
