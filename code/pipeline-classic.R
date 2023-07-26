@@ -51,8 +51,7 @@ source("code/R/helper.R")
 source("code/R/preprocess.R")
 source("code/R/kmer-analysis.R")
 source("code/R/dim-reduce.R")
-source("code/R/clustering-variant.R")
-source("code/R/clustering-region.R")
+source("code/R/clustering.R")
 
 # SET PARAMETERS ###########################################
 # pipeline.R general parameters
