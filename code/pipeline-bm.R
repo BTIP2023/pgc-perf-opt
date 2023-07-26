@@ -113,54 +113,43 @@ OS <- pacman::p_detectOS()
 mitigations <- "ALL"
 
 # HELPER FUNCTIONS ##########################################
-# Benchmark passed operations.
-# Returns dataframe of benchmark results with the ff format:
+# Benchmark passed operation.
+# Returns list of benchmark results.
 # [ expr units min lq mean median uq max neval ]
-# jobs have format: list(list(op = foo,use_profiling = TRUE, args_list = list()))
-bm_cpu <- function(jobs, times = 3L,
-                   warmup = 100000L, unit = "seconds") {
+bm_cpu <- function(operation, args, use_profiling = FALSE,
+                   times = 3L, warmup = 100000L) {
   # system.time: better for longer running code chunks
   # microbenchmark: better for fast-running code chunks
-  columns <-  c("routine", "units", "min", "lq", "median", "mean", "uq", "max", "neval")
-  result <- data.frame(matrix(nrow = 0, ncol = length(columns)))
-  colnames(result) <- columns
-  for (i in 1:length(jobs)) {
-    routine <- jobs[[i]][1]
-    args <- jobs[[i]][2]
-    use_profiling <- jobs[[i]][2]
-    opname <- as.character(substitute(routine))
-    if (use_profiling) {
-      # Warmup before actual benchmarking operation
-      for (j in 1:warmup) {
-        A <- matrix(c(15,20,25,15,20,25,15,20,25), ncol=3, nrow=3)
-        B <- matrix(c(35,26,18,30,25,17,37,28,20), ncol=3, nrow=3)
-        warmer <- A %*% B
-      }
-      all_times <- c()
-      for (j in 1:times) {
-        profile <- system.time(do.call(routine, args_list))
-        all_times <- c(all_times, profile["elapsed"])
-      }
-      # Compute min, lq, mean, median, uq, and max
-      summ <- validate::summary(all_times)
-      row <- c(opname, unit, as.vector(summ), times)
-      result[nrow(result)+1, ] <- row 
-      result[, 3:9] <- sapply(result[, 3:9], as.numeric)
-    } else {
-      # Start benchmark
-      summ <- summary(microbenchmark(do.call(routine, args_list),
-                                     times = times, unit = unit,
-                                     control = list(order = "inorder",
-                                                    warmup = warmup)))
-      row <- c(opname, unit, as.vector(summ)[-1])
-      result[nrow(result+1), ] <- row
-      result[, 3:9] <- sapply(result[, 3:9], as.numeric)
+  opname <- as.character(substitute(operation))
+  if (use_profiling) {
+    # Warmup before actual benchmarking operation
+    for (j in 1:warmup) {
+      A <- matrix(c(15,20,25,15,20,25,15,20,25), ncol=3, nrow=3)
+      B <- matrix(c(35,26,18,30,25,17,37,28,20), ncol=3, nrow=3)
+      warmer <- A %*% B
     }
+    # all_times stores all the elapsed times in each system.time
+    all_times <- c()
+    for (j in 1:times) {
+      profile <- system.time(do.call(operation, args_list))
+      all_times <- c(all_times, profile["elapsed"])
+    }
+    # Compute min, lq, mean, median, uq, and max
+    summ <- validate::summary(all_times)
+    row <- list(opname, unit, c(summ, times))
+  } else {
+    # Start benchmark
+    summ <- summary(microbenchmark(do.call(operation, args_list),
+                                   times = times, unit = unit,
+                                   control = list(order = "inorder",
+                                                  warmup = warmup)))
+    row <- list(opname, unit, summ[-1])
   }
-  return(result)
+  return(row)
 }
 
-
+plot_bm <- function(results) {
+}
 
 # RUN BENCHMARK #############################################
 message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS, mitigations))
@@ -169,6 +158,27 @@ message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS
 # get_sample: to start from extraction, delete data/GISAID/datasets/
 # generate_interm always happens for this benchmark
 # TODO: Add descriptions for my functions to the plot results
+operations <- list(get_sample,
+                   sanitize_sample,
+                   generate_interm,
+                   compile_overview,
+                   make_treemaps,
+                   get_kmers,
+                   get_kmers_3,
+                   get_kmers_)
+
+# Initialize results dataframe
+cols <-  c("op", "units", "min", "lq", "median", "mean", "uq", "max", "neval")
+results <- data.frame(matrix(nrow = 0, ncol = length(cols)))
+colnames(results) <- cols
+results[, 1:2] <- sapply(results[, 1:2], as.character)
+results[, 3:9] <- sapply(results[, 3:9], as.numeric)
+for (op in operations) {
+  results <- bind_rows()
+  results <- bm_cpu(jobs, times = 3L, unit = "")
+
+  results[nrow(results+1), ] <- row
+}
 
 print("All operations completed successfully!")
 
