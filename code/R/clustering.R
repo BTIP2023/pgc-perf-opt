@@ -1,6 +1,4 @@
-dendrogram_create_variant <- function(k, kmers, results_path)
-{
-  
+dendrogram_create_variant <- function(k, kmers, results_path) { 
   # process kmers dataframe, note that this was read outside the function 
   df <- kmers
   dat <- df %>%
@@ -61,9 +59,7 @@ dendrogram_create_variant <- function(k, kmers, results_path)
   
 }
 
-dendrogram_create_region = function(k, kmers, results_path)
-{
-  
+dendrogram_create_region <- function(k, kmers, results_path) {
   # process kmers dataframe, note that this was read outside the function 
   df <- kmers
   dat <- df %>%
