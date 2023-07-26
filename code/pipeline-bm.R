@@ -103,7 +103,7 @@ values2 <- c("2023")
 results_path_agnes <- "results/dendrogram"
 
 # Benchmark parameters
-bm_times <- 3L   # how many times should routine be evaluated
+bm_times <- 1L   # how many times should routine be evaluated
 bm_log_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 # valid values: ["ALL"|"SOME" (Linux only)|"NONE"]
@@ -170,12 +170,32 @@ get_kmers_all <- function(kmer_list, fasta_all, metadata_all, stamp) {
   }
 }
 
+# Helpers for dim-reduce algorithms
+# Looper for pca_fun
+pca_fn_all <- function(draux) {
+  for (i in 1:length(draux)) {
+    pca_fn_all(draux[[i]][2])
+  }
+}
+
 # RUN BENCHMARK #############################################
 fasta_all <- ape::read.FASTA("benchmarks/ro3/interm/fasta_all.fasta")
 metadata_all <- readr::read_csv("benchmarks/ro3/interm/metadata_all.csv")
 NROWS <- nrow(metadata_all)
 message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS, mitigations))
 message(sprintf("Number of selected samples are: %d", NROWS))
+
+# dim-reduce-aux: Prepare for dim-reduce algorithms
+# List format: {(df_k, x_k), ...}
+draux <- list()
+for (k in kmer_list) {
+  pre_reduce_res <- pre_reduce(results_path_dimreduce,
+                               data_path_kmers, k, factor1, 
+                               values1, factor2, values2)
+  df <- pre_reduce_res$df                # df is the original dataset
+  x <- pre_reduce_res$x                  # x is the scaled data
+  draux <- append(draux, list(df, x))
+}
 
 # Benchmark Notes:
 # get_sample: to start from extraction, delete data/GISAID/datasets/
@@ -220,6 +240,22 @@ ops <- list(list(get_sample,
             list(get_kmers_all,
                  list(kmer_list, fasta_all, metadata_all, stamp),
                  use_profiling = TRUE,
+                 unit = "seconds"),
+            list(pca_fn,
+                 list(draux[[1]][2]),  # k = 3
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            list(pca_fn,
+                 list(draux[[2]][2]),  # k = 5
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            list(pca_fn,
+                 list(draux[[3]][2]),
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            list(pca_fn_all,
+                 list(draux),
+                 use_profiling = TRUE,
                  unit = "seconds"))
 
 # Also initialize names of the functions (can't get it programmatically)
@@ -231,7 +267,20 @@ names <- list("get_sample",
               "get_kmers_3",
               "get_kmers_5",
               "get_kmers_7",
-              "get_kmers_all")
+              "get_kmers_all",
+              "pca_3",
+              "pca_5",
+              "pca_7",
+              "pca_all",
+              "tsne_3",
+              "tsne_5",
+              "tsne_7",
+              "tsne_all",
+              "umap_3",
+              "umap_5",
+              "umap_7",
+              "umap_all",
+              "dim_reduce_all")
 
 # Initialize results dataframe
 cols <-  c("op", "unit",
@@ -256,8 +305,8 @@ for (i in 1:length(ops)) {
   else
     unit <- "nanoseconds"
   
-  # Benchmark
-  res <- bm_cpu(op, args, use_profiling, unit, times = 3L)
+  # BENCHMARKER
+  res <- bm_cpu(op, args, use_profiling, unit, times = bm_times)
   
   # Append results to results
   results[nrow(results)+1, 1:2] <- c(opname, unit)
