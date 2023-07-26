@@ -78,8 +78,8 @@ treemaps_write_path <- "data/overview/treemaps"
 heatmaps_write_path <- "data/overview/heatmaps"
 
 # dim-reduce.R::dim_reduce() parameters
-data_path_kmers <- "data/kmers"
-results_path_dimreduce <- "results/dim-reduce/R"
+kmers_data_path <- "data/kmers"
+dimreduce_write_path <- "results/dim-reduce/R"
 tsne_perplexity <- 40
 tsne_max_iter <- 1000
 tsne_initial_dims <- 50
@@ -132,13 +132,13 @@ for (k in kmer_list) {
 
 # Step 2.5: generate_heatmap()
 for (k in kmer_list){
-  generate_heatmap(data_path_kmers, heatmaps_write_path, k)
+  generate_heatmap(kmers_data_path, heatmaps_write_path, k)
 }
 
 
 # Step 3: dim_reduce()
 for (k in kmer_list) {
-  dim_reduce(k, data_path_kmers, results_path_dimreduce,
+  dim_reduce(k, kmers_data_path, dimreduce_write_path,
              tsne_seed = seed, tsne_perplexity,
              tsne_max_iter, tsne_initial_dims,
              umap_seed = seed, umap_n_neighbors,
@@ -149,12 +149,12 @@ for (k in kmer_list) {
 
 #Step 4: AGNES Clustering by Variant
 for (k in kmer_list) {
-  dendrogram_create_variant(k, data_path_kmers, results_path_agnes)
+  dendrogram_create_variant(k, kmers_data_path, results_path_agnes)
 }
 
 #Step 5: AGNES Clustering by Region
 for (k in kmer_list){
-  dendrogram_create_region(k, data_path_kmers, results_path_agnes)
+  dendrogram_create_region(k, kmers_data_path, results_path_agnes)
 }
 
 print("All operations completed successfully!")

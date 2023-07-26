@@ -1,8 +1,8 @@
-dendrogram_create_region = function(k, data_path, results_path)
+dendrogram_create_region = function(k, data_path, strat_size, results_path)
 {
   
   # read kmer file
-  df <- read_kmer_csv(data_path, k)
+  df <- read_kmer_csv(data_path, k, strat_size)
   dat <- df %>%
     mutate(sample_name = paste('var', seq(1:nrow(df)), sep = '_')) # 
   metadata <- dat %>%
