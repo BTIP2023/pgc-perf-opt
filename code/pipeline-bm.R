@@ -149,6 +149,7 @@ bm_cpu <- function(operation, args, use_profiling = FALSE,
 }
 
 plot_bm <- function(results) {
+  
 }
 
 # RUN BENCHMARK #############################################
@@ -158,14 +159,18 @@ message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS
 # get_sample: to start from extraction, delete data/GISAID/datasets/
 # generate_interm always happens for this benchmark
 # TODO: Add descriptions for my functions to the plot results
-operations <- list(get_sample,
-                   sanitize_sample,
-                   generate_interm,
-                   compile_overview,
-                   make_treemaps,
-                   get_kmers,
-                   get_kmers_3,
-                   get_kmers_)
+
+# Initialize list of operations to benchmark and their arguments
+# Format: {operation:function, args:list, use_profiling:bool}
+fasta_all <- ape::read.FASTA("benchmarks/ro3/interm/fasta_all.fasta")
+metadata_all <- readr::read_csv("benchmarks/ro3/interm/metadata_all.csv")
+NROWS <- nrow(metadata_all)
+operations <- list(list(get_sample, list(gisaid_data_path,
+                                         gisaid_extract_path,
+                                         seed, strat_size,
+                                         country_exposure),
+                        use_profiling = TRUE),
+                   list())
 
 # Initialize results dataframe
 cols <-  c("op", "units", "min", "lq", "median", "mean", "uq", "max", "neval")
@@ -173,10 +178,11 @@ results <- data.frame(matrix(nrow = 0, ncol = length(cols)))
 colnames(results) <- cols
 results[, 1:2] <- sapply(results[, 1:2], as.character)
 results[, 3:9] <- sapply(results[, 3:9], as.numeric)
-for (op in operations) {
-  results <- bind_rows()
-  results <- bm_cpu(jobs, times = 3L, unit = "")
 
+# Get results and append to dataframe (actual benchmarking part)
+for (i in length(operations)) {
+  results <- bm_cpu(operations[i], times = 3L, unit = "")
+  
   results[nrow(results+1), ] <- row
 }
 

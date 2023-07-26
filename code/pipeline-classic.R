@@ -59,7 +59,7 @@ source("code/R/clustering-region.R")
 # stamp <- [get_time():str|NULL]
 # if stamp = "", then generated files won't be timestamped
 seed <- 1234
-stamp <- get_time()
+stamp <- NULL
 write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
 
@@ -72,7 +72,7 @@ strat_size <- 100
 country_exposure <- "Philippines"
 
 # preprocess.R::auxiliary parameters
-interm_write_path <- "data/interm"
+interm_write_path <- "benchmarks/ro3/interm"
 compile_write_path <- "data/overview"
 treemaps_write_path <- "data/overview/treemaps"
 heatmaps_write_path <- "data/overview/heatmaps"
