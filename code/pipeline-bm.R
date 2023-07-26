@@ -115,12 +115,12 @@ mitigations <- "ALL"
 # HELPER FUNCTIONS ##########################################
 # Benchmark passed operation.
 # Returns list of benchmark results.
-# [ expr units min lq mean median uq max neval ]
-bm_cpu <- function(operation, args, use_profiling = FALSE,
+# [ expr unit min lq mean median uq max neval ]
+# Note that microbenchmark always returns nanoseconds
+bm_cpu <- function(op, args, use_profiling, unit,
                    times = 3L, warmup = 100000L) {
   # system.time: better for longer running code chunks
   # microbenchmark: better for fast-running code chunks
-  opname <- as.character(substitute(operation))
   if (use_profiling) {
     # Warmup before actual benchmarking operation
     for (j in 1:warmup) {
@@ -131,7 +131,7 @@ bm_cpu <- function(operation, args, use_profiling = FALSE,
     # all_times stores all the elapsed times in each system.time
     all_times <- c()
     for (j in 1:times) {
-      profile <- system.time(do.call(operation, args))
+      profile <- system.time(do.call(op, args))
       all_times <- c(all_times, profile["elapsed"])
     }
     # Perform necessary conversion of data to desired unit
@@ -144,15 +144,20 @@ bm_cpu <- function(operation, args, use_profiling = FALSE,
     }
     # Compute min, lq, mean, median, uq, and max
     summ <- validate::summary(all_times)
+    # Switch mean and median to get proper ordering
+    tmp <- summ[3]
+    summ[3] <- summ[4]
+    summ[4] <- tmp
+    names(summ) <- c("min", "lq", "mean", "median", "uq", "max")
+    res <- c(summ, times)
   } else {
     # Start benchmark
-    summ <- summary(microbenchmark(do.call(operation, args),
+    summ <- summary(microbenchmark(do.call(op, args),
                                    times = times, unit = unit,
                                    control = list(order = "inorder",
                                                   warmup = warmup)))
-    row <- list(opname, unit, summ[-1])
+    res <- summ[-1]
   }
-  return(row)
 }
 
 plot_bm <- function(results) {
@@ -173,29 +178,39 @@ message(sprintf("Number of selected samples are: %d", NROWS))
 
 # Initialize list of operations to benchmark and their arguments
 # Format: {operation:function, args:list, use_profiling:bool}
-operations <- list(list(get_sample, list(gisaid_data_path,
-                                         gisaid_extract_path,
-                                         seed, strat_size,
-                                         country_exposure),
-                        use_profiling = TRUE,
-                        unit = "seconds"))
+ops <- list(list(get_sample,
+                 list(gisaid_data_path,
+                      gisaid_extract_path,
+                      seed, strat_size,
+                      country_exposure),
+                 use_profiling = TRUE,
+                 unit = "seconds"))
+# Also initialize names of the functions (can't get it programmatically)
+names <- list("get_sample")
 
 # Initialize results dataframe
-cols <-  c("op", "units", "min", "lq", "median", "mean", "uq", "max", "neval")
+cols <-  c("op", "unit", "min", "lq", "mean", "median", "uq", "max", "neval")
 results <- data.frame(matrix(nrow = 0, ncol = length(cols)))
 colnames(results) <- cols
 results[, 1:2] <- sapply(results[, 1:2], as.character)
 results[, 3:9] <- sapply(results[, 3:9], as.numeric)
 
 # Get results and append to dataframe (actual benchmarking part)
-for (i in length(operations)) {
-  row <- bm_cpu(operations[[i]][[1]], operations[[i]][[2]],
-                operations[[i]][[3]], times = 3L)
-  View(row)
+res <- list()
+for (i in length(ops)) {
+  op <- ops[[i]][[1]]
+  opname <- names[[i]]
+  args <- ops[[i]][[2]]
+  use_profiling <- ops[[i]][[3]]
+  unit <- ops[[i]][[4]]
+  
+  # Benchmark
+  res <- bm_cpu(op, args, use_profiling, unit, times = 3L)
+  
+  results[nrow(results)+1, 1:2] <- c(opname, unit)
+  results[nrow(results), 3:8] <- res[1:6]
+  results[nrow(results), 9] <- res[[7]]
 }
-
-results[nrow(results+1), ] <- row[i]
-
 
 print("All operations completed successfully!")
 
