@@ -194,9 +194,19 @@ pca_fn_all <- function(draux) {
 tsne_fn_all <- function(draux, D, tsne_initial_dims, tsne_perplexity,
                         tsne_max_iter, tsne_seed) {
   for (i in 1:length(draux)) {
-    tsne_fn(draux[[i]][[3]], 2, tsne_initial_dims,
+    tsne_fn(draux[[i]][[3]], D, tsne_initial_dims,
             tsne_perplexity, tsne_max_iter,
             tsne_seed = seed)
+  }
+}
+
+# Looper for umap_fn
+umap_fn_all <- function(draux, D, umap_n_neighbors,
+                        umap_metric, umap_min_dist, umap_seed) {
+  for (i in 1:length(draux)) {
+    umap_fn(draux[[i]][[3]], D, umap_n_neighbors,
+            umap_metric, umap_min_dist,
+            umap_seed = seed)
   }
 }
 
@@ -272,7 +282,7 @@ ops <- list(
                  use_profiling = TRUE,
                  unit = "seconds"),
             # dim-reduce.R
-            ## pca analysis
+            ## PCA
             list(pca_fn,
                  list(draux[[1]][[2]]),  # k = 3
                  use_profiling = FALSE,
@@ -289,7 +299,7 @@ ops <- list(
                  list(draux),
                  use_profiling = FALSE,
                  unit = "milliseconds"),
-            ## tsne 2D
+            ## TSNE 2D
             list(tsne_fn,                 # k = 3
                  list(draux[[1]][[3]], 2, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
@@ -314,7 +324,7 @@ ops <- list(
                       tsne_seed = seed),
                  use_profiling = TRUE,
                  unit = "seconds"),
-            ## tsne 3D
+            ## TSNE 3D
             list(tsne_fn,                   # k = 3
                  list(draux[[1]][[3]], 3, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
@@ -339,9 +349,52 @@ ops <- list(
                       tsne_seed = seed),
                  use_profiling = TRUE,
                  unit = "seconds"),
-            ## umap 2D
-            list(umap_fn,
+            ## UMAP 2D
+            list(umap_fn,                 # k = 3
                  list(draux[[1]][[3]], 2, umap_n_neighbors,
+                      umap_metric, umap_min_dist,
+                      umap_seed = seed),
+                 use_profiling = FALSE,
+                 unit = "seconds"),
+            list(umap_fn,                 # k = 5
+                 list(draux[[2]][[3]], 2, umap_n_neighbors,
+                      umap_metric, umap_min_dist,
+                      umap_seed = seed),
+                 use_profiling = FALSE,
+                 unit = "seconds"),
+            list(umap_fn,                 # k = 7
+                 list(draux[[3]][[3]], 2, umap_n_neighbors,
+                      umap_metric, umap_min_dist,
+                      umap_seed = seed),
+                 use_profiling = FALSE,
+                 unit = "seconds"),
+            list(umap_fn_all,
+                 list(draux, 2, umap_n_neighbors,
+                      umap_metric, umap_min_dist,
+                      umap_seed = seed),
+                 use_profiling = FALSE,
+                 unit = "seconds"),
+            ## UMAP 3D
+            list(umap_fn,                 # k = 3
+                 list(draux[[1]][[3]], 3, umap_n_neighbors,
+                      umap_metric, umap_min_dist,
+                      umap_seed = seed),
+                 use_profiling = FALSE,
+                 unit = "seconds"),
+            list(umap_fn,                 # k = 5
+                 list(draux[[2]][[3]], 3, umap_n_neighbors,
+                      umap_metric, umap_min_dist,
+                      umap_seed = seed),
+                 use_profiling = FALSE,
+                 unit = "seconds"),
+            list(umap_fn,                 # k = 7
+                 list(draux[[3]][[3]], 3, umap_n_neighbors,
+                      umap_metric, umap_min_dist,
+                      umap_seed = seed),
+                 use_profiling = FALSE,
+                 unit = "seconds"),
+            list(umap_fn_all,
+                 list(draux, 3, umap_n_neighbors,
                       umap_metric, umap_min_dist,
                       umap_seed = seed),
                  use_profiling = FALSE,
