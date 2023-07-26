@@ -497,7 +497,7 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
                        tsne_max_iter, tsne_initial_dims, umap_seed,
                        umap_n_neighbors, umap_metric, umap_min_dist, color,
                        shape, filter1_factor, filter1_values, filter2_factor, 
-                       filter2_values) {
+                       filter2_values, include_plots) {
   # -----START-----
   
   pre_reduce_res <- pre_reduce(results_path, data_path, k, filter1_factor, 
@@ -508,27 +508,6 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   
   # Perform PCA
   pca_df <- pca_fn(x)
-  
-  # Generate 2D PCA plot
-  pca_2d(pca_df, df, k, color, shape, results_path)
-  
-  # Generate 3D PCA plot
-  pca_3d(pca_df, df, k, color, shape, results_path)
-  
-  # Generate screeplot
-  screeplot(pca_df, k, results_path)
-  
-  # Generate factor loadings plot of first 3 principal components
-  factor_loadings(pca_df, x, k, 3)
-  
-  # Generate graph of individuals
-  indiv(pca_df, k, results_path)
-  
-  # Generate graph of variables
-  vars(pca_df, k, results_path)
-  
-  # Generate biplot
-  biplot(pca_df, k, results_path)
   
   # Perform t-SNE via 'tsne' library using PCA results (in 3 dimensions)
   # # Note: Uncomment the next two line to use tsne; otherwise, comment them
@@ -541,27 +520,51 @@ dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
   # is_tsne <- FALSE
   # tsne_df <- rtsne_fn(pca_df$x, 3, tsne_perplexity, tsne_max_iter, tsne_seed)
   
-  # Generate 2D t-SNE plot
-  tsne_2d(tsne_df, df, color, shape, k, is_tsne, results_path)
-  
-  # # Note: Uncomment the succeeding line for Rtsne;
-  # # otherwise, comment it
-  # Generate 3D t-SNE plot
-  tsne_3d(tsne_df, df, color, shape, k, results_path)
-  
-  # # Note: Uncomment the succeeding line for Rtsne;
-  # # otherwise, comment it
-  # tsne_3d(tsne_df$Y, df, color, shape, k, results_path)
-  
   # Perform UMAP (in 3 dimensions)
   umap_df <- umap_fn(x, 3, umap_n_neighbors, umap_metric, 
                      umap_min_dist, umap_seed)
   
-  # Generate 2D UMAP plot
-  umap_2d(umap_df, df, color, shape, k, results_path)
-  
-  # Generate 3D UMAP plot
-  umap_3d(umap_df, df, color, shape, k, results_path)
+  # Plotting Routines
+  if(include_plots) {
+    # Generate 2D PCA plot
+    pca_2d(pca_df, df, k, color, shape, results_path)
+    
+    # Generate 3D PCA plot
+    pca_3d(pca_df, df, k, color, shape, results_path)
+    
+    # Generate screeplot
+    screeplot(pca_df, k, results_path)
+    
+    # Generate factor loadings plot of first 3 principal components
+    factor_loadings(pca_df, x, k, 3)
+    
+    # Generate graph of individuals
+    indiv(pca_df, k, results_path)
+    
+    # Generate graph of variables
+    vars(pca_df, k, results_path)
+    
+    # Generate biplot
+    biplot(pca_df, k, results_path)
+    
+    # Generate 2D t-SNE plot
+    tsne_2d(tsne_df, df, color, shape, k, is_tsne, results_path)
+    
+    # # Note: Uncomment the succeeding line for tsne;
+    # # otherwise, comment it
+    # Generate 3D t-SNE plot
+    tsne_3d(tsne_df, df, color, shape, k, results_path)
+    
+    # # Note: Uncomment the succeeding line for Rtsne;
+    # # otherwise, comment it
+    # tsne_3d(tsne_df$Y, df, color, shape, k, results_path)
+    
+    # Generate 2D UMAP plot
+    umap_2d(umap_df, df, color, shape, k, results_path)
+    
+    # Generate 3D UMAP plot
+    umap_3d(umap_df, df, color, shape, k, results_path)
+  }
   
   # -----END-----
 }
