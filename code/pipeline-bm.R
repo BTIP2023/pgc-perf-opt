@@ -70,7 +70,7 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 # Note that valid strat_size will only be those with corresponding
 # files in `data/interm` and `data/kmers`
-strat_size <- 500
+strat_size <- 100
 
 # preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
