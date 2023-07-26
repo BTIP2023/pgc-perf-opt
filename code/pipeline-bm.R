@@ -56,8 +56,7 @@ source("code/R/helper.R")
 source("code/R/preprocess.R")
 source("code/R/kmer-analysis.R")
 source("code/R/dim-reduce.R")
-source("code/R/clustering-variant.R")
-source("code/R/clustering-region.R")
+source("code/R/clustering.R")
 
 # SET PARAMETERS ###########################################
 # pipeline.R general parameters
@@ -67,23 +66,26 @@ seed <- 1234
 stamp <- get_time()
 write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
-
-# preprocess.R::get_sample() parameters
 # strat_size: no. of samples per stratum. Current nrow(data) = 24671.
 # Also consider using sample_frac for proportionate allocation.
+# Note that valid strat_size will only be those with corresponding
+# files in `data/interm` and `data/kmers`
+strat_size <- 500
+
+# preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
-strat_size <- 500
 country_exposure <- "Philippines"
 
 # preprocess.R::auxiliary parameters
 interm_write_path <- "data/interm"
 compile_write_path <- "data/overview"
 treemaps_write_path <- "data/overview/treemaps"
+heatmaps_write_path <- "data/overview/heatmaps"
 
 # dim-reduce.R::dim_reduce() parameters
-data_path_kmers <- "data/kmers"
-results_path_dimreduce <- "results/dim-reduce/R"
+kmers_data_path <- "data/kmers"
+dimreduce_write_path <- "results/dim-reduce/R"
 tsne_perplexity <- 40
 tsne_max_iter <- 1000
 tsne_initial_dims <- 50
@@ -100,7 +102,7 @@ factor2 <- "year"
 values2 <- c("2023")
 
 # clustering-x.R::dendogram_create_x() parameters
-results_path_agnes <- "results/dendrogram"
+agnes_write_path <- "results/dendrogram"
 
 # Benchmark parameters
 bm_times <- 3L   # how many times should routine be evaluated
@@ -171,6 +173,7 @@ bm_cpu <- function(op, args, use_profiling, unit,
   }
 }
 
+# TODO!
 plot_bm <- function(results) {
   
 }
@@ -211,21 +214,33 @@ umap_fn_all <- function(draux, D, umap_n_neighbors,
 }
 
 # Loopers for clustering functions
-dendo_var_all <- function(kmer_list, data_path_kmers, results_path_agnes) {
-  for (k in kmer_list) {
-    dendrogram_create_variant(k, data_path_kmers, results_path_agnes)
+dendo_var_all <- function(kmer_list, kmers, agnes_write_path) {
+  for (i in 1:length(kmer_list)) {
+    k <- kmer_list[i]
+    dendrogram_create_variant(k, kmers[[i]], agnes_write_path)
   }
 }
 
-dendo_reg_all <- function(kmer_list, data_path_kmers, results_path_agnes) {
-  for (k in kmer_list){
-    dendrogram_create_region(k, data_path_kmers, results_path_agnes)
+dendo_reg_all <- function(kmer_list, kmers, agnes_write_path) {
+  for (i in 1:length(kmer_list)) {
+    k <- kmer_list[i]
+    dendrogram_create_region(k, kmers[[i]], agnes_write_path)
   }
+}
+
+# PARSE DATA FILES ##########################################
+fasta_all <- 
+  ape::read.FASTA(sprintf("data/interm/fasta_all_%s.fasta", strat_size))
+metadata_all <- 
+  readr::read_csv(sprintf("data/interm/metadata_all_%s.csv", strat_size))
+# kmers is list of kmer dataframes
+kmers <- list()
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  kmers[[i]] <- readr::read_csv(sprintf("data/kmers/kmer_%d_%d.csv", k, strat_size))
 }
 
 # RUN BENCHMARK #############################################
-fasta_all <- ape::read.FASTA(sprintf("benchmarks/ro3/interm/fasta_all_%s.fasta", strat_size))
-metadata_all <- readr::read_csv(sprintf("benchmarks/ro3/interm/metadata_all_%s.csv", strat_size))
 NROWS <- nrow(metadata_all)
 message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS, mitigations))
 message(sprintf("Number of selected samples are: %d", NROWS))
@@ -234,8 +249,8 @@ message(sprintf("Number of selected samples are: %d", NROWS))
 # List format: {(df_k, x_k, pca_df_k), ...}
 draux <- list()
 for (i in 1:length(kmer_list)) {
-  pre_reduce_res <- pre_reduce(results_path_dimreduce,
-                               data_path_kmers, kmer_list[i],
+  pre_reduce_res <- pre_reduce(dimreduce_write_path,
+                               kmers[[i]], kmer_list[i],
                                factor1, values1, factor2, values2)
   df <- pre_reduce_res$df                # df is the original dataset
   x <- pre_reduce_res$x                  # x is the scaled data
@@ -253,20 +268,20 @@ for (i in 1:length(kmer_list)) {
 # TODO: Add descriptions for my functions to the plot results
 
 # Initialize list of operations to benchmark and their arguments
-# Format: {operation:function, args:list, use_profiling:bool}
+# Format: {operation:function, args:list}
 ops <- list(
             # preprocess.R
-            # list(get_sample,
-            #      list(gisaid_data_path, gisaid_extract_path,
-            #           seed, strat_size, country_exposure)),
-            # list(sanitize_sample,
-            #      list(metadata_all)),
-            # list(generate_interm,
-            #      list(fasta_all, metadata_all, interm_write_path, stamp)),
-            # list(compile_overview,
-            #      list(metadata_all, compile_write_path, stamp)),
-            # list(make_treemaps,
-            #      list(metadata_all, treemaps_write_path, stamp)),
+            list(get_sample,
+                 list(gisaid_data_path, gisaid_extract_path,
+                      seed, strat_size, country_exposure)),
+            list(sanitize_sample,
+                 list(metadata_all)),
+            list(generate_interm,
+                 list(fasta_all, metadata_all, interm_write_path, stamp)),
+            list(compile_overview,
+                 list(metadata_all, compile_write_path, stamp)),
+            list(make_treemaps,
+                 list(metadata_all, treemaps_write_path, stamp)),
             # kmer-analysis.R
             list(get_kmers,
                  list(fasta_all, metadata_all, 3, stamp)),
@@ -356,30 +371,30 @@ ops <- list(
                       umap_seed = seed)),
             # Clustering AGNES
             list(dendogram_create_variant,
-                 list(3, data_path_kmers, results_path_agnes)),
+                 list(3, kmers[[1]], agnes_write_path)),
             list(dendogram_create_variant,
-                 list(5, data_path_kmers, results_path_agnes)),
+                 list(5, kmers[[2]], agnes_write_path)),
             list(dendogram_create_variant,
-                 list(7, data_path_kmers, results_path_agnes)),
+                 list(7, kmers[[3]], agnes_write_path)),
             list(dendo_var_all,
-                 list(kmer_list, data_path_kmers, results_path_agnes)),
+                 list(kmer_list, kmers_data_path, agnes_write_path)),
             list(dendogram_create_region,
-                 list(3, data_path_kmers, results_path_agnes)),
+                 list(3, kmers[[1]], agnes_write_path)),
             list(dendogram_create_region,
-                 list(5, data_path_kmers, results_path_agnes)),
+                 list(5, kmers[[2]], agnes_write_path)),
             list(dendogram_create_region,
-                 list(7, data_path_kmers, results_path_agnes)),
+                 list(7, kmers[[3]], agnes_write_path)),
             list(dendo_reg_all,
-                 list(kmer_list, data_path_kmers, results_path_agnes)),
+                 list(kmer_list, kmers_data_path, agnes_write_path)),
             )
 
 # Also initialize names of the functions (can't get it programmatically)
 names <- list(
-              # "get_sample",
-              # "sanitize_sample",
-              # "generate_interm",
-              # "compile_overview",
-              # "make_treemaps",
+              "get_sample",
+              "sanitize_sample",
+              "generate_interm",
+              "compile_overview",
+              "make_treemaps",
               "get_kmers_3",
               "get_kmers_5",
               "get_kmers_7",
@@ -415,11 +430,11 @@ names <- list(
 # Addon: profiling boolean list and units char list for finer control
 control <- list(
                 # preprocess.R
-                # list(TRUE, "seconds"),
-                # list(TRUE, "seconds"),
-                # list(TRUE, "seconds"),
-                # list(TRUE, "seconds"),
-                # list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
                 # kmer-analysis.R
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
@@ -499,6 +514,7 @@ for (i in 1:length(ops)) {
   results[nrow(results), 3:8] <- res[1:6]
   results[nrow(results), 9] <- res[[7]]
   results[nrow(results), 10:12] <- c(profiler, mitigations, stamp)
+  results[nrow(results), 13] <- strat_size
 }
 
 # Write (append) results to accumulator file in bm_write_path
@@ -539,10 +555,10 @@ message("All operations completed successfully!")
 # rm(list = ls()) 
 
 # Clear packages (unloading them before another adds another compat check)
-# p_unload(all)  # Remove all add-ons
+p_unload(all)  # Remove all add-ons
 
 # Clear plots but only if there IS a plot
-# while (!is.null(dev.list())) dev.off()
+while (!is.null(dev.list())) dev.off()
 
 # Clear console
 # cat("\014")  # ctrl+L

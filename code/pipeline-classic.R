@@ -51,8 +51,7 @@ source("code/R/helper.R")
 source("code/R/preprocess.R")
 source("code/R/kmer-analysis.R")
 source("code/R/dim-reduce.R")
-source("code/R/clustering-variant.R")
-source("code/R/clustering-region.R")
+source("code/R/clustering.R")
 
 # SET PARAMETERS ###########################################
 # pipeline.R general parameters
@@ -62,13 +61,15 @@ seed <- 1234
 stamp <- get_time()
 write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
-
-# preprocess.R::get_sample() parameters
 # strat_size: no. of samples per stratum. Current nrow(data) = 24671.
 # Also consider using sample_frac for proportionate allocation.
+# Note that valid strat_size will only be those with corresponding
+# files in `data/interm` and `data/kmers`
+strat_size <- 500
+
+# preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
-strat_size <- 100
 country_exposure <- "Philippines"
 
 # preprocess.R::auxiliary parameters
@@ -78,8 +79,8 @@ treemaps_write_path <- "data/overview/treemaps"
 heatmaps_write_path <- "data/overview/heatmaps"
 
 # dim-reduce.R::dim_reduce() parameters
-data_path_kmers <- "data/kmers"
-results_path_dimreduce <- "results/dim-reduce/R"
+kmers_data_path <- "data/kmers"
+dimreduce_write_path <- "results/dim-reduce/R"
 tsne_perplexity <- 40
 tsne_max_iter <- 1000
 tsne_initial_dims <- 50
@@ -90,13 +91,13 @@ color <- "variant"
 shape <- "sex"
 
 # dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
-#factor1 <- "variant"
-#values1 <- c("Omicron", "Omicron Sub")
-#factor2 <- "year"
-#values2 <- c("2023")
+# factor1 <- "variant"
+# values1 <- c("Omicron", "Omicron Sub")
+# factor2 <- "year"
+# values2 <- c("2023")
 
 # clustering-x.R::dendogram_create_x() parameters
-results_path_agnes <- "results/dendrogram"
+agnes_write_path <- "results/dendrogram"
 
 # RUN PIPELINE #############################################
 
@@ -130,15 +131,24 @@ for (k in kmer_list) {
   get_kmers(fasta_all, metadata_all, k, stamp)
 }
 
-# Step 2.5: generate_heatmap()
-for (k in kmer_list){
-  generate_heatmap(data_path_kmers, heatmaps_write_path, k)
+# GET KMERS FROM PRE-WRITTEN FILES (depends on strat_size)
+# kmers is list of kmer dataframes
+kmers <- list()
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  kmers[[i]] <- readr::read_csv(sprintf("data/kmers/kmer_%d_%d.csv", k, strat_size))
 }
 
+# Step 2.5: generate_heatmap()
+# for (i in 1:length(kmer_list)) {
+#   k <- kmer_list[i]
+#   generate_heatmap(kmers[[i]], heatmaps_write_path, k)
+# }
 
 # Step 3: dim_reduce()
-for (k in kmer_list) {
-  dim_reduce(k, data_path_kmers, results_path_dimreduce,
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  dim_reduce(k, kmers[[i]], dimreduce_write_path,
              tsne_seed = seed, tsne_perplexity,
              tsne_max_iter, tsne_initial_dims,
              umap_seed = seed, umap_n_neighbors,
@@ -148,16 +158,18 @@ for (k in kmer_list) {
 }
 
 #Step 4: AGNES Clustering by Variant
-for (k in kmer_list) {
-  dendrogram_create_variant(k, data_path_kmers, results_path_agnes)
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  dendrogram_create_variant(k, kmers[[i]], agnes_write_path)
 }
 
 #Step 5: AGNES Clustering by Region
-for (k in kmer_list){
-  dendrogram_create_region(k, data_path_kmers, results_path_agnes)
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  dendrogram_create_region(k, kmers[[i]], agnes_write_path)
 }
 
-print("All operations completed successfully!")
+message("All operations completed successfully!")
 
 # CLEAN UP #################################################
 

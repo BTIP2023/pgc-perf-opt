@@ -142,9 +142,9 @@ treemap <- function(df, ..., tm_title = "",
   return(tm)
 }
 
-generate_heatmap <- function(data_path, results_path, k){
-  # Read kmer CSV file
-  df <- read_kmer_csv(data_path, k)
+generate_heatmap <- function(kmers, results_path, k){
+  # Process kmers dataframe
+  df <- kmers
   
   # Preprocessing of Data for heatmap generation
   print("Preprocessing data for heatmap generation...")
@@ -172,7 +172,7 @@ generate_heatmap <- function(data_path, results_path, k){
 }
 
 # Workaround for broken saveWidget
-saveWidget2 <- function(widget, path) {
+saveWidget2 <- function(widget, file) {
   htmlwidgets::saveWidget(widget, file = "tmp.html", selfcontained = TRUE)
-  file.rename("tmp.html", path)
+  file.rename("tmp.html", file)
 }

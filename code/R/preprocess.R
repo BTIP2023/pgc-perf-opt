@@ -540,13 +540,13 @@ make_treemaps <- function(metadata_all, write_path, stamp) {
   if (!dir.exists(write_path))
     dir.create(write_path)
   
-  save_treemap <- function(tm, write_path, file, stamp) {
+  save_treemap <- function(tm, write_path, filename, stamp) {
     if (!is.null(stamp))
-      path <- sprintf("%s/%s_%s.html", write_path, file, stamp)
+      file <- sprintf("%s/%s_%s.html", write_path, filename, stamp)
     else
-      path <- sprintf("%s/%s.html", write_path, file)
+      file <- sprintf("%s/%s.html", write_path, filename)
     # Added workaround for broken saveWidget
-    saveWidget2(tm, path)
+    saveWidget2(tm, file)
   }
   
   save_treemap(reg_var_lin, write_path, "reg_var_lin", stamp)

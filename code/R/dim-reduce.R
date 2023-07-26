@@ -106,7 +106,7 @@ save_plot <- function(method, results_path, k, p, is_3d = FALSE) {
   
   # Save as HTML
   html_file <- paste0(results_path, "/", method, "-", k, ".html")
-  saveWidget2(p, path = html_file)
+  saveWidget2(widget = p, file = html_file)
 }
 
 # Function for pre-processing and scaling of data
@@ -137,15 +137,15 @@ pre_process <- function(df) {
 }
 
 # Function to execute before main dim-reduce codes
-pre_reduce <- function(results_path, data_path, k, filter1_factor, 
+pre_reduce <- function(results_path, kmers, k, filter1_factor, 
                        filter1_values, filter2_factor, filter2_values) {
   # Check if the directory already exists
   if (!dir.exists(results_path)) {
     # Create the directory if it doesn't exist
     dir.create(results_path, recursive = TRUE)
   }
-  # Search and read the CSV file
-  df <- read_kmer_csv(data_path, k)
+  # Process kmers dataframe
+  df <- kmers
   df$year <- format(as.Date(df$date), "%Y")
   
   # Making filter values optional
@@ -493,14 +493,14 @@ umap_3d <- function(umap_df, df, color, shape, k, results_path) {
 }
 
 # Main Function
-dim_reduce <- function(k, data_path, results_path, tsne_seed, tsne_perplexity,
+dim_reduce <- function(k, kmers, results_path, tsne_seed, tsne_perplexity,
                        tsne_max_iter, tsne_initial_dims, umap_seed,
                        umap_n_neighbors, umap_metric, umap_min_dist, color,
                        shape, filter1_factor, filter1_values, filter2_factor, 
                        filter2_values, include_plots) {
   # -----START-----
   
-  pre_reduce_res <- pre_reduce(results_path, data_path, k, filter1_factor, 
+  pre_reduce_res <- pre_reduce(results_path, kmers, k, filter1_factor, 
                                filter1_values, filter2_factor, filter2_values)
   
   df <- pre_reduce_res$df                # df is the original dataset
