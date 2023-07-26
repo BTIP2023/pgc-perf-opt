@@ -103,7 +103,7 @@ values2 <- c("2023")
 results_path_agnes <- "results/dendrogram"
 
 # Benchmark parameters
-bm_times <- 1L   # how many times should routine be evaluated
+bm_times <- 3L   # how many times should routine be evaluated
 bm_log_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 # valid values: ["ALL"|"SOME" (Linux only)|"NONE"]
@@ -135,9 +135,11 @@ bm_cpu <- function(op, args, use_profiling, unit,
     }
     # Perform necessary conversion of data to desired unit
     if (unit == "nanoseconds") {
-      all_times <- lapply(all_times, function(x){x*1e-09})
+      all_times <- lapply(all_times, function(x){x*1e+09})
     } else if (unit == "microseconds") {
-      all_times <- lapply(all_times, function(x){x*1e-06})
+      all_times <- lapply(all_times, function(x){x*1e+06})
+    } else if (unit == "milliseconds") {
+      all_times <- lapply(all_times, function(x){x*1e+03})
     } else if (unit == "minutes") {
       all_times <- lapply(all_times, function(x){x/60})
     }
@@ -154,8 +156,18 @@ bm_cpu <- function(op, args, use_profiling, unit,
     summ <- summary(microbenchmark(do.call(op, args),
                                    times = times, unit = unit,
                                    control = list(order = "inorder",
-                                                  warmup = warmup)))
-    res <- summ[-1]
+                                                  warmup = warmup)))[-1]
+    # Perform necessary conversion of data to desired unit
+    if (unit == "seconds") {
+      summ <- lapply(summ, function(x){x*1e-09})
+    } else if (unit == "milliseconds") {
+      summ <- lapply(summ, function(x){x*1e-06})
+    } else if (unit == "microseconds") {
+      summ <- lapply(summ, function(x){x*1e-03})
+    } else if (unit == "minutes") {
+      summ <- lapply(summ, function(x){x*1e-09/60})
+    }
+    res <- summ
   }
 }
 
@@ -171,10 +183,20 @@ get_kmers_all <- function(kmer_list, fasta_all, metadata_all, stamp) {
 }
 
 # Helpers for dim-reduce algorithms
-# Looper for pca_fun
+# Looper for pca_fn
 pca_fn_all <- function(draux) {
   for (i in 1:length(draux)) {
     pca_fn(draux[[i]][[2]])
+  }
+}
+
+# Looper for tsne_fn
+tsne_fn_all <- function(draux, D, tsne_initial_dims, tsne_perplexity,
+                        tsne_max_iter, tsne_seed) {
+  for (i in 1:length(draux)) {
+    tsne_fn(draux[[i]][[3]], 2, tsne_initial_dims,
+            tsne_perplexity, tsne_max_iter,
+            tsne_seed = seed)
   }
 }
 
@@ -186,7 +208,7 @@ message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS
 message(sprintf("Number of selected samples are: %d", NROWS))
 
 # dim-reduce-aux: Prepare for dim-reduce algorithms
-# List format: {(df_k, x_k), ...}
+# List format: {(df_k, x_k, pca_df_k), ...}
 draux <- list()
 for (i in 1:length(kmer_list)) {
   pre_reduce_res <- pre_reduce(results_path_dimreduce,
@@ -194,7 +216,12 @@ for (i in 1:length(kmer_list)) {
                                factor1, values1, factor2, values2)
   df <- pre_reduce_res$df                # df is the original dataset
   x <- pre_reduce_res$x                  # x is the scaled data
-  draux[[i]] <- list(df, x)
+  
+  # Run iterations of pca for each k for tsne to use
+  pca_df <- pca_fn(x)
+  
+  # Store for later
+  draux[[i]] <- list(df, x, pca_df$x)
 }
 
 # Benchmark Notes:
@@ -257,6 +284,25 @@ ops <- list(
             list(pca_fn_all,
                  list(draux),
                  use_profiling = TRUE,
+                 unit = "seconds"),
+            # 2D tsne
+            list(tsne_fn,                 # k = 3
+                 list(draux[[1]][[3]], 2, tsne_initial_dims,
+                      tsne_perplexity, tsne_max_iter,
+                      tsne_seed = seed),
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            list(tsne_fn,
+                 list(draux[[2]][[3]], 2, tsne_initial_dims,
+                      tsne_perplexity, tsne_max_iter,
+                      tsne_seed = seed),
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            list(tsne_fn_all,
+                 list(draux, 2, tsne_initial_dims,
+                      tsne_perplexity, tsne_max_iter,
+                      tsne_seed = seed),
+                 use_profiling = TRUE,
                  unit = "seconds"))
 
 # Also initialize names of the functions (can't get it programmatically)
@@ -273,10 +319,14 @@ names <- list("get_sample",
               "pca_5",
               "pca_7",
               "pca_all",
-              "tsne_3",
-              "tsne_5",
-              "tsne_7",
-              "tsne_all",
+              "tsne_2d_3",
+              "tsne_2d_5",
+              "tsne_2d_7",
+              "tsne_2d_all",
+              "tsne_3d_3",
+              "tsne_3d_5",
+              "tsne_3d_7",
+              "tsne_3d_all",
               "umap_3",
               "umap_5",
               "umap_7",
@@ -293,6 +343,7 @@ results[, 1:2] <- sapply(results[, 1:2], as.character)
 results[, 3:9] <- sapply(results[, 3:9], as.numeric)
 results[, 10:11] <- sapply(results[, 10:11], as.character)
 
+# BENCHMARKER
 # Get results and append to dataframe (actual benchmarking part)
 res <- list()
 for (i in 1:length(ops)) {
@@ -301,10 +352,7 @@ for (i in 1:length(ops)) {
   opname <- names[[i]]
   args <- ops[[i]][[2]]
   use_profiling <- ops[[i]][[3]]
-  if (use_profiling)
-    unit <- ops[[i]][[4]]
-  else
-    unit <- "nanoseconds"
+  unit <- ops[[i]][[4]]
   
   # BENCHMARKER
   res <- bm_cpu(op, args, use_profiling, unit, times = bm_times)
