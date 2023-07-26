@@ -73,7 +73,7 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 gisaid_data_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
-strat_size <- 100
+strat_size <- 500
 country_exposure <- "Philippines"
 
 # preprocess.R::auxiliary parameters
@@ -135,15 +135,15 @@ bm_cpu <- function(op, args, use_profiling, unit,
     }
     # Compute min, lq, mean, median, uq, and max
     summ <- validate::summary(all_times)
-    # Perform necessary conversion of data to desired unit
+    # Perform necessary conversion of data from seconds to desired unit
     if (unit == "nanoseconds") {
-      summ[-7] <- lapply(summ[-7], function(x){x*1e+09})
+      summ[-7] <- lapply(summ[-7], function(x){round(x*1e+09,3)})
     } else if (unit == "microseconds") {
-      summ[-7] <- lapply(summ[-7], function(x){x*1e+06})
+      summ[-7] <- lapply(summ[-7], function(x){round(x*1e+06,3)})
     } else if (unit == "milliseconds") {
-      summ[-7] <- lapply(summ[-7], function(x){x*1e+03})
+      summ[-7] <- lapply(summ[-7], function(x){round(x*1e+03,3)})
     } else if (unit == "minutes") {
-      summ[-7] <- lapply(summ[-7], function(x){x/60})
+      summ[-7] <- lapply(summ[-7], function(x){round(x/60,3)})
     }
     # Switch mean and median to get proper ordering
     tmp <- summ[3]
@@ -157,15 +157,15 @@ bm_cpu <- function(op, args, use_profiling, unit,
                                    times = times, unit = unit,
                                    control = list(order = "inorder",
                                                   warmup = warmup)))[-1]
-    # Perform necessary conversion of data to desired unit
+    # Perform necessary conversion of data from ns to desired unit
     if (unit == "seconds") {
-      summ[-7] <- lapply(summ[-7], function(x){x*1e-09})
+      summ[-7] <- lapply(summ[-7], function(x){round(x*1e-09,3)})
     } else if (unit == "milliseconds") {
-      summ[-7] <- lapply(summ[-7], function(x){x*1e-06})
+      summ[-7] <- lapply(summ[-7], function(x){round(x*1e-06,3)})
     } else if (unit == "microseconds") {
-      summ[-7] <- lapply(summ, function(x){x*1e-03})
+      summ[-7] <- lapply(summ, function(x){round(x*1e-03,3)})
     } else if (unit == "minutes") {
-      summ[-7] <- lapply(summ[-7], function(x){x*1e-09/60})
+      summ[-7] <- lapply(summ[-7], function(x){round(x*1e-09/60,3)})
     }
     res <- summ
   }
@@ -211,8 +211,8 @@ umap_fn_all <- function(draux, D, umap_n_neighbors,
 }
 
 # RUN BENCHMARK #############################################
-fasta_all <- ape::read.FASTA("benchmarks/ro3/interm/fasta_all.fasta")
-metadata_all <- readr::read_csv("benchmarks/ro3/interm/metadata_all.csv")
+fasta_all <- ape::read.FASTA(sprintf("benchmarks/ro3/interm/fasta_all_%s.fasta", strat_size))
+metadata_all <- readr::read_csv(sprintf("benchmarks/ro3/interm/metadata_all_%s.csv", strat_size))
 NROWS <- nrow(metadata_all)
 message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS, mitigations))
 message(sprintf("Number of selected samples are: %d", NROWS))
@@ -243,17 +243,17 @@ for (i in 1:length(kmer_list)) {
 # Format: {operation:function, args:list, use_profiling:bool}
 ops <- list(
             # preprocess.R
-            list(get_sample,
-                 list(gisaid_data_path, gisaid_extract_path,
-                      seed, strat_size, country_exposure)),
-            list(sanitize_sample,
-                 list(metadata_all)),
-            list(generate_interm,
-                 list(fasta_all, metadata_all, interm_write_path, stamp)),
-            list(compile_overview,
-                 list(metadata_all, compile_write_path, stamp)),
-            list(make_treemaps,
-                 list(metadata_all, treemaps_write_path, stamp)),
+            # list(get_sample,
+            #      list(gisaid_data_path, gisaid_extract_path,
+            #           seed, strat_size, country_exposure)),
+            # list(sanitize_sample,
+            #      list(metadata_all)),
+            # list(generate_interm,
+            #      list(fasta_all, metadata_all, interm_write_path, stamp)),
+            # list(compile_overview,
+            #      list(metadata_all, compile_write_path, stamp)),
+            # list(make_treemaps,
+            #      list(metadata_all, treemaps_write_path, stamp)),
             # kmer-analysis.R
             list(get_kmers,
                  list(fasta_all, metadata_all, 3, stamp)),
@@ -344,11 +344,12 @@ ops <- list(
             )
 
 # Also initialize names of the functions (can't get it programmatically)
-names <- list("get_sample",
-              "sanitize_sample",
-              "generate_interm",
-              "compile_overview",
-              "make_treemaps",
+names <- list(
+              # "get_sample",
+              # "sanitize_sample",
+              # "generate_interm",
+              # "compile_overview",
+              # "make_treemaps",
               "get_kmers_3",
               "get_kmers_5",
               "get_kmers_7",
@@ -373,48 +374,48 @@ names <- list("get_sample",
               "umap_3d_5",
               "umap_3d_7",
               "umap_3d_all",
-              "dim_reduce_all")
+              "dim_reduce_all"
+              )
 
 # Addon: profiling boolean list and units char list for finer control
 control <- list(
                 # preprocess.R
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
                 # kmer-analysis.R
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 # PCA
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
                 # TSNE 2D
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
                 # TSNE 3D
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
                 # UMAP 2D
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
                 # UMAP 3D
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds"),
-                list(FALSE, "nanoseconds")
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds")
                 )
 
 # Initialize results dataframe
@@ -459,6 +460,7 @@ for (i in 1:length(ops)) {
 param_string <- paste(c("---------PARAMETERS---------",
   paste0("MITIGATIONS STATUS:\t", mitigations),
   paste0("seed:\t\t\t", seed),
+  paste0("number_samples:\t\t", NROWS),
   paste0("kmer_list:\t\t", paste(kmer_list, collapse = ", ")),
   paste0("strat_size:\t\t", strat_size),
   paste0("country_exposure:\t", country_exposure),

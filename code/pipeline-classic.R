@@ -59,7 +59,7 @@ source("code/R/clustering-region.R")
 # stamp <- [get_time():str|NULL]
 # if stamp = "", then generated files won't be timestamped
 seed <- 1234
-stamp <- NULL
+stamp <- get_time()
 write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
 
@@ -68,7 +68,7 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 gisaid_data_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
-strat_size <- 100
+strat_size <- 500
 country_exposure <- "Philippines"
 
 # preprocess.R::auxiliary parameters
