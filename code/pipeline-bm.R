@@ -210,6 +210,9 @@ umap_fn_all <- function(draux, D, umap_n_neighbors,
   }
 }
 
+# Looper for clustering functions
+
+
 # RUN BENCHMARK #############################################
 fasta_all <- ape::read.FASTA(sprintf("benchmarks/ro3/interm/fasta_all_%s.fasta", strat_size))
 metadata_all <- readr::read_csv(sprintf("benchmarks/ro3/interm/metadata_all_%s.csv", strat_size))
@@ -340,8 +343,13 @@ ops <- list(
             list(umap_fn_all,
                  list(draux, 3, umap_n_neighbors,
                       umap_metric, umap_min_dist,
-                      umap_seed = seed))
+                      umap_seed = seed)),
+            list(dendogram_create_region,
+                 list(3, data_path_kmers, results_path_agnes)),
             )
+
+dendrogram_create_region(k, data_path_kmers, results_path_agnes)
+
 
 # Also initialize names of the functions (can't get it programmatically)
 names <- list(
