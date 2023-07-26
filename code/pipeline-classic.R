@@ -61,13 +61,15 @@ seed <- 1234
 stamp <- get_time()
 write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
-
-# preprocess.R::get_sample() parameters
 # strat_size: no. of samples per stratum. Current nrow(data) = 24671.
 # Also consider using sample_frac for proportionate allocation.
+# Note that valid strat_size will only be those with corresponding
+# files in `data/interm` and `data/kmers`
+strat_size <- 500
+
+# preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
-strat_size <- 100
 country_exposure <- "Philippines"
 
 # preprocess.R::auxiliary parameters
@@ -138,10 +140,10 @@ for (i in 1:length(kmer_list)) {
 }
 
 # Step 2.5: generate_heatmap()
-for (i in 1:length(kmer_list)) {
-  k <- kmer_list[i]
-  generate_heatmap(kmers[[i]], heatmaps_write_path, k)
-}
+# for (i in 1:length(kmer_list)) {
+#   k <- kmer_list[i]
+#   generate_heatmap(kmers[[i]], heatmaps_write_path, k)
+# }
 
 # Step 3: dim_reduce()
 for (i in 1:length(kmer_list)) {
@@ -167,7 +169,7 @@ for (i in 1:length(kmer_list)) {
   dendrogram_create_region(k, kmers[[i]], agnes_write_path)
 }
 
-print("All operations completed successfully!")
+message("All operations completed successfully!")
 
 # CLEAN UP #################################################
 

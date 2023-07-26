@@ -66,13 +66,15 @@ seed <- 1234
 stamp <- get_time()
 write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
-
-# preprocess.R::get_sample() parameters
 # strat_size: no. of samples per stratum. Current nrow(data) = 24671.
 # Also consider using sample_frac for proportionate allocation.
+# Note that valid strat_size will only be those with corresponding
+# files in `data/interm` and `data/kmers`
+strat_size <- 500
+
+# preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
-strat_size <- 500
 country_exposure <- "Philippines"
 
 # preprocess.R::auxiliary parameters
@@ -553,10 +555,10 @@ message("All operations completed successfully!")
 # rm(list = ls()) 
 
 # Clear packages (unloading them before another adds another compat check)
-# p_unload(all)  # Remove all add-ons
+p_unload(all)  # Remove all add-ons
 
 # Clear plots but only if there IS a plot
-# while (!is.null(dev.list())) dev.off()
+while (!is.null(dev.list())) dev.off()
 
 # Clear console
 # cat("\014")  # ctrl+L
