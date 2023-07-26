@@ -174,7 +174,7 @@ get_kmers_all <- function(kmer_list, fasta_all, metadata_all, stamp) {
 # Looper for pca_fun
 pca_fn_all <- function(draux) {
   for (i in 1:length(draux)) {
-    pca_fn_all(draux[[i]][2])
+    pca_fn(draux[[i]][[2]])
   }
 }
 
@@ -188,13 +188,13 @@ message(sprintf("Number of selected samples are: %d", NROWS))
 # dim-reduce-aux: Prepare for dim-reduce algorithms
 # List format: {(df_k, x_k), ...}
 draux <- list()
-for (k in kmer_list) {
+for (i in 1:length(kmer_list)) {
   pre_reduce_res <- pre_reduce(results_path_dimreduce,
-                               data_path_kmers, k, factor1, 
-                               values1, factor2, values2)
+                               data_path_kmers, kmer_list[i],
+                               factor1, values1, factor2, values2)
   df <- pre_reduce_res$df                # df is the original dataset
   x <- pre_reduce_res$x                  # x is the scaled data
-  draux <- append(draux, list(df, x))
+  draux[[i]] <- list(df, x)
 }
 
 # Benchmark Notes:
@@ -204,7 +204,8 @@ for (k in kmer_list) {
 
 # Initialize list of operations to benchmark and their arguments
 # Format: {operation:function, args:list, use_profiling:bool}
-ops <- list(list(get_sample,
+ops <- list(
+            list(get_sample,
                  list(gisaid_data_path, gisaid_extract_path,
                       seed, strat_size, country_exposure),
                  use_profiling = TRUE,
@@ -242,15 +243,15 @@ ops <- list(list(get_sample,
                  use_profiling = TRUE,
                  unit = "seconds"),
             list(pca_fn,
-                 list(draux[[1]][2]),  # k = 3
+                 list(draux[[1]][[2]]),  # k = 3
                  use_profiling = TRUE,
                  unit = "seconds"),
             list(pca_fn,
-                 list(draux[[2]][2]),  # k = 5
+                 list(draux[[2]][[2]]),  # k = 5
                  use_profiling = TRUE,
                  unit = "seconds"),
             list(pca_fn,
-                 list(draux[[3]][2]),
+                 list(draux[[3]][[2]]),  # k = 7
                  use_profiling = TRUE,
                  unit = "seconds"),
             list(pca_fn_all,
@@ -315,8 +316,6 @@ for (i in 1:length(ops)) {
   results[nrow(results), 10:11] <- c(mitigations, stamp)
 }
 
-print("All operations completed successfully!")
-
 # Write hardware specs and parameters used to log.txt
 
 param_string <- paste(c("---------PARAMETERS---------",
@@ -336,7 +335,9 @@ param_string <- paste(c("---------PARAMETERS---------",
 
 message("Writing logs... ", appendLF = FALSE)
 write_to_log(bm_log_path, "bm_log.txt", param_string, stamp)
-message("DONE.")
+message("Writing logs... DONE!")
+
+message("All operations completed successfully!")
 
 # CLEAN UP #################################################
 
