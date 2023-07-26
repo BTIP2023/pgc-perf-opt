@@ -245,160 +245,103 @@ ops <- list(
             # preprocess.R
             list(get_sample,
                  list(gisaid_data_path, gisaid_extract_path,
-                      seed, strat_size, country_exposure),
-                 use_profiling = TRUE,
-                 unit = "seconds"),
+                      seed, strat_size, country_exposure)),
             list(sanitize_sample,
-                 list(metadata_all),
-                 use_profiling = TRUE,
-                 unit = "seconds"),
+                 list(metadata_all)),
             list(generate_interm,
-                 list(fasta_all, metadata_all, interm_write_path, stamp),
-                 use_profiling = TRUE,
-                 unit = "seconds"),
+                 list(fasta_all, metadata_all, interm_write_path, stamp)),
             list(compile_overview,
-                 list(metadata_all, compile_write_path, stamp),
-                 use_profiling = TRUE,
-                 unit = "seconds"),
+                 list(metadata_all, compile_write_path, stamp)),
             list(make_treemaps,
-                 list(metadata_all, treemaps_write_path, stamp),
-                 use_profiling = TRUE,
-                 unit = "seconds"),
+                 list(metadata_all, treemaps_write_path, stamp)),
             # kmer-analysis.R
             list(get_kmers,
-                 list(fasta_all, metadata_all, 3, stamp),
-                 use_profiling = TRUE,
-                 unit = "seconds"),
+                 list(fasta_all, metadata_all, 3, stamp)),
             list(get_kmers,
-                 list(fasta_all, metadata_all, 5, stamp),
-                 use_profiling = TRUE,
-                 unit = "seconds"),
+                 list(fasta_all, metadata_all, 5, stamp)),
             list(get_kmers,
-                 list(fasta_all, metadata_all, 7, stamp),
-                 use_profiling = TRUE,
-                 unit = "seconds"),
+                 list(fasta_all, metadata_all, 7, stamp)),
             list(get_kmers_all,
-                 list(kmer_list, fasta_all, metadata_all, stamp),
-                 use_profiling = TRUE,
-                 unit = "seconds"),
+                 list(kmer_list, fasta_all, metadata_all, stamp)),
             # dim-reduce.R
             ## PCA
-            list(pca_fn,
-                 list(draux[[1]][[2]]),  # k = 3
-                 use_profiling = FALSE,
-                 unit = "milliseconds"),
-            list(pca_fn,
-                 list(draux[[2]][[2]]),  # k = 5
-                 use_profiling = FALSE,
-                 unit = "milliseconds"),
-            list(pca_fn,
-                 list(draux[[3]][[2]]),  # k = 7
-                 use_profiling = FALSE,
-                 unit = "milliseconds"),
+            list(pca_fn,   # k = 3
+                 list(draux[[1]][[2]])),
+            list(pca_fn,   # k = 5
+                 list(draux[[2]][[2]])),
+            list(pca_fn,   # k = 7
+                 list(draux[[3]][[2]])),
             list(pca_fn_all,
-                 list(draux),
-                 use_profiling = FALSE,
-                 unit = "milliseconds"),
+                 list(draux)),
             ## TSNE 2D
             list(tsne_fn,                 # k = 3
                  list(draux[[1]][[3]], 2, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      tsne_seed = seed)),
             list(tsne_fn,                  # k = 5
                  list(draux[[2]][[3]], 2, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      tsne_seed = seed)),
             list(tsne_fn,                   # k = 7
                  list(draux[[3]][[3]], 2, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      tsne_seed = seed)),
             list(tsne_fn_all,
                  list(draux, 2, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed),
-                 use_profiling = TRUE,
-                 unit = "seconds"),
+                      tsne_seed = seed)),
             ## TSNE 3D
             list(tsne_fn,                   # k = 3
                  list(draux[[1]][[3]], 3, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      tsne_seed = seed)),
             list(tsne_fn,                   # k = 5
                  list(draux[[2]][[3]], 3, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      tsne_seed = seed)),
             list(tsne_fn,                   # k = 7
                  list(draux[[3]][[3]], 3, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      tsne_seed = seed)),
             list(tsne_fn_all,
                  list(draux, 3, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed),
-                 use_profiling = TRUE,
-                 unit = "seconds"),
+                      tsne_seed = seed)),
             ## UMAP 2D
             list(umap_fn,                 # k = 3
                  list(draux[[1]][[3]], 2, umap_n_neighbors,
                       umap_metric, umap_min_dist,
-                      umap_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      umap_seed = seed)),
             list(umap_fn,                 # k = 5
                  list(draux[[2]][[3]], 2, umap_n_neighbors,
                       umap_metric, umap_min_dist,
-                      umap_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      umap_seed = seed)),
             list(umap_fn,                 # k = 7
                  list(draux[[3]][[3]], 2, umap_n_neighbors,
                       umap_metric, umap_min_dist,
-                      umap_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      umap_seed = seed)),
             list(umap_fn_all,
                  list(draux, 2, umap_n_neighbors,
                       umap_metric, umap_min_dist,
-                      umap_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      umap_seed = seed)),
             ## UMAP 3D
             list(umap_fn,                 # k = 3
                  list(draux[[1]][[3]], 3, umap_n_neighbors,
                       umap_metric, umap_min_dist,
-                      umap_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      umap_seed = seed)),
             list(umap_fn,                 # k = 5
                  list(draux[[2]][[3]], 3, umap_n_neighbors,
                       umap_metric, umap_min_dist,
-                      umap_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      umap_seed = seed)),
             list(umap_fn,                 # k = 7
                  list(draux[[3]][[3]], 3, umap_n_neighbors,
                       umap_metric, umap_min_dist,
-                      umap_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"),
+                      umap_seed = seed)),
             list(umap_fn_all,
                  list(draux, 3, umap_n_neighbors,
                       umap_metric, umap_min_dist,
-                      umap_seed = seed),
-                 use_profiling = FALSE,
-                 unit = "seconds"))
+                      umap_seed = seed))
+            )
 
 # Also initialize names of the functions (can't get it programmatically)
 names <- list("get_sample",
@@ -432,6 +375,48 @@ names <- list("get_sample",
               "umap_3d_all",
               "dim_reduce_all")
 
+# Addon: profiling boolean list and units char list for finer control
+control <- list(
+                # preprocess.R
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                # kmer-analysis.R
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                # PCA
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                # TSNE 2D
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                # TSNE 3D
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                # UMAP 2D
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                # UMAP 3D
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds"),
+                list(FALSE, "nanoseconds")
+                )
+
 # Initialize results dataframe
 cols <-  c("op", "unit",
            "min", "lq", "mean", "median", "uq", "max", "neval",
@@ -450,8 +435,8 @@ for (i in 1:length(ops)) {
   op <- ops[[i]][[1]]
   opname <- names[[i]]
   args <- ops[[i]][[2]]
-  use_profiling <- ops[[i]][[3]]
-  unit <- ops[[i]][[4]]
+  use_profiling <- control[[i]][[1]]
+  unit <- control[[i]][[2]]
   
   profiler <- character(0)
   if (use_profiling)
