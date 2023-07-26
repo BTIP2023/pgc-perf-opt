@@ -65,7 +65,7 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 # Note that valid strat_size will only be those with corresponding
 # files in `data/interm` and `data/kmers`
-strat_size <- 500
+strat_size <- 100
 
 # preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
@@ -137,7 +137,10 @@ for (k in kmer_list) {
 kmers <- list()
 for (i in 1:length(kmer_list)) {
   k <- kmer_list[i]
-  kmers[[i]] <- readr::read_csv(sprintf("data/kmers/kmer_%d_%d.csv", k, strat_size))
+  k_path <- sprintf("%s/kmer_%d_%d.csv", kmers_data_path, k, strat_size)
+  message(sprintf("Reading %s for later... ", k_path), appendLF = FALSE)
+  kmers[[i]] <- utils::read.csv(k_path)
+  message("DONE!")
 }
 
 # Step 2.5: generate_heatmap()

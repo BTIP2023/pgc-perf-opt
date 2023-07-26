@@ -105,7 +105,7 @@ values2 <- c("2023")
 agnes_write_path <- "results/dendrogram"
 
 # Benchmark parameters
-bm_times <- 3L   # how many times should routine be evaluated
+bm_times <- 1L   # how many times should routine be evaluated
 bm_write_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 # valid values: ["ALL"|"SOME" (Linux only)|"NONE"]
@@ -214,14 +214,14 @@ umap_fn_all <- function(draux, D, umap_n_neighbors,
 }
 
 # Loopers for clustering functions
-dendo_var_all <- function(kmer_list, kmers, agnes_write_path) {
+dendro_var_all <- function(kmer_list, kmers, agnes_write_path) {
   for (i in 1:length(kmer_list)) {
     k <- kmer_list[i]
     dendrogram_create_variant(k, kmers[[i]], agnes_write_path)
   }
 }
 
-dendo_reg_all <- function(kmer_list, kmers, agnes_write_path) {
+dendro_reg_all <- function(kmer_list, kmers, agnes_write_path) {
   for (i in 1:length(kmer_list)) {
     k <- kmer_list[i]
     dendrogram_create_region(k, kmers[[i]], agnes_write_path)
@@ -229,15 +229,22 @@ dendo_reg_all <- function(kmer_list, kmers, agnes_write_path) {
 }
 
 # PARSE DATA FILES ##########################################
-fasta_all <- 
-  ape::read.FASTA(sprintf("data/interm/fasta_all_%s.fasta", strat_size))
-metadata_all <- 
-  readr::read_csv(sprintf("data/interm/metadata_all_%s.csv", strat_size))
+f_path <- sprintf("%s/fasta_all_%s.fasta", interm_write_path, strat_size)
+m_path <- sprintf("%s/metadata_all_%s.csv", interm_write_path, strat_size)
+message(sprintf("Reading %s... ", f_path), appendLF = FALSE)
+fasta_all <- ape::read.FASTA(f_path)
+message("DONE!")
+message(sprintf("Reading %s... ", m_path), appendLF = FALSE)
+metadata_all  <- readr::read_csv(m_path, show_col_types = FALSE)
+message("DONE!")
 # kmers is list of kmer dataframes
 kmers <- list()
 for (i in 1:length(kmer_list)) {
   k <- kmer_list[i]
-  kmers[[i]] <- readr::read_csv(sprintf("data/kmers/kmer_%d_%d.csv", k, strat_size))
+  k_path <- sprintf("%s/kmer_%d_%d.csv", kmers_data_path, k, strat_size)
+  message(sprintf("Reading %s for later... ", k_path), appendLF = FALSE)
+  kmers[[i]] <- utils::read.csv(k_path)
+  message("DONE!")
 }
 
 # RUN BENCHMARK #############################################
@@ -370,22 +377,22 @@ ops <- list(
                       umap_metric, umap_min_dist,
                       umap_seed = seed)),
             # Clustering AGNES
-            list(dendogram_create_variant,
+            list(dendrogram_create_variant,
                  list(3, kmers[[1]], agnes_write_path)),
-            list(dendogram_create_variant,
+            list(dendrogram_create_variant,
                  list(5, kmers[[2]], agnes_write_path)),
-            list(dendogram_create_variant,
+            list(dendrogram_create_variant,
                  list(7, kmers[[3]], agnes_write_path)),
-            list(dendo_var_all,
+            list(dendro_var_all,
                  list(kmer_list, kmers_data_path, agnes_write_path)),
-            list(dendogram_create_region,
+            list(dendrogram_create_region,
                  list(3, kmers[[1]], agnes_write_path)),
-            list(dendogram_create_region,
+            list(dendrogram_create_region,
                  list(5, kmers[[2]], agnes_write_path)),
-            list(dendogram_create_region,
+            list(dendrogram_create_region,
                  list(7, kmers[[3]], agnes_write_path)),
-            list(dendo_reg_all,
-                 list(kmer_list, kmers_data_path, agnes_write_path)),
+            list(dendro_reg_all,
+                 list(kmer_list, kmers_data_path, agnes_write_path))
             )
 
 # Also initialize names of the functions (can't get it programmatically)
@@ -422,9 +429,11 @@ names <- list(
               "agnes_var_3",
               "agnes_var_5",
               "agnes_var_7",
+              "agnes_var_all",
               "agnes_reg_3",
               "agnes_reg_5",
-              "agnes_reg_7"
+              "agnes_reg_7",
+              "agnes_reg_all"
               )
 
 # Addon: profiling boolean list and units char list for finer control
@@ -441,7 +450,6 @@ control <- list(
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 # PCA
-                list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
@@ -475,7 +483,7 @@ control <- list(
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                list(TRUE, "seconds")
                 )
 
 # Initialize results dataframe
