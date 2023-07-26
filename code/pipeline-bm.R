@@ -133,18 +133,18 @@ bm_cpu <- function(op, args, use_profiling, unit,
       profile <- system.time(do.call(op, args))
       all_times <- c(all_times, profile["elapsed"])
     }
-    # Perform necessary conversion of data to desired unit
-    if (unit == "nanoseconds") {
-      all_times <- lapply(all_times, function(x){x*1e+09})
-    } else if (unit == "microseconds") {
-      all_times <- lapply(all_times, function(x){x*1e+06})
-    } else if (unit == "milliseconds") {
-      all_times <- lapply(all_times, function(x){x*1e+03})
-    } else if (unit == "minutes") {
-      all_times <- lapply(all_times, function(x){x/60})
-    }
     # Compute min, lq, mean, median, uq, and max
     summ <- validate::summary(all_times)
+    # Perform necessary conversion of data to desired unit
+    if (unit == "nanoseconds") {
+      summ[-7] <- lapply(summ[-7], function(x){x*1e+09})
+    } else if (unit == "microseconds") {
+      summ[-7] <- lapply(summ[-7], function(x){x*1e+06})
+    } else if (unit == "milliseconds") {
+      summ[-7] <- lapply(summ[-7], function(x){x*1e+03})
+    } else if (unit == "minutes") {
+      summ[-7] <- lapply(summ[-7], function(x){x/60})
+    }
     # Switch mean and median to get proper ordering
     tmp <- summ[3]
     summ[3] <- summ[4]
@@ -159,13 +159,13 @@ bm_cpu <- function(op, args, use_profiling, unit,
                                                   warmup = warmup)))[-1]
     # Perform necessary conversion of data to desired unit
     if (unit == "seconds") {
-      summ <- lapply(summ, function(x){x*1e-09})
+      summ[-7] <- lapply(summ[-7], function(x){x*1e-09})
     } else if (unit == "milliseconds") {
-      summ <- lapply(summ, function(x){x*1e-06})
+      summ[-7] <- lapply(summ[-7], function(x){x*1e-06})
     } else if (unit == "microseconds") {
-      summ <- lapply(summ, function(x){x*1e-03})
+      summ[-7] <- lapply(summ, function(x){x*1e-03})
     } else if (unit == "minutes") {
-      summ <- lapply(summ, function(x){x*1e-09/60})
+      summ[-7] <- lapply(summ[-7], function(x){x*1e-09/60})
     }
     res <- summ
   }
@@ -399,14 +399,6 @@ ops <- list(
                       umap_seed = seed),
                  use_profiling = FALSE,
                  unit = "seconds"))
-
-# umap_bm <- benchmark_backends(umap_fn,
-#                               list(x, 2, umap_n_neighbors,
-#                                    umap_metric, umap_min_dist,
-#                                    umap_seed = seed),
-#                               selected_backends,
-#                               bm_times,
-#                               bm_unit)
 
 # Also initialize names of the functions (can't get it programmatically)
 names <- list("get_sample",
