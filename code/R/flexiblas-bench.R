@@ -124,19 +124,25 @@ plot_results <- function(method_benchmark, method) {
 # Functions for Statistical Tests
 should_anova <- function(data, alpha_value) {
   # Check Assumption #1: Normality using Shapiro-Wilk Test
+  print("Performing Shapiro-Wilk Test...")
   shapiro_res <- shapiro.test(data$time)
-  if(shapiro_res$p.value > alpha_value) {
+  p_val <- shapiro_res$p.value
+  if(p_val > alpha_value) {
     is_normal <- TRUE
   }
   else {
     is_normal <- FALSE
   }
+  print(paste0("Shapiro-Wilk Test DONE w/ p-value", p_val))
   
   # Check Assumption #2: Equal Variance 
   # If normal, use Bartlett's Test. Otherwise, use Levene's Test
   if(is_normal) {
+    print("Performing Bartlett's Test...")
     bartlett_res <- bartlett.test(time ~ backend, data=data)
-    if(bartlett_res$p.value > alpha_value) {
+    p_val <- bartlett_res$p.value 
+    print(paste0("Bartlett's Test DONE w/ p-value", p_val))
+    if(p_val > alpha_value) {
       return(TRUE)
     }
     else {
@@ -144,16 +150,10 @@ should_anova <- function(data, alpha_value) {
     }
   }
   else {
-    # Compare: [answer: levene.test is defunct]
-    # wrong args!!
-    # levene_res <- levene.test(time ~ backend, data = data,
-    #                           method = "correction.factor")
-    
-    # library(car)
+    print("Performing Levene's Test...")
     levene_res <- leveneTest(time ~ backend, data = data)
     p_val <- levene_res[[as.name("Pr(>F)")]][1]
-    # print(levene_res)
-    # print(p_val)
+    print(paste0("Levene's Test DONE w/ p-value", p_val))
     if(p_val > alpha_value) {
       return(TRUE)
     }
@@ -169,31 +169,6 @@ check_stat_diff <- function(){
   # write this tomorrow
   warning("You ran check_stat_diff but haven't written it yet.")
 }
-
-# shapiro_test <- function(method_bm, selected_backends) {
-#   shapiro_test_results <- list()
-#   for (backend in selected_backends) {
-#     shapiro_test_results[[backend]] <- shapiro.test(method_bm[[backend]])
-#   }
-#   
-#   # Check if each backend's data is normally distributed
-#   for (backend in backends) {
-#     p_value <- shapiro_test_results[[backend]]$p.value
-#     if (p_value <= 0.05) {
-#       return(FALSE)
-#     }
-#   }
-#   return(TRUE)
-# }
-
-# levene_test <- function(method_bm, selected_backends, bm_times) {
-#   data <- data.frame(backend = rep(selected_backends, times = bm_times), 
-#                      time = unlist(method_bm))
-#   leveneTest(time ~ backend, data = data)
-#   
-# }
-
-
 
 # SET PARAMETERS ###########################################
 # dim-reduce.R::dim_reduce() parameters
@@ -252,40 +227,44 @@ for (k in k_vals) {
   # is_diff <- check_stat_diff(use_anova)
   
   # Decide if succeeding lines should be in a function 
-  if(!use_anova) {
+  if(use_anova) {
     # [DONE, not yet checked]
     # TO DO: Perform ANOVA -> Perform Tukey's Test (TukeyHSD)
     # Compute the analysis of variance
+    print("Performing ANOVA...")
     aov_res <- aov(time ~ backend, data = data)
-    print("Done ANOVA")
-    # print(summary(aov_res))
-    # p_val <- try[[as.name("Pr(>F)")]] # TO FIX: bug here in extraction of p.value
     p_val <- summary(aov_res)[[1]]$Pr[1]
+    print(paste0("ANOVA DONE w/ p-value", p_val))
     
-    # print(p_val)
     if(p_val <= alpha_value) {
       # Perform TukeyHSD
+      print("Perform Tukey's Test...")
       tukey_res <- TukeyHSD(aov_res, conf.level=1-alpha_value)
-      print("Done Tukey")
+      print(tukey_res)
+      print("Tukey's Test DONE")
+    }
+    else {
+      print("The values are not statistically different.")
     }
   }
   else {
     # [DONE, not yet checked]
     # TO DO: Perform Kruskal-Wallis Test -> Perform Dunn's Test
+    print("Performing Kruskal-Wallis Test...")
     kruskal_res <- kruskal.test(time ~ backend, data = data)
-    # Summary of the analysis
-    print(summary(kruskal_res)) # remove in final (?)
-    if(kruskal_res$p.value <= alpha_value) {
+    p_val <- kruskal_res$p.value 
+    print(paste0("Kruskal-Wallis Test DONE w/ p-value", p_val))
+    
+    if(p_val <= alpha_value) {
       # Perform Dunn's Test
-      # x.x NOT FOUND x.x
-      # dunn_res <- dunn.test(time ~ backend, data = data, method="bonferroni")
-      # print(dunn_res$p.value)
       # Compare: (print the two dunn's test results)
       dunn_res <- dunnTest(time ~ backend, data = data, method="bonferroni")
       print(dunn_res)
-      print(dunn_res$p.value)
+      print("Dunn's Test DONE")
     }
-    print("Done Kruskal")
+    else {
+      print("The values are not statistically different.")
+    }
   }
   
   # # Plot PCA benchmark results
