@@ -1,7 +1,12 @@
-# File: pipeline.R
-# Contains the complete bioinformatics pipeline
-# for convenient runs and benchmarks.
-# This will source functions from code/R/
+# File: pipeline-bm.R
+# Benchmark for Research Objective 3 (ro3) vulnerability mitigations.
+# Results are stored in benchmarks/ro3.
+
+# IDEA: Run pipeline to see which needs to be profiled and which
+# needs to be microbenchmarked, then set those in a list and make a tuple
+# that indicates whether the result has been profiled or microbenchmarked.
+# Combine results with the same benchmark approach in the same chart.
+# Will still make individual charts.
 
 # INSTALL AND LOAD PACKAGES ################################
 options(repos = "https://cloud.r-project.org/")
@@ -97,48 +102,6 @@ values2 <- c("2023")
 # clustering-x.R::dendogram_create_x() parameters
 results_path_agnes <- "results/dendrogram"
 
-# HELPER FUNCTIONS ##########################################
-# Benchmark passed operation.
-# Returns dataframe of benchmark results with the ff format:
-# [ expr units min lq mean median uq max neval ]
-bm_cpu <- function(operation, args_list,
-                   times = 3L, warmup = 100000L,
-                   unit = "seconds", use_profiling = FALSE) {
-  # system.time: better for longer running code chunks
-  # microbenchmark: better for fast-running code chunks
-  columns <-  c("op", "units", "min", "lq", "median", "mean", "uq", "max", "neval")
-  result <- data.frame(matrix(nrow = 0, ncol = length(columns)))
-  colnames(result) <- columns
-  op <- as.character(substitute(operation))
-  if (use_profiling) {
-    # Warmup before actual benchmarking operation
-    for (i in 1:warmup) {
-      A <- matrix(c(15,20,25,15,20,25,15,20,25), ncol=3, nrow=3)
-      B <- matrix(c(35,26,18,30,25,17,37,28,20), ncol=3, nrow=3)
-      warmer <- A %*% B
-    }
-    all_times <- c()
-    for (i in 1:times) {
-      profile <- system.time(do.call(operation, args_list))
-      all_times <- c(all_times, profile["elapsed"])
-    }
-    # Compute min, lq, mean, median, uq, and max
-    summ <- validate::summary(all_times)
-    row <- c(op, unit, as.vector(summ), times)
-    result[1, ] <- row 
-    result[, 3:9] <- sapply(result[, 3:9], as.numeric)
-  } else {
-    # Start benchmark
-    summ <- summary(microbenchmark(do.call(operation, args_list),
-                                   times = times, unit = unit))
-    row <- c(op, unit, as.vector(summ)[-1])
-    result[1, ] <- row
-    result[, 3:9] <- sapply(result[, 3:9], as.numeric)
-  }
-  return(result)  
-}
-
-# RUN BENCHMARK #############################################
 # Benchmark parameters
 bm_times <- 3L   # how many times should routine be evaluated
 bm_units <- "seconds"
@@ -149,77 +112,63 @@ OS <- pacman::p_detectOS()
 # Don't forget to set this to current runtime configuration of the benchmark.
 mitigations <- "ALL"
 
+# HELPER FUNCTIONS ##########################################
+# Benchmark passed operations.
+# Returns dataframe of benchmark results with the ff format:
+# [ expr units min lq mean median uq max neval ]
+# jobs have format: list(list(op = foo,use_profiling = TRUE, args_list = list()))
+bm_cpu <- function(jobs, times = 3L,
+                   warmup = 100000L, unit = "seconds") {
+  # system.time: better for longer running code chunks
+  # microbenchmark: better for fast-running code chunks
+  columns <-  c("routine", "units", "min", "lq", "median", "mean", "uq", "max", "neval")
+  result <- data.frame(matrix(nrow = 0, ncol = length(columns)))
+  colnames(result) <- columns
+  for (i in 1:length(jobs)) {
+    routine <- jobs[[i]][1]
+    args <- jobs[[i]][2]
+    use_profiling <- jobs[[i]][2]
+    opname <- as.character(substitute(routine))
+    if (use_profiling) {
+      # Warmup before actual benchmarking operation
+      for (j in 1:warmup) {
+        A <- matrix(c(15,20,25,15,20,25,15,20,25), ncol=3, nrow=3)
+        B <- matrix(c(35,26,18,30,25,17,37,28,20), ncol=3, nrow=3)
+        warmer <- A %*% B
+      }
+      all_times <- c()
+      for (j in 1:times) {
+        profile <- system.time(do.call(routine, args_list))
+        all_times <- c(all_times, profile["elapsed"])
+      }
+      # Compute min, lq, mean, median, uq, and max
+      summ <- validate::summary(all_times)
+      row <- c(opname, unit, as.vector(summ), times)
+      result[nrow(result)+1, ] <- row 
+      result[, 3:9] <- sapply(result[, 3:9], as.numeric)
+    } else {
+      # Start benchmark
+      summ <- summary(microbenchmark(do.call(routine, args_list),
+                                     times = times, unit = unit,
+                                     control = list(order = "inorder",
+                                                    warmup = warmup)))
+      row <- c(opname, unit, as.vector(summ)[-1])
+      result[nrow(result+1), ] <- row
+      result[, 3:9] <- sapply(result[, 3:9], as.numeric)
+    }
+  }
+  return(result)
+}
+
+
+
+# RUN BENCHMARK #############################################
 message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS, mitigations))
 
 # Benchmark Notes:
 # get_sample: to start from extraction, delete data/GISAID/datasets/
 # generate_interm always happens for this benchmark
 # TODO: Add descriptions for my functions to the plot results
-results <- microbenchmark(
-  get_sample = list[fasta_all, metadata_all] <-
-    get_sample(gisaid_data_path,
-               gisaid_extract_path,
-               seed, strat_size,
-               country_exposure),
-  sanitize_sample = metadata_all <- sanitize_sample(metadata_all),
-  generate_interm = generate_interm(fasta_all, metadata_all,
-                                    interm_write_path, stamp),
-  compile_overview = metadata_all <- compile_overview(metadata_all,
-                                                      compile_write_path,
-                                                      stamp),
-  make_treemaps = make_treemaps(metadata_all, treemaps_write_path, stamp),
-  get_kmers_all = for (k in kmer_list) {
-    get_kmers(fasta_all, metadata_all, k, stamp)
-  },
-  get_kmers_3 = get_kmers(fasta_all, metadata_all, 3, stamp),
-  get_kmers_5 = get_kmers(fasta_all, metadata_all, 5, stamp),
-  get_kmers_7 = get_kmers(fasta_all, metadata_all, 7, stamp),
-  dim_reduce_all = for (k in kmer_list) {
-    dim_reduce(k, data_path_kmers, results_path_dimreduce,
-               tsne_seed = seed, tsne_perplexity,
-               tsne_max_iter, tsne_initial_dims,
-               umap_seed = seed, umap_n_neighbors,
-               umap_metric, umap_min_dist, color = color, shape = shape,
-               filter1_factor = factor1, filter1_values = values1, # OPTIONAL
-               filter2_factor = factor2, filter2_values = values2) # OPTIONAL
-  },
-  dim_reduce_3 = dim_reduce(3, data_path_kmers, results_path_dimreduce,
-                            tsne_seed = seed, tsne_perplexity,
-                            tsne_max_iter, tsne_initial_dims,
-                            umap_seed = seed, umap_n_neighbors,
-                            umap_metric, umap_min_dist, color = color, shape = shape,
-                            filter1_factor = factor1, filter1_values = values1,
-                            filter2_factor = factor2, filter2_values = values2),
-  dim_reduce_5 = dim_reduce(5, data_path_kmers, results_path_dimreduce,
-                            tsne_seed = seed, tsne_perplexity,
-                            tsne_max_iter, tsne_initial_dims,
-                            umap_seed = seed, umap_n_neighbors,
-                            umap_metric, umap_min_dist, color = color, shape = shape,
-                            filter1_factor = factor1, filter1_values = values1,
-                            filter2_factor = factor2, filter2_values = values2),
-  dim_reduce_7 = dim_reduce(7, data_path_kmers, results_path_dimreduce,
-                            tsne_seed = seed, tsne_perplexity,
-                            tsne_max_iter, tsne_initial_dims,
-                            umap_seed = seed, umap_n_neighbors,
-                            umap_metric, umap_min_dist, color = color, shape = shape,
-                            filter1_factor = factor1, filter1_values = values1,
-                            filter2_factor = factor2, filter2_values = values2),
-  # dendo_create_variant_all = for (k in kmer_list) {
-  #   dendogram_create_variant(k, data_path_kmers, results_path_agnes)
-  # },
-  # dendo_create_variant_3 = dendogram_create_variant(3, data_path_kmers, results_path_agnes),
-  # dendo_create_variant_5 = dendogram_create_variant(5, data_path_kmers, results_path_agnes),
-  # dendo_create_variant_7 = dendogram_create_variant(7, data_path_kmers, results_path_agnes),
-  # dendo_create_region_all = for (k in kmer_list) {
-  #   dendogram_create_region(k, data_path_kmers, results_path_agnes)
-  # },
-  # dendo_create_region_3 = dendogram_create_region(3, data_path_kmers, results_path_agnes),
-  # dendo_create_region_5 = dendogram_create_region(5, data_path_kmers, results_path_agnes),
-  # dendo_create_region_7 = dendogram_create_region(7, data_path_kmers, results_path_agnes),
-  times = bm_times,
-  unit = bm_units,
-  control = list(order = "inorder", warmup = 2L)
-)
 
 print("All operations completed successfully!")
 
