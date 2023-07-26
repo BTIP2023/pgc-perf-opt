@@ -104,7 +104,6 @@ results_path_agnes <- "results/dendrogram"
 
 # Benchmark parameters
 bm_times <- 3L   # how many times should routine be evaluated
-bm_units <- "seconds"
 bm_log_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 # valid values: ["ALL"|"SOME" (Linux only)|"NONE"]
@@ -184,32 +183,63 @@ ops <- list(list(get_sample,
                       seed, strat_size,
                       country_exposure),
                  use_profiling = TRUE,
+                 unit = "seconds"),
+            list(sanitize_sample,
+                 list(metadata_all),
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            list(generate_interm,
+                 list(fasta_all,
+                      metadata_all,
+                      interm_write_path,
+                      stamp),
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            list(make_treemaps,
+                 list(metadata_all,
+                      treemaps_write_path,
+                      stamp),
+                 use_profiling = TRUE,
                  unit = "seconds"))
+
 # Also initialize names of the functions (can't get it programmatically)
-names <- list("get_sample")
+names <- list("get_sample",
+              "sanitize_sample",
+              "generate_interm",
+              "compile_overview",
+              "make_treemaps")
 
 # Initialize results dataframe
-cols <-  c("op", "unit", "min", "lq", "mean", "median", "uq", "max", "neval")
+cols <-  c("op", "unit",
+           "min", "lq", "mean", "median", "uq", "max", "neval",
+           "mitigations", "timestamp")
 results <- data.frame(matrix(nrow = 0, ncol = length(cols)))
 colnames(results) <- cols
 results[, 1:2] <- sapply(results[, 1:2], as.character)
 results[, 3:9] <- sapply(results[, 3:9], as.numeric)
+results[, 3:10] <- sapply(results[, 3:9], as.character)
 
 # Get results and append to dataframe (actual benchmarking part)
 res <- list()
-for (i in length(ops)) {
+for (i in 1:length(ops)) {
+  # Get arguments
   op <- ops[[i]][[1]]
   opname <- names[[i]]
   args <- ops[[i]][[2]]
   use_profiling <- ops[[i]][[3]]
-  unit <- ops[[i]][[4]]
+  if (use_profiling)
+    unit <- ops[[i]][[4]]
+  else
+    unit <- "nanoseconds"
   
   # Benchmark
   res <- bm_cpu(op, args, use_profiling, unit, times = 3L)
   
+  # Append results to results
   results[nrow(results)+1, 1:2] <- c(opname, unit)
   results[nrow(results), 3:8] <- res[1:6]
   results[nrow(results), 9] <- res[[7]]
+  results[nrow(results), 10:11] <- c(mitigations, stamp)
 }
 
 print("All operations completed successfully!")
