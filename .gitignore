@@ -93,6 +93,7 @@ data/kmers/log.txt
 # Local Files YH
 backup/
 **/test*
+**/tmp*
 
 # VSCode files
 tempCodeRunnerFile.R

@@ -106,7 +106,7 @@ save_plot <- function(method, results_path, k, p, is_3d = FALSE) {
   
   # Save as HTML
   html_file <- paste0(results_path, "/", method, "-", k, ".html")
-  saveWidget2(p, file = html_file, selfcontained = TRUE)
+  saveWidget2(widget = p, file = html_file)
 }
 
 # Function for pre-processing and scaling of data
