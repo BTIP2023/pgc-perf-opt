@@ -131,7 +131,7 @@ bm_cpu <- function(operation, args, use_profiling = FALSE,
     # all_times stores all the elapsed times in each system.time
     all_times <- c()
     for (j in 1:times) {
-      profile <- system.time(do.call(operation, args_list))
+      profile <- system.time(do.call(operation, args))
       all_times <- c(all_times, profile["elapsed"])
     }
     # Perform necessary conversion of data to desired unit
@@ -146,7 +146,7 @@ bm_cpu <- function(operation, args, use_profiling = FALSE,
     summ <- validate::summary(all_times)
   } else {
     # Start benchmark
-    summ <- summary(microbenchmark(do.call(operation, args_list),
+    summ <- summary(microbenchmark(do.call(operation, args),
                                    times = times, unit = unit,
                                    control = list(order = "inorder",
                                                   warmup = warmup)))
@@ -189,11 +189,13 @@ results[, 3:9] <- sapply(results[, 3:9], as.numeric)
 
 # Get results and append to dataframe (actual benchmarking part)
 for (i in length(operations)) {
-  results <- bm_cpu(operations[i][1], operations[i][2],
-                    operations[i][3], times = 3L, unit = "")
-  
-  results[nrow(results+1), ] <- row
+  row <- bm_cpu(operations[[i]][[1]], operations[[i]][[2]],
+                operations[[i]][[3]], times = 3L)
+  View(row)
 }
+
+results[nrow(results+1), ] <- row[i]
+
 
 print("All operations completed successfully!")
 
