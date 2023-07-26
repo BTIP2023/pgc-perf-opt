@@ -232,6 +232,7 @@ for (i in 1:length(kmer_list)) {
 # Initialize list of operations to benchmark and their arguments
 # Format: {operation:function, args:list, use_profiling:bool}
 ops <- list(
+            # preprocess.R
             list(get_sample,
                  list(gisaid_data_path, gisaid_extract_path,
                       seed, strat_size, country_exposure),
@@ -253,6 +254,7 @@ ops <- list(
                  list(metadata_all, treemaps_write_path, stamp),
                  use_profiling = TRUE,
                  unit = "seconds"),
+            # kmer-analysis.R
             list(get_kmers,
                  list(fasta_all, metadata_all, 3, stamp),
                  use_profiling = TRUE,
@@ -269,6 +271,8 @@ ops <- list(
                  list(kmer_list, fasta_all, metadata_all, stamp),
                  use_profiling = TRUE,
                  unit = "seconds"),
+            # dim-reduce.R
+            ## pca analysis
             list(pca_fn,
                  list(draux[[1]][[2]]),  # k = 3
                  use_profiling = FALSE,
@@ -285,7 +289,7 @@ ops <- list(
                  list(draux),
                  use_profiling = FALSE,
                  unit = "milliseconds"),
-            # 2D tsne
+            ## tsne 2D
             list(tsne_fn,                 # k = 3
                  list(draux[[1]][[3]], 2, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
@@ -299,7 +303,7 @@ ops <- list(
                  use_profiling = FALSE,
                  unit = "seconds"),
             list(tsne_fn,                   # k = 7
-                 list(draux[[2]][[3]], 2, tsne_initial_dims,
+                 list(draux[[3]][[3]], 2, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
                       tsne_seed = seed),
                  use_profiling = FALSE,
@@ -309,7 +313,47 @@ ops <- list(
                       tsne_perplexity, tsne_max_iter,
                       tsne_seed = seed),
                  use_profiling = TRUE,
+                 unit = "seconds"),
+            ## tsne 3D
+            list(tsne_fn,                   # k = 3
+                 list(draux[[1]][[3]], 3, tsne_initial_dims,
+                      tsne_perplexity, tsne_max_iter,
+                      tsne_seed = seed),
+                 use_profiling = FALSE,
+                 unit = "seconds"),
+            list(tsne_fn,                   # k = 5
+                 list(draux[[2]][[3]], 3, tsne_initial_dims,
+                      tsne_perplexity, tsne_max_iter,
+                      tsne_seed = seed),
+                 use_profiling = FALSE,
+                 unit = "seconds"),
+            list(tsne_fn,                   # k = 7
+                 list(draux[[3]][[3]], 3, tsne_initial_dims,
+                      tsne_perplexity, tsne_max_iter,
+                      tsne_seed = seed),
+                 use_profiling = FALSE,
+                 unit = "seconds"),
+            list(tsne_fn_all,
+                 list(draux, 3, tsne_initial_dims,
+                      tsne_perplexity, tsne_max_iter,
+                      tsne_seed = seed),
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            ## umap 2D
+            list(umap_fn,
+                 list(draux[[1]][[3]], 2, umap_n_neighbors,
+                      umap_metric, umap_min_dist,
+                      umap_seed = seed),
+                 use_profiling = FALSE,
                  unit = "seconds"))
+
+# umap_bm <- benchmark_backends(umap_fn,
+#                               list(x, 2, umap_n_neighbors,
+#                                    umap_metric, umap_min_dist,
+#                                    umap_seed = seed),
+#                               selected_backends,
+#                               bm_times,
+#                               bm_unit)
 
 # Also initialize names of the functions (can't get it programmatically)
 names <- list("get_sample",
@@ -333,21 +377,25 @@ names <- list("get_sample",
               "tsne_3d_5",
               "tsne_3d_7",
               "tsne_3d_all",
-              "umap_3",
-              "umap_5",
-              "umap_7",
-              "umap_all",
+              "umap_2d_3",
+              "umap_2d_5",
+              "umap_2d_7",
+              "umap_2d_all",
+              "umap_3d_3",
+              "umap_3d_5",
+              "umap_3d_7",
+              "umap_3d_all",
               "dim_reduce_all")
 
 # Initialize results dataframe
 cols <-  c("op", "unit",
            "min", "lq", "mean", "median", "uq", "max", "neval",
-           "mitigations", "timestamp")
+           "profiler", "mitigations", "timestamp")
 results <- data.frame(matrix(nrow = 0, ncol = length(cols)))
 colnames(results) <- cols
 results[, 1:2] <- sapply(results[, 1:2], as.character)
 results[, 3:9] <- sapply(results[, 3:9], as.numeric)
-results[, 10:11] <- sapply(results[, 10:11], as.character)
+results[, 10:12] <- sapply(results[, 10:12], as.character)
 
 # BENCHMARKER
 # Get results and append to dataframe (actual benchmarking part)
@@ -360,6 +408,12 @@ for (i in 1:length(ops)) {
   use_profiling <- ops[[i]][[3]]
   unit <- ops[[i]][[4]]
   
+  profiler <- character(0)
+  if (use_profiling)
+    profiler <- "system.time"
+  else
+    profiler <- "microbenchmark"
+  
   # BENCHMARKER
   res <- bm_cpu(op, args, use_profiling, unit, times = bm_times)
   
@@ -367,7 +421,7 @@ for (i in 1:length(ops)) {
   results[nrow(results)+1, 1:2] <- c(opname, unit)
   results[nrow(results), 3:8] <- res[1:6]
   results[nrow(results), 9] <- res[[7]]
-  results[nrow(results), 10:11] <- c(mitigations, stamp)
+  results[nrow(results), 10:12] <- c(profiler, mitigations, stamp)
 }
 
 # Write hardware specs and parameters used to log.txt
