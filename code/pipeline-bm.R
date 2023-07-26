@@ -235,7 +235,7 @@ metadata_all <-
 kmers <- list()
 for (i in 1:length(kmer_list)) {
   k <- kmer_list[i]
-  kmers[[i]] <- readr::read_csv(sprintf("data/kmers/kmer_%d_%d", k, strat_size))
+  kmers[[i]] <- readr::read_csv(sprintf("data/kmers/kmer_%d_%d.csv", k, strat_size))
 }
 
 # RUN BENCHMARK #############################################
