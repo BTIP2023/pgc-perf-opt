@@ -1,3 +1,5 @@
+# TO DO: Add loggers, fix bugs, remove unecessary comments
+
 # File: flexiblas-bench.R
 # Contains the code for benchmarking BLAS/LAPACK endpoints against the pipeline
 # and some of its components.
@@ -22,9 +24,10 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                umap, htmlwidgets, factoextra, scales,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
-               microbenchmark, flexiblas)
-install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
-pacman::p_load(ggbiplot)
+               microbenchmark, flexiblas, car, FSA)
+# RATE LIMIT HIT <Uncomment Later>
+# install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
+# pacman::p_load(ggbiplot)
 
 
 # LOAD SOURCE #############################################
@@ -52,17 +55,18 @@ benchmark_backends <- function(operation, args_list, backends, times, unit,
         bm_result <- system.time(do.call(operation, args_list))
         all_times <- c(all_times, bm_result["elapsed"])
       }
-      elapsed_time <- mean(all_times*1e3) # Convert unit of time to ms
+      # elapsed_time <- mean(all_times*1e3) # Convert unit of time to ms
     }
     else {
       # Start benchmark
       bm_result <- microbenchmark(do.call(operation, args_list),
                                   times = times, unit = unit)
       # Get mean time
-      elapsed_time <- summary(bm_result)$mean
+      # elapsed_time <- summary(bm_result)$mean
+      all_times <- c(bm_result$time)
     }
     # Store the results
-    results[[backend]] <- elapsed_time
+    results[[backend]] <- all_times
   }
   
   return(results)
@@ -114,7 +118,56 @@ plot_results <- function(method_benchmark, method) {
   
   # Save as HTML
   html_file <- paste0(results_path, "/", method, "-", k, "-benchmark.html")
-  saveWidget2(p, file = html_file)
+  saveWidget2(p, path = html_file)
+}
+
+# Functions for Statistical Tests
+should_anova <- function(data, alpha_value) {
+  # Check Assumption #1: Normality using Shapiro-Wilk Test
+  print("Performing Shapiro-Wilk Test...")
+  shapiro_res <- shapiro.test(data$time)
+  p_val <- shapiro_res$p.value
+  if(p_val > alpha_value) {
+    is_normal <- TRUE
+  }
+  else {
+    is_normal <- FALSE
+  }
+  print(paste0("Shapiro-Wilk Test DONE w/ p-value", p_val))
+  
+  # Check Assumption #2: Equal Variance 
+  # If normal, use Bartlett's Test. Otherwise, use Levene's Test
+  if(is_normal) {
+    print("Performing Bartlett's Test...")
+    bartlett_res <- bartlett.test(time ~ backend, data=data)
+    p_val <- bartlett_res$p.value 
+    print(paste0("Bartlett's Test DONE w/ p-value", p_val))
+    if(p_val > alpha_value) {
+      return(TRUE)
+    }
+    else {
+      return(FALSE)
+    }
+  }
+  else {
+    print("Performing Levene's Test...")
+    levene_res <- leveneTest(time ~ backend, data = data)
+    p_val <- levene_res[[as.name("Pr(>F)")]][1]
+    print(paste0("Levene's Test DONE w/ p-value", p_val))
+    if(p_val > alpha_value) {
+      return(TRUE)
+    }
+    else {
+      return(FALSE)
+    }
+    
+  # Note that Assumption #3: Independence is assumed.
+  }
+}
+
+check_stat_diff <- function(){
+  # write this tomorrow
+  warning("You ran check_stat_diff but haven't written it yet.")
 }
 
 # SET PARAMETERS ###########################################
@@ -132,16 +185,25 @@ umap_min_dist <- 0.1
 color <- "variant"
 shape <- "sex"
 
+# dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
+factor1 <- "variant"
+values1 <- c("Omicron", "Omicron Sub")
+factor2 <- "year"
+values2 <- c("2023")
+
 # Benchmarking parameters
 bm_times <- 3 
 bm_unit <- "milliseconds"
+alpha_value <- 0.05
+
 # Backends to compare
 selected_backends <- c("NETLIB", "ATLAS", "OPENBLASSERIAL",
                        "MKLSERIAL", "BLISSERIAL")
 
 for (k in k_vals) {
   pre_reduce_res <- pre_reduce(results_path_dimreduce,
-                               data_path_kmers, k, target_col)
+                               data_path_kmers, k, factor1, 
+                               values1, factor2, values2)
   
   df <- pre_reduce_res$df                # df is the original dataset
   x <- pre_reduce_res$x                  # x is the scaled data
@@ -156,85 +218,134 @@ for (k in k_vals) {
                                bm_unit,
                                use_profiling = FALSE)
   
-  # Plot PCA benchmark results
-  plot_results(pca_bm, "pca")
-
-  # Benchmark backends on tsne_fn (2-dimensions)
-  tsne_bm <- benchmark_backends(tsne_fn,
-                                list(pca_df$x, 2, tsne_initial_dims,
-                                     tsne_perplexity, tsne_max_iter,
-                                     tsne_seed = seed),
-                                selected_backends,
-                                bm_times,
-                                bm_unit)
-
-  # Plot t-SNE benchmark results (2D)
-  plot_results(tsne_bm, "tsne-2d")
-
-  # Benchmark backends on tsne_fn (3-dimensions)
-  tsne_bm <- benchmark_backends(tsne_fn,
-                                list(pca_df$x, 3, tsne_initial_dims,
-                                     tsne_perplexity, tsne_max_iter,
-                                     tsne_seed = seed),
-                                selected_backends,
-                                bm_times,
-                                bm_unit)
-
-  # Plot t-SNE benchmark results (3D)
-  plot_results(tsne_bm, "tsne-3d")
-
-  # Benchmark backends on umap_fn (2-dimensions)
-  umap_bm <- benchmark_backends(umap_fn,
-                                list(x, 2, umap_n_neighbors,
-                                     umap_metric, umap_min_dist,
-                                     umap_seed = seed),
-                                selected_backends,
-                                bm_times,
-                                bm_unit)
-
-  # Plot UMAP benchmark results (2D)
-  plot_results(umap_bm, "umap-2d")
-
-  # Benchmark backends on umap_fn (3-dimensions)
-  umap_bm <- benchmark_backends(umap_fn,
-                                list(x, 3, umap_n_neighbors,
-                                     umap_metric, umap_min_dist,
-                                     umap_seed = seed),
-                                selected_backends,
-                                bm_times,
-                                bm_unit)
-
-  # Plot UMAP benchmark results (3D)
-  plot_results(umap_bm, "umap-3d")
-
-  # Benchmark backends on dim_reduce
-  dimred_bm <- benchmark_backends(dim_reduce,
-                                  list(k, data_path_kmers,
-                                       results_path_dimreduce,
-                                       tsne_seed = seed, tsne_perplexity,
-                                       tsne_max_iter, tsne_initial_dims,
-                                       umap_seed = seed, umap_n_neighbors,
-                                       umap_metric, umap_min_dist,
-                                       col_name = target_col),
-                                  selected_backends,
-                                  bm_times,
-                                  bm_unit,
-                                  use_profiling = TRUE)
-
-  # Plot dim_reduce benchmark results
-  plot_results(dimred_bm, "dim-red")
-
-  # Benchmark backends on entire pipeline
-  pipeline_file <- "code/pipeline-classic.R"
-  pipeline_bm <- benchmark_backends(source,
-                                    list(pipeline_file),
-                                    selected_backends,
-                                    bm_times,
-                                    bm_unit,
-                                    use_profiling = TRUE)
-
-  # Plot pipeline benchmark results
-  plot_results(pipeline_bm, "pipeline")
+  # TO DO: Create a function: create_df -> generalized method_bm
+  data <- data.frame(backend = rep(selected_backends, times = bm_times), 
+                     time = unlist(pca_bm))
   
-  print(paste0("Benchmarking ", k, "-mer Done :>"))
+  use_anova <- should_anova(data, alpha_value)
+  
+  # is_diff <- check_stat_diff(use_anova)
+  
+  # Decide if succeeding lines should be in a function 
+  if(use_anova) {
+    # [DONE, not yet checked]
+    # TO DO: Perform ANOVA -> Perform Tukey's Test (TukeyHSD)
+    # Compute the analysis of variance
+    print("Performing ANOVA...")
+    aov_res <- aov(time ~ backend, data = data)
+    p_val <- summary(aov_res)[[1]]$Pr[1]
+    print(paste0("ANOVA DONE w/ p-value", p_val))
+    
+    if(p_val <= alpha_value) {
+      # Perform TukeyHSD
+      print("Perform Tukey's Test...")
+      tukey_res <- TukeyHSD(aov_res, conf.level=1-alpha_value)
+      print(tukey_res)
+      print("Tukey's Test DONE")
+    }
+    else {
+      print("The values are not statistically different.")
+    }
+  }
+  else {
+    # [DONE, not yet checked]
+    # TO DO: Perform Kruskal-Wallis Test -> Perform Dunn's Test
+    print("Performing Kruskal-Wallis Test...")
+    kruskal_res <- kruskal.test(time ~ backend, data = data)
+    p_val <- kruskal_res$p.value 
+    print(paste0("Kruskal-Wallis Test DONE w/ p-value", p_val))
+    
+    if(p_val <= alpha_value) {
+      # Perform Dunn's Test
+      # Compare: (print the two dunn's test results)
+      dunn_res <- dunnTest(time ~ backend, data = data, method="bonferroni")
+      print(dunn_res)
+      print("Dunn's Test DONE")
+    }
+    else {
+      print("The values are not statistically different.")
+    }
+  }
+  
+  # # Plot PCA benchmark results
+  # plot_results(pca_bm, "pca")
+
+  # # Benchmark backends on tsne_fn (2-dimensions)
+  # tsne_bm <- benchmark_backends(tsne_fn,
+  #                               list(pca_df$x, 2, tsne_initial_dims,
+  #                                    tsne_perplexity, tsne_max_iter,
+  #                                    tsne_seed = seed),
+  #                               selected_backends,
+  #                               bm_times,
+  #                               bm_unit)
+  # 
+  # # Plot t-SNE benchmark results (2D)
+  # plot_results(tsne_bm, "tsne-2d")
+  # 
+  # # Benchmark backends on tsne_fn (3-dimensions)
+  # tsne_bm <- benchmark_backends(tsne_fn,
+  #                               list(pca_df$x, 3, tsne_initial_dims,
+  #                                    tsne_perplexity, tsne_max_iter,
+  #                                    tsne_seed = seed),
+  #                               selected_backends,
+  #                               bm_times,
+  #                               bm_unit)
+  # 
+  # # Plot t-SNE benchmark results (3D)
+  # plot_results(tsne_bm, "tsne-3d")
+  # 
+  # # Benchmark backends on umap_fn (2-dimensions)
+  # umap_bm <- benchmark_backends(umap_fn,
+  #                               list(x, 2, umap_n_neighbors,
+  #                                    umap_metric, umap_min_dist,
+  #                                    umap_seed = seed),
+  #                               selected_backends,
+  #                               bm_times,
+  #                               bm_unit)
+  # 
+  # # Plot UMAP benchmark results (2D)
+  # plot_results(umap_bm, "umap-2d")
+  # 
+  # # Benchmark backends on umap_fn (3-dimensions)
+  # umap_bm <- benchmark_backends(umap_fn,
+  #                               list(x, 3, umap_n_neighbors,
+  #                                    umap_metric, umap_min_dist,
+  #                                    umap_seed = seed),
+  #                               selected_backends,
+  #                               bm_times,
+  #                               bm_unit)
+  # 
+  # # Plot UMAP benchmark results (3D)
+  # plot_results(umap_bm, "umap-3d")
+  # 
+  # # Benchmark backends on dim_reduce
+  # dimred_bm <- benchmark_backends(dim_reduce,
+  #                                 list(k, data_path_kmers,
+  #                                      results_path_dimreduce,
+  #                                      tsne_seed = seed, tsne_perplexity,
+  #                                      tsne_max_iter, tsne_initial_dims,
+  #                                      umap_seed = seed, umap_n_neighbors,
+  #                                      umap_metric, umap_min_dist,
+  #                                      col_name = target_col),
+  #                                 selected_backends,
+  #                                 bm_times,
+  #                                 bm_unit,
+  #                                 use_profiling = TRUE)
+  # 
+  # # Plot dim_reduce benchmark results
+  # plot_results(dimred_bm, "dim-red")
+  # 
+  # # Benchmark backends on entire pipeline
+  # pipeline_file <- "code/pipeline-classic.R"
+  # pipeline_bm <- benchmark_backends(source,
+  #                                   list(pipeline_file),
+  #                                   selected_backends,
+  #                                   bm_times,
+  #                                   bm_unit,
+  #                                   use_profiling = TRUE)
+  # 
+  # # Plot pipeline benchmark results
+  # plot_results(pipeline_bm, "pipeline")
+  # 
+  # print(paste0("Benchmarking ", k, "-mer Done :>"))
 }

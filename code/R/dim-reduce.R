@@ -100,6 +100,8 @@ save_plot <- function(method, results_path, k, p, is_3d = FALSE) {
     )
     # Convert ggplot object to ggplotly
     p <- ggplotly(p) 
+    # Save as RData
+    save(p, file = file.path(results_path, paste0(method, "-", k, ".RData")))
   }
   
   # Save as HTML

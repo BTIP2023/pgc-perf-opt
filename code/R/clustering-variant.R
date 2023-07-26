@@ -1,61 +1,17 @@
-# File: clustering-variant.R
-
-# INSTALL AND LOAD PACKAGES ################################
-library(datasets)  # Load base packages manually
-
-# Installs pacman ("package manager") if needed
-if (!require("pacman")) install.packages("pacman", repos = "https://cran.case.edu")
-library(pacman)
-
-# Use pacman to load add-on packages as desired
-# First call are standard packages for the project
-pacman::p_load(pacman, dplyr, GGally, ggplot2, ggthemes, 
-               ggvis, httr, lubridate, plotly, psych,
-               rio, rmarkdown, shiny, 
-               stringr, tidyr, tidyverse)
-# Second call are file-specific packages
-pacman::p_load(ggdendro, RColorBrewer, readr, cluster,
-               dendextend, colorspace)
-
-# WORK WITH DATA ###########################################
-
 dendrogram_create_variant <- function(k, data_path, results_path)
 {
   
-  get_time <- function(string) {
-    parts <- strsplit(string, "_")[[1]]
-    as.numeric(gsub(".csv", "", parts[3]))
-  }
-  
-  file_pattern <- paste0("kmer_", k, "_", ".*\\.csv$")
-  file_list <- list.files(
-    path = data_path, pattern = file_pattern,
-    full.names = FALSE
-  )
-  
-  # Check if any files are found
-  if (length(file_list) == 0) {
-    message("No files found for k = ", k)
-    return(NULL)
-  }
-  
-  # Sort the strings based on the timestamp in descending order
-  sorted_strings <- file_list[order(sapply(file_list, get_time),
-                                    decreasing = TRUE
-  )]
-  
-  data <- read_csv(paste(data_path, sorted_strings[1], sep = "/"))
-  
   # read kmer file
-  df = subset(data, select = -c(...1))
+  df <- read_kmer_csv(data_path, k)
   dat <- df %>%
-    mutate(sample_name = paste('var', seq(1:nrow(data)), sep = '_')) # 
+    mutate(sample_name = paste('var', seq(1:nrow(df)), sep = '_')) # 
   metadata <- dat %>%
     select(sample_name, variant)
   numeric_data <- dat %>% select(-c(variant))
   
   # normalize data to values from 0 to 1
-  slice_col <- which(colnames(data) == "strain")
+  print("Pre-processing data...")
+  slice_col <- which(colnames(df) == "strain")
   numeric_data_norm <- numeric_data %>%
     select(sample_name, everything()) %>%
     pivot_longer(cols = 2:(slice_col - 1), values_to = 'value', names_to = 'type') %>%
@@ -66,10 +22,12 @@ dendrogram_create_variant <- function(k, data_path, results_path)
     column_to_rownames('sample_name')
   
   # create dendrogram from AGNES
+  print("Creating dendrogram...")
   model <- agnes(numeric_data_norm, metric = "euclidean",method="single")
   dendrogram <- as.dendrogram(model)
   
   # extract dendrogram segment data
+  print("Plotting dendrogram...")
   dendrogram_data <- dendro_data(dendrogram)
   dendrogram_segments <- dendrogram_data$segments # contains all dendrogram segment data
 
