@@ -104,7 +104,7 @@ results_path_agnes <- "results/dendrogram"
 
 # Benchmark parameters
 bm_times <- 3L   # how many times should routine be evaluated
-bm_log_path <- "benchmarks/ro3"
+bm_write_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 # valid values: ["ALL"|"SOME" (Linux only)|"NONE"]
 # Mitigations are automatically detected in Linux by write_to_log.
@@ -210,8 +210,18 @@ umap_fn_all <- function(draux, D, umap_n_neighbors,
   }
 }
 
-# Looper for clustering functions
+# Loopers for clustering functions
+dendo_var_all <- function(kmer_list, data_path_kmers, results_path_agnes) {
+  for (k in kmer_list) {
+    dendrogram_create_variant(k, data_path_kmers, results_path_agnes)
+  }
+}
 
+dendo_reg_all <- function(kmer_list, data_path_kmers, results_path_agnes) {
+  for (k in kmer_list){
+    dendrogram_create_region(k, data_path_kmers, results_path_agnes)
+  }
+}
 
 # RUN BENCHMARK #############################################
 fasta_all <- ape::read.FASTA(sprintf("benchmarks/ro3/interm/fasta_all_%s.fasta", strat_size))
@@ -344,12 +354,24 @@ ops <- list(
                  list(draux, 3, umap_n_neighbors,
                       umap_metric, umap_min_dist,
                       umap_seed = seed)),
+            # Clustering AGNES
+            list(dendogram_create_variant,
+                 list(3, data_path_kmers, results_path_agnes)),
+            list(dendogram_create_variant,
+                 list(5, data_path_kmers, results_path_agnes)),
+            list(dendogram_create_variant,
+                 list(7, data_path_kmers, results_path_agnes)),
+            list(dendo_var_all,
+                 list(kmer_list, data_path_kmers, results_path_agnes)),
             list(dendogram_create_region,
                  list(3, data_path_kmers, results_path_agnes)),
+            list(dendogram_create_region,
+                 list(5, data_path_kmers, results_path_agnes)),
+            list(dendogram_create_region,
+                 list(7, data_path_kmers, results_path_agnes)),
+            list(dendo_reg_all,
+                 list(kmer_list, data_path_kmers, results_path_agnes)),
             )
-
-dendrogram_create_region(k, data_path_kmers, results_path_agnes)
-
 
 # Also initialize names of the functions (can't get it programmatically)
 names <- list(
@@ -382,7 +404,12 @@ names <- list(
               "umap_3d_5",
               "umap_3d_7",
               "umap_3d_all",
-              "dim_reduce_all"
+              "agnes_var_3",
+              "agnes_var_5",
+              "agnes_var_7",
+              "agnes_reg_3",
+              "agnes_reg_5",
+              "agnes_reg_7"
               )
 
 # Addon: profiling boolean list and units char list for finer control
@@ -423,18 +450,29 @@ control <- list(
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds")
+                list(TRUE, "seconds"),
+                # Clustering AGNES variant
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                # Clustering AGNES region
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
+                list(TRUE, "seconds"),
                 )
 
 # Initialize results dataframe
 cols <-  c("op", "unit",
            "min", "lq", "mean", "median", "uq", "max", "neval",
-           "profiler", "mitigations", "timestamp")
+           "profiler", "mitigations", "timestamp", "strat_size")
 results <- data.frame(matrix(nrow = 0, ncol = length(cols)))
 colnames(results) <- cols
 results[, 1:2] <- sapply(results[, 1:2], as.character)
 results[, 3:9] <- sapply(results[, 3:9], as.numeric)
 results[, 10:12] <- sapply(results[, 10:12], as.character)
+results[, 13] <- sapply(results[, 13], as.numeric)
 
 # BENCHMARKER
 # Get results and append to dataframe (actual benchmarking part)
@@ -463,14 +501,22 @@ for (i in 1:length(ops)) {
   results[nrow(results), 10:12] <- c(profiler, mitigations, stamp)
 }
 
+# Write (append) results to accumulator file in bm_write_path
+filepath <- paste(bm_write_path, "ro3.csv", sep = "/")
+if (!file.exists(filepath)) {
+  readr::write_csv(results, filepath)
+} else {
+  readr::write_csv(results, filepath, append = TRUE)
+}
+
 # Write hardware specs and parameters used to log.txt
 
 param_string <- paste(c("---------PARAMETERS---------",
   paste0("MITIGATIONS STATUS:\t", mitigations),
   paste0("seed:\t\t\t", seed),
-  paste0("number_samples:\t\t", NROWS),
   paste0("kmer_list:\t\t", paste(kmer_list, collapse = ", ")),
   paste0("strat_size:\t\t", strat_size),
+  paste0("number_samples:\t\t", NROWS),
   paste0("country_exposure:\t", country_exposure),
   paste0("tsne_perplexity:\t", tsne_perplexity),
   paste0("tsne_max_iter:\t\t", tsne_max_iter),
@@ -482,7 +528,7 @@ param_string <- paste(c("---------PARAMETERS---------",
   collapse = "\n")
 
 message("Writing logs... ", appendLF = FALSE)
-write_to_log(bm_log_path, "bm_log.txt", param_string, stamp)
+write_to_log(bm_write_path, "bm_log.txt", param_string, stamp)
 message("Writing logs... DONE!")
 
 message("All operations completed successfully!")

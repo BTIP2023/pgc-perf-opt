@@ -68,11 +68,11 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 gisaid_data_path <- "data/GISAID"
 gisaid_extract_path <- "data/GISAID/datasets"
-strat_size <- 500
+strat_size <- 100
 country_exposure <- "Philippines"
 
 # preprocess.R::auxiliary parameters
-interm_write_path <- "benchmarks/ro3/interm"
+interm_write_path <- "data/interm"
 compile_write_path <- "data/overview"
 treemaps_write_path <- "data/overview/treemaps"
 heatmaps_write_path <- "data/overview/heatmaps"
