@@ -127,47 +127,126 @@ should_anova <- function(data, alpha_value) {
   print("Performing Shapiro-Wilk Test...")
   shapiro_res <- shapiro.test(data$time)
   p_val <- shapiro_res$p.value
-  if(p_val > alpha_value) {
-    is_normal <- TRUE
-  }
-  else {
-    is_normal <- FALSE
-  }
-  print(paste0("Shapiro-Wilk Test DONE w/ p-value", p_val))
+  print(paste0("Shapiro-Wilk Test is DONE w/ p-value ", p_val))
   
-  # Check Assumption #2: Equal Variance 
-  # If normal, use Bartlett's Test. Otherwise, use Levene's Test
-  if(is_normal) {
+  if(p_val > alpha_value) {
+    # is_normal <- TRUE
+    print("The data is normally distributed. We proceed with Bartlett's Test to test homogeneity of variance.")
+    # Check Assumption #2: Equal Variance
     print("Performing Bartlett's Test...")
-    bartlett_res <- bartlett.test(time ~ backend, data=data)
-    p_val <- bartlett_res$p.value 
-    print(paste0("Bartlett's Test DONE w/ p-value", p_val))
+    p_val <- bartlett_res$p.value
+    print(paste0("Bartlett's Test is DONE w/ p-value ", p_val))
+
     if(p_val > alpha_value) {
+      print("There is homogeneity of variance in the data. We can use ANOVA.")
       return(TRUE)
     }
     else {
+      print("There is no homogeneity of variance in the data. We must use Kruskal-Wallis Test instead of ANOVA.")
       return(FALSE)
     }
   }
   else {
-    print("Performing Levene's Test...")
-    levene_res <- leveneTest(time ~ backend, data = data)
-    p_val <- levene_res[[as.name("Pr(>F)")]][1]
-    print(paste0("Levene's Test DONE w/ p-value", p_val))
-    if(p_val > alpha_value) {
-      return(TRUE)
-    }
-    else {
-      return(FALSE)
-    }
-    
-  # Note that Assumption #3: Independence is assumed.
+    # is_normal <- FALSE
+    print("The data is not normally distributed. We must use Kruskal-Wallis Test instead of ANOVA.")
+    return(FALSE)
   }
+  
+  # # # [TO DISCARD] THIS PART IS WRONG :< No need to perform Levene's Test...
+  # # Check Assumption #2: Equal Variance 
+  # # If normal, use Bartlett's Test. Otherwise, use Levene's Test
+  # if(is_normal) {
+  #   print("Performing Bartlett's Test...")
+  #   bartlett_res <- bartlett.test(time ~ backend, data=data)
+  #   p_val <- bartlett_res$p.value 
+  #   print(paste0("Bartlett's Test is DONE w/ p-value ", p_val))
+  #   
+  #   if(p_val > alpha_value) {
+  #     print("There is homogeneity of variance in the data. We can use ANOVA.")
+  #     return(TRUE)
+  #   }
+  #   else {
+  #     print("There is no homogeneity of variance in the data. We cannot use ANOVA.")
+  #     return(FALSE)
+  #   }
+  # }
+  # else {
+  #   print("Performing Levene's Test...")
+  #   levene_res <- leveneTest(time ~ backend, data = data)
+  #   p_val <- levene_res[[as.name("Pr(>F)")]][1]
+  #   print(paste0("Levene's Test is DONE w/ p-value ", p_val))
+  #   
+  #   if(p_val > alpha_value) {
+  #     print("There is homogeneity of variance in the data. We can use ANOVA.")
+  #     return(TRUE)
+  #   }
+  #   else {
+  #     print("There is no homogeneity of variance in the data. We cannot use ANOVA.")
+  #     return(FALSE)
+  #   }
+  # }
+  
+  # Note that Assumption #3: Independence is assumed.
 }
 
-check_stat_diff <- function(){
-  # write this tomorrow
-  warning("You ran check_stat_diff but haven't written it yet.")
+check_stat_diff <- function(use_anova, alpha_val){
+  if(use_anova) {
+    # [DONE, not yet checked]
+    # TO DO: Perform ANOVA -> Perform Tukey's Test (TukeyHSD)
+    # Compute the analysis of variance
+    print("Performing ANOVA...")
+    aov_res <- aov(time ~ backend, data = data)
+    p_val <- summary(aov_res)[[1]]$Pr[1]
+    print(paste0("ANOVA is DONE w/ p-value ", p_val))
+    
+    if(p_val <= alpha_value) {
+      print("At least one of the values is statistically different from the others.")
+      # Perform TukeyHSD
+      print("Performing Tukey's Test...")
+      tukey_res <- TukeyHSD(aov_res, conf.level=1-alpha_value)
+      print("Tukey's Test is DONE. The summary of results is as follows:")
+      print(tukey_res)
+      adj_p_vals <- tukey_res$backend[,3]
+      # Filter the rows where the adjusted p-value is less than alpha
+      significant_pairs <- list()
+      for (i in 1:length(adj_p_vals)) {
+        val <- as.numeric(adj_p_vals[i])
+        if(as.numeric(adj_p_vals[i]) <= alpha_value) {
+          significant_pairs <- append(significant_pairs, names(adj_p_vals[i]))
+        }
+      }
+      significant_pairs <- unlist(significant_pairs)
+      return(list(is_diff = TRUE, significant_pairs = significant_pairs))
+    }
+    else {
+      print("The values are not statistically different.")
+      return(list(is_diff = FALSE, diff_vals = NULL))
+    }
+  }
+  else {
+    # [DONE, not yet checked]
+    # TO DO: Perform Kruskal-Wallis Test -> Perform Dunn's Test
+    print("Performing Kruskal-Wallis Test...")
+    kruskal_res <- kruskal.test(time ~ backend, data = data)
+    p_val <- kruskal_res$p.value 
+    print(paste0("Kruskal-Wallis Test is DONE w/ p-value ", p_val))
+    
+    if(p_val <= alpha_value) {
+      print("At least one of the values is statistically different from the others.")
+      print("Performing Dunn's Test...")
+      # Perform Dunn's Test
+      dunn_res <- dunnTest(time ~ backend, data = data, method="bonferroni")
+      print("Dunn's Test is DONE. The summary of results is as follows:")
+      print(dunn_res)
+      # Filter the rows where the adjusted p-value is less than alpha
+      significant_pairs <- dunn_res$res$Comparison[which(dunn_res$res$P.adj <= alpha_value)]
+      return(list(is_diff = TRUE, significant_pairs = significant_pairs))
+    }
+    else {
+      print("The values are not statistically different.")
+      return(list(is_diff = FALSE, diff_vals = NULL))
+    }
+  }
 }
 
 # SET PARAMETERS ###########################################
@@ -192,7 +271,7 @@ factor2 <- "year"
 values2 <- c("2023")
 
 # Benchmarking parameters
-bm_times <- 3 
+bm_times <- 10 
 bm_unit <- "milliseconds"
 alpha_value <- 0.05
 
@@ -200,7 +279,7 @@ alpha_value <- 0.05
 selected_backends <- c("NETLIB", "ATLAS", "OPENBLASSERIAL",
                        "MKLSERIAL", "BLISSERIAL")
 
-for (k in k_vals) {
+for(k in k_vals) {
   pre_reduce_res <- pre_reduce(results_path_dimreduce,
                                data_path_kmers, k, factor1, 
                                values1, factor2, values2)
@@ -224,48 +303,8 @@ for (k in k_vals) {
   
   use_anova <- should_anova(data, alpha_value)
   
-  # is_diff <- check_stat_diff(use_anova)
-  
-  # Decide if succeeding lines should be in a function 
-  if(use_anova) {
-    # [DONE, not yet checked]
-    # TO DO: Perform ANOVA -> Perform Tukey's Test (TukeyHSD)
-    # Compute the analysis of variance
-    print("Performing ANOVA...")
-    aov_res <- aov(time ~ backend, data = data)
-    p_val <- summary(aov_res)[[1]]$Pr[1]
-    print(paste0("ANOVA DONE w/ p-value", p_val))
-    
-    if(p_val <= alpha_value) {
-      # Perform TukeyHSD
-      print("Perform Tukey's Test...")
-      tukey_res <- TukeyHSD(aov_res, conf.level=1-alpha_value)
-      print(tukey_res)
-      print("Tukey's Test DONE")
-    }
-    else {
-      print("The values are not statistically different.")
-    }
-  }
-  else {
-    # [DONE, not yet checked]
-    # TO DO: Perform Kruskal-Wallis Test -> Perform Dunn's Test
-    print("Performing Kruskal-Wallis Test...")
-    kruskal_res <- kruskal.test(time ~ backend, data = data)
-    p_val <- kruskal_res$p.value 
-    print(paste0("Kruskal-Wallis Test DONE w/ p-value", p_val))
-    
-    if(p_val <= alpha_value) {
-      # Perform Dunn's Test
-      # Compare: (print the two dunn's test results)
-      dunn_res <- dunnTest(time ~ backend, data = data, method="bonferroni")
-      print(dunn_res)
-      print("Dunn's Test DONE")
-    }
-    else {
-      print("The values are not statistically different.")
-    }
-  }
+  is_diff <- check_stat_diff(use_anova, alpha_value)
+  print(is_diff$significant_pairs[1])
   
   # # Plot PCA benchmark results
   # plot_results(pca_bm, "pca")
