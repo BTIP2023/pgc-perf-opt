@@ -134,9 +134,16 @@ bm_cpu <- function(operation, args, use_profiling = FALSE,
       profile <- system.time(do.call(operation, args_list))
       all_times <- c(all_times, profile["elapsed"])
     }
+    # Perform necessary conversion of data to desired unit
+    if (unit == "nanoseconds") {
+      all_times <- lapply(all_times, function(x){x*1e-09})
+    } else if (unit == "microseconds") {
+      all_times <- lapply(all_times, function(x){x*1e-06})
+    } else if (unit == "minutes") {
+      all_times <- lapply(all_times, function(x){x/60})
+    }
     # Compute min, lq, mean, median, uq, and max
     summ <- validate::summary(all_times)
-    row <- list(opname, unit, c(summ, times))
   } else {
     # Start benchmark
     summ <- summary(microbenchmark(do.call(operation, args_list),
@@ -153,7 +160,11 @@ plot_bm <- function(results) {
 }
 
 # RUN BENCHMARK #############################################
+fasta_all <- ape::read.FASTA("benchmarks/ro3/interm/fasta_all.fasta")
+metadata_all <- readr::read_csv("benchmarks/ro3/interm/metadata_all.csv")
+NROWS <- nrow(metadata_all)
 message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS, mitigations))
+message(sprintf("Number of selected samples are: %d", NROWS))
 
 # Benchmark Notes:
 # get_sample: to start from extraction, delete data/GISAID/datasets/
@@ -162,15 +173,12 @@ message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS
 
 # Initialize list of operations to benchmark and their arguments
 # Format: {operation:function, args:list, use_profiling:bool}
-fasta_all <- ape::read.FASTA("benchmarks/ro3/interm/fasta_all.fasta")
-metadata_all <- readr::read_csv("benchmarks/ro3/interm/metadata_all.csv")
-NROWS <- nrow(metadata_all)
 operations <- list(list(get_sample, list(gisaid_data_path,
                                          gisaid_extract_path,
                                          seed, strat_size,
                                          country_exposure),
-                        use_profiling = TRUE),
-                   list())
+                        use_profiling = TRUE,
+                        unit = "seconds"))
 
 # Initialize results dataframe
 cols <-  c("op", "units", "min", "lq", "median", "mean", "uq", "max", "neval")
@@ -181,7 +189,8 @@ results[, 3:9] <- sapply(results[, 3:9], as.numeric)
 
 # Get results and append to dataframe (actual benchmarking part)
 for (i in length(operations)) {
-  results <- bm_cpu(operations[i], times = 3L, unit = "")
+  results <- bm_cpu(operations[i][1], operations[i][2],
+                    operations[i][3], times = 3L, unit = "")
   
   results[nrow(results+1), ] <- row
 }
