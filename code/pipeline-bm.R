@@ -198,7 +198,9 @@ ops <- list(list(get_sample,
                  use_profiling = TRUE,
                  unit = "seconds"),
             list(compile_overview,
-                 list(metadata_all, compile_write_path, stamp)),
+                 list(metadata_all, compile_write_path, stamp),
+                 use_profiling = TRUE,
+                 unit = "seconds"),
             list(make_treemaps,
                  list(metadata_all, treemaps_write_path, stamp),
                  use_profiling = TRUE,
@@ -293,10 +295,10 @@ message("DONE.")
 # rm(list = ls()) 
 
 # Clear packages (unloading them before another adds another compat check)
-p_unload(all)  # Remove all add-ons
+# p_unload(all)  # Remove all add-ons
 
 # Clear plots but only if there IS a plot
-while (!is.null(dev.list())) dev.off()
+# while (!is.null(dev.list())) dev.off()
 
 # Clear console
 # cat("\014")  # ctrl+L
