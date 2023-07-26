@@ -163,6 +163,13 @@ plot_bm <- function(results) {
   
 }
 
+# Looper for get_kmers
+get_kmers_all <- function(kmer_list, fasta_all, metadata_all, stamp) {
+  for (k in kmer_list) {
+    get_kmers(fasta_all, metadata_all, k, stamp)
+  }
+}
+
 # RUN BENCHMARK #############################################
 fasta_all <- ape::read.FASTA("benchmarks/ro3/interm/fasta_all.fasta")
 metadata_all <- readr::read_csv("benchmarks/ro3/interm/metadata_all.csv")
@@ -178,10 +185,8 @@ message(sprintf("Number of selected samples are: %d", NROWS))
 # Initialize list of operations to benchmark and their arguments
 # Format: {operation:function, args:list, use_profiling:bool}
 ops <- list(list(get_sample,
-                 list(gisaid_data_path,
-                      gisaid_extract_path,
-                      seed, strat_size,
-                      country_exposure),
+                 list(gisaid_data_path, gisaid_extract_path,
+                      seed, strat_size, country_exposure),
                  use_profiling = TRUE,
                  unit = "seconds"),
             list(sanitize_sample,
@@ -189,16 +194,29 @@ ops <- list(list(get_sample,
                  use_profiling = TRUE,
                  unit = "seconds"),
             list(generate_interm,
-                 list(fasta_all,
-                      metadata_all,
-                      interm_write_path,
-                      stamp),
+                 list(fasta_all, metadata_all, interm_write_path, stamp),
                  use_profiling = TRUE,
                  unit = "seconds"),
+            list(compile_overview,
+                 list(metadata_all, compile_write_path, stamp)),
             list(make_treemaps,
-                 list(metadata_all,
-                      treemaps_write_path,
-                      stamp),
+                 list(metadata_all, treemaps_write_path, stamp),
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            list(get_kmers,
+                 list(fasta_all, metadata_all, 3, stamp),
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            list(get_kmers,
+                 list(fasta_all, metadata_all, 5, stamp),
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            list(get_kmers,
+                 list(fasta_all, metadata_all, 7, stamp),
+                 use_profiling = TRUE,
+                 unit = "seconds"),
+            list(get_kmers_all,
+                 list(kmer_list, fasta_all, metadata_all, stamp),
                  use_profiling = TRUE,
                  unit = "seconds"))
 
@@ -207,7 +225,11 @@ names <- list("get_sample",
               "sanitize_sample",
               "generate_interm",
               "compile_overview",
-              "make_treemaps")
+              "make_treemaps",
+              "get_kmers_3",
+              "get_kmers_5",
+              "get_kmers_7",
+              "get_kmers_all")
 
 # Initialize results dataframe
 cols <-  c("op", "unit",
@@ -217,7 +239,7 @@ results <- data.frame(matrix(nrow = 0, ncol = length(cols)))
 colnames(results) <- cols
 results[, 1:2] <- sapply(results[, 1:2], as.character)
 results[, 3:9] <- sapply(results[, 3:9], as.numeric)
-results[, 3:10] <- sapply(results[, 3:9], as.character)
+results[, 10:11] <- sapply(results[, 10:11], as.character)
 
 # Get results and append to dataframe (actual benchmarking part)
 res <- list()

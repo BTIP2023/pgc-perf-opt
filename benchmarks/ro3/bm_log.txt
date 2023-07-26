@@ -114,3 +114,55 @@ umap_min_dist:		0.1
 color:			variant
 shape:			sex
 
+=============20230726133308905=============
+OS Name:                   Microsoft Windows 11 Home Single Language
+OS Version:                10.0.22621 N/A Build 22621
+System Manufacturer:       LENOVO
+System Model:              82K2
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
+Total Physical Memory:     14,188 MB
+----------------------------
+DeviceID  NumberOfCores  NumberOfLogicalProcessors  
+CPU0      8              16                         
+---------PARAMETERS---------
+MITIGATIONS STATUS:	ALL
+seed:			1234
+kmer_list:		3, 5, 7
+strat_size:		100
+country_exposure:	Philippines
+tsne_perplexity:	40
+tsne_max_iter:		1000
+umap_n_neighbors:	15
+umap_metric:		euclidean
+umap_min_dist:		0.1
+color:			variant
+shape:			sex
+
+=============20230726134439822=============
+OS Name:                   Microsoft Windows 11 Home Single Language
+OS Version:                10.0.22621 N/A Build 22621
+System Manufacturer:       LENOVO
+System Model:              82K2
+System Type:               x64-based PC
+Processor(s):              1 Processor(s) Installed.
+                           [01]: AMD64 Family 25 Model 80 Stepping 0 AuthenticAMD ~3201 Mhz
+Total Physical Memory:     14,188 MB
+----------------------------
+DeviceID  NumberOfCores  NumberOfLogicalProcessors  
+CPU0      8              16                         
+---------PARAMETERS---------
+MITIGATIONS STATUS:	ALL
+seed:			1234
+kmer_list:		3, 5, 7
+strat_size:		100
+country_exposure:	Philippines
+tsne_perplexity:	40
+tsne_max_iter:		1000
+umap_n_neighbors:	15
+umap_metric:		euclidean
+umap_min_dist:		0.1
+color:			variant
+shape:			sex
+
