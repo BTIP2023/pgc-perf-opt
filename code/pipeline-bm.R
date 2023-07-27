@@ -70,7 +70,7 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 # Note that valid strat_size will only be those with corresponding
 # files in `data/interm` and `data/kmers`
-strat_size <- 1000
+strat_size <- 100
 
 # preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
@@ -106,7 +106,7 @@ values2 <- c("2023")
 agnes_write_path <- "results/dendrogram"
 
 # Benchmark parameters
-bm_times <- 10L   # how many times should routine be evaluated
+bm_times <- 1L   # how many times should routine be evaluated
 bm_write_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 if (OS == "Windows") {
@@ -319,8 +319,8 @@ ops <- list(
                  list(draux[[2]][[2]])),
             list(pca_fn,   # k = 7
                  list(draux[[3]][[2]])),
-            list(pca_fn_all,
-                 list(draux)),
+            # list(pca_fn_all,
+            #      list(draux)),
             ## TSNE 2D
             list(tsne_fn,                 # k = 3
                  list(draux[[1]][[3]], 2, tsne_initial_dims,
@@ -514,7 +514,7 @@ cols <- names
 raw_df <- data.frame(matrix(nrow = bm_times, ncol = length(cols)))
 colnames(raw_df) <- cols
 raw_df[,] <- sapply(raw_df[,], as.numeric)
-raw_path <- paste(bm_write_path, sprintf("ro3-%s.csv", strat_size))
+raw_path <- paste(bm_write_path, sprintf("ro3-%s.csv", strat_size), sep = "/")
 
 # BENCHMARKER
 # Get results and append to dataframe (actual benchmarking part)
