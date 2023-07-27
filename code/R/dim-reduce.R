@@ -200,7 +200,7 @@ pca_2d <- function(pca_df, df, k, color, shape, results_path) {
     ))) +
     scale_color_brewer(palette = "Set1")
   # Save plot as PNG and HTML
-  save_plot("pca", results_path, k, p)
+  save_plot("2d-pca", results_path, k, p)
 }
 
 # Function for 3D PCA plot
@@ -401,7 +401,7 @@ tsne_2d <- function(tsne_df, df, color, shape, k, is_tsne, results_path) {
     scale_color_brewer(palette = "Set1")
   
   # Save plot as PNG and HTML
-  save_plot("tsne", results_path, k, p)
+  save_plot("2d-tsne", results_path, k, p)
 }
 
 # Function for 3D t-SNE plot
@@ -466,7 +466,7 @@ umap_2d <- function(umap_df, df, color, shape, k, results_path) {
     scale_color_brewer(palette = "Set1")
   
   # Save plot as PNG and HTML
-  save_plot("umap", results_path, k, p)
+  save_plot("2d-umap", results_path, k, p)
 }
 
 # Function for 3D UMAP plot
