@@ -70,7 +70,7 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 # Note that valid strat_size will only be those with corresponding
 # files in `data/interm` and `data/kmers`
-strat_size <- 100
+strat_size <- 1000
 
 # preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
@@ -105,7 +105,7 @@ values2 <- c("2023")
 agnes_write_path <- "results/dendrogram"
 
 # Benchmark parameters
-bm_times <- 1L   # how many times should routine be evaluated
+bm_times <- 5L   # how many times should routine be evaluated
 bm_write_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 if (OS == "Windows") {

@@ -4,7 +4,7 @@
 # Generated files will have the metadata cols appended, starting from strain.
 
 get_kmers <- function(fasta, metaData, k, stamp) {
-  message(sprintf("\nPerforming %d-mer analysis... ", k), appendLF = FALSE)
+  message(sprintf("Performing %d-mer analysis... ", k), appendLF = FALSE)
   kmers <- kcount(fasta, k = k)
   kmer_df <- data.frame(kmers)
   message("DONE.")

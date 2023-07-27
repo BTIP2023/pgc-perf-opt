@@ -64,7 +64,7 @@ get_sample <- function(gisaid_data_path = "data/GISAID",
       }
       variant <- str_to_title(variant)
       
-      message(paste0("\nReading ", fasta_path, "... "))
+      message(paste0("Reading ", fasta_path, "... "))
       # Parse then merge fasta file with accumulator.
       fasta <- ape::read.FASTA(fasta_path)
       fasta_all <- append(fasta_all, fasta)
