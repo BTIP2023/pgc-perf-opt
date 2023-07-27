@@ -35,3 +35,188 @@ umap_min_dist:		0.1
 color:			variant
 shape:			sex
 
+=============20230727204656333=============
+Linux 5.19.0-50-generic
+Description:	Ubuntu 22.04.2 LTS
+Codename:	jammy
+Architecture:                    x86_64
+CPU(s):                          12
+Model name:                      11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
+Thread(s) per core:              2
+Core(s) per socket:              6
+Virtualization:                  VT-x
+Vulnerability Itlb multihit:     Not affected
+Vulnerability L1tf:              Not affected
+Vulnerability Mds:               Not affected
+Vulnerability Meltdown:          Not affected
+Vulnerability Mmio stale data:   Not affected
+Vulnerability Retbleed:          Not affected
+Vulnerability Spec store bypass: Vulnerable
+Vulnerability Spectre v1:        Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers
+Vulnerability Spectre v2:        Vulnerable, IBPB: disabled, STIBP: disabled, PBRSB-eIBRS: Vulnerable
+Vulnerability Srbds:             Not affected
+Vulnerability Tsx async abort:   Not affected
+MemTotal:        7898820 kB
+---------PARAMETERS---------
+MITIGATIONS STATUS:	all
+seed:			1234
+kmer_list:		3, 5, 7
+strat_size:		1000
+number_samples:		4976
+country_exposure:	Philippines
+tsne_perplexity:	40
+tsne_max_iter:		1000
+umap_n_neighbors:	15
+umap_metric:		euclidean
+umap_min_dist:		0.1
+color:			variant
+shape:			sex
+
+=============20230727112932731=============
+Linux 5.19.0-50-generic
+Description:	Ubuntu 22.04.2 LTS
+Codename:	jammy
+Architecture:                    x86_64
+CPU(s):                          12
+Model name:                      11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
+Thread(s) per core:              2
+Core(s) per socket:              6
+Virtualization:                  VT-x
+Vulnerability Itlb multihit:     Not affected
+Vulnerability L1tf:              Not affected
+Vulnerability Mds:               Not affected
+Vulnerability Meltdown:          Not affected
+Vulnerability Mmio stale data:   Not affected
+Vulnerability Retbleed:          Not affected
+Vulnerability Spec store bypass: Vulnerable
+Vulnerability Spectre v1:        Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers
+Vulnerability Spectre v2:        Vulnerable, IBPB: disabled, STIBP: disabled, PBRSB-eIBRS: Vulnerable
+Vulnerability Srbds:             Not affected
+Vulnerability Tsx async abort:   Not affected
+MemTotal:        7898820 kB
+---------PARAMETERS---------
+MITIGATIONS STATUS:	none
+seed:			1234
+kmer_list:		3, 5, 7
+strat_size:		1000
+number_samples:		4976
+country_exposure:	Philippines
+tsne_perplexity:	40
+tsne_max_iter:		1000
+umap_n_neighbors:	15
+umap_metric:		euclidean
+umap_min_dist:		0.1
+color:			variant
+shape:			sex
+
+=============20230727113018995=============
+Linux 5.19.0-50-generic
+Description:	Ubuntu 22.04.2 LTS
+Codename:	jammy
+Architecture:                    x86_64
+CPU(s):                          12
+Model name:                      11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
+Thread(s) per core:              2
+Core(s) per socket:              6
+Virtualization:                  VT-x
+Vulnerability Itlb multihit:     Not affected
+Vulnerability L1tf:              Not affected
+Vulnerability Mds:               Not affected
+Vulnerability Meltdown:          Not affected
+Vulnerability Mmio stale data:   Not affected
+Vulnerability Retbleed:          Not affected
+Vulnerability Spec store bypass: Vulnerable
+Vulnerability Spectre v1:        Vulnerable: __user pointer sanitization and usercopy barriers only; no swapgs barriers
+Vulnerability Spectre v2:        Vulnerable, IBPB: disabled, STIBP: disabled, PBRSB-eIBRS: Vulnerable
+Vulnerability Srbds:             Not affected
+Vulnerability Tsx async abort:   Not affected
+MemTotal:        7898820 kB
+---------PARAMETERS---------
+MITIGATIONS STATUS:	none
+seed:			1234
+kmer_list:		3, 5, 7
+strat_size:		1000
+number_samples:		4976
+country_exposure:	Philippines
+tsne_perplexity:	40
+tsne_max_iter:		1000
+umap_n_neighbors:	15
+umap_metric:		euclidean
+umap_min_dist:		0.1
+color:			variant
+shape:			sex
+
+=============20230727124812370=============
+Linux 5.19.0-50-generic
+Description:	Ubuntu 22.04.2 LTS
+Codename:	jammy
+Architecture:                    x86_64
+CPU(s):                          12
+Model name:                      11th Gen Intel(R) Core(TM) i5-11400H @ 2.70GHz
+Thread(s) per core:              2
+Core(s) per socket:              6
+Virtualization:                  VT-x
+Vulnerability Itlb multihit:     Not affected
+Vulnerability L1tf:              Not affected
+Vulnerability Mds:               Not affected
+Vulnerability Meltdown:          Not affected
+Vulnerability Mmio stale data:   Not affected
+Vulnerability Retbleed:          Not affected
+Vulnerability Spec store bypass: Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:        Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:        Mitigation; Enhanced IBRS, IBPB conditional, RSB filling, PBRSB-eIBRS SW sequence
+Vulnerability Srbds:             Not affected
+Vulnerability Tsx async abort:   Not affected
+MemTotal:        7898820 kB
+---------PARAMETERS---------
+MITIGATIONS STATUS:	all
+seed:			1234
+kmer_list:		3, 5, 7
+strat_size:		1000
+number_samples:		4976
+country_exposure:	Philippines
+tsne_perplexity:	40
+tsne_max_iter:		1000
+umap_n_neighbors:	15
+umap_metric:		euclidean
+umap_min_dist:		0.1
+color:			variant
+shape:			sex
+
+=============20230728023150381=============
+Linux 5.19.0-50-generic
+Description:	Ubuntu 22.04.2 LTS
+Codename:	jammy
+Architecture:                    x86_64
+CPU(s):                          16
+Model name:                      AMD Ryzen 7 5800H with Radeon Graphics
+Thread(s) per core:              2
+Core(s) per socket:              8
+Virtualization:                  AMD-V
+Vulnerability Itlb multihit:     Not affected
+Vulnerability L1tf:              Not affected
+Vulnerability Mds:               Not affected
+Vulnerability Meltdown:          Not affected
+Vulnerability Mmio stale data:   Not affected
+Vulnerability Retbleed:          Not affected
+Vulnerability Spec store bypass: Mitigation; Speculative Store Bypass disabled via prctl
+Vulnerability Spectre v1:        Mitigation; usercopy/swapgs barriers and __user pointer sanitization
+Vulnerability Spectre v2:        Mitigation; Retpolines, IBPB conditional, IBRS_FW, STIBP always-on, RSB filling, PBRSB-eIBRS Not affected
+Vulnerability Srbds:             Not affected
+Vulnerability Tsx async abort:   Not affected
+MemTotal:       14152968 kB
+---------PARAMETERS---------
+MITIGATIONS STATUS:	all
+seed:			1234
+kmer_list:		3, 5, 7
+strat_size:		1000
+number_samples:		4976
+country_exposure:	Philippines
+tsne_perplexity:	40
+tsne_max_iter:		1000
+umap_n_neighbors:	15
+umap_metric:		euclidean
+umap_min_dist:		0.1
+color:			variant
+shape:			sex
+

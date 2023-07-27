@@ -1,5 +1,5 @@
 ---
-title: "Performance Evaluation and Optimization of an Unsupervised Machine Learning Workflow for Discriminating Major COVID-19 Variants of Concern in the Philippines"
+title: "Performance Evaluation and Optimization of an Unsupervised Machine Learning Workflow for Discriminating Major SARS-CoV-2 Variants in the Philippines"
 author: "<b>Project Lead:</b> Mark Joseph Garrovillas, RCh </br> <b>Interns:</b> Brylle Joshua Logroño, John Matthew Felices, Yenzy Urson Hebron"
 date: "July 28 2023"
 institution: "Core Facility for Bioinformatics"
@@ -56,15 +56,71 @@ title-slide-attributes:
 ## Improved Workflow summary {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/pipeline-flowchart.png){.fragment fig-align="center" height=60% width=60%}
 
-## Data Preprocessing: FASTA and Metadata files were extracted from .tar files obtained from the GISAID database. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Preprocessing: FASTA and Metadata files were extracted and cleaned from .tar files obtained from the GISAID database. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+
+```{r out.width="900px", out.height="900px"}
+
+p <- readLines("presentation_files/img/gisaid.fasta", n=10)
+p
+```
+
+::::
+
+:::: {.column width="50%"}
+
+```{r out.width="900px", out.height="900px"}
+
+library(readr)
+library(flextable)
+
+p <- read.csv(file="presentation_files/img/gisaid.csv", nrows=5)
+p_table <- flextable(p)
+p_table
+```
+
+::::
+
+:::::
+
+
 
 ## Data Preprocessing: A treemap that visualizes the distribution of different  {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Data Preprocessing: A stratified random sampler was utilized to obtain a smaller sample of all the sequences available in the GISAID database. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+<iframe src="presentation_files/img/reg_var_lin.html" width=1800px height=900px></iframe>
 
-## Data Preprocessing: Entries with erroneous metadata entries were filtered from the data set to prevent issues in downstream analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Preprocessing: Sequences and metadata of cleaned and sampled data were saved for possible use in further downstream analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Data Preprocessing: Sequences and metadata of preprocessed data can be saved for possible use in further downstream analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+::::: {.columns}
+
+:::: {.column width="50%"}
+
+```{r out.width="900px", out.height="900px"}
+
+p <- readLines("presentation_files/img/fasta_all_100.fasta", n=10)
+p
+```
+
+::::
+
+:::: {.column width="50%"}
+
+```{r out.width="900px", out.height="900px"}
+
+library(readr)
+library(flextable)
+
+p <- read.csv(file="presentation_files/img/metadata_all_100.csv", nrows=5)
+p_table <- flextable(p)
+p_table
+```
+
+::::
+
+:::::
 
 ## k-mer analysis: k-mer frequencies can be used to represent a specific sequence for downstream profiling {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
@@ -78,6 +134,14 @@ p_table <- flextable(p)
 p_table
 ```
 
+## Heatmaps of k-mer tables showed no obvious differences in k-mer frequencies between samples {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+```{r out.width="1800px", out.height="900px", fig.cap="7-mer heatmap"}
+
+load(file="presentation_files/img/heatmap-3.RData")
+p
+```
+
 ## Dimensional-Reduction: PCA analysis is able to reduce the number of dimensions of the highly dimensional k-mer data set using linear reduction{data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::::: {.columns}
@@ -85,7 +149,7 @@ p_table
 :::: {.column width="50%"}
 ```{r out.width="900px", out.height="450px", fig.cap="Principal Components Plot for k=7"}
 
-load(file="presentation_files/img/pca-7.RData")
+load(file="presentation_files/img/2d-pca-7.RData")
 p
 ```
 ::::
@@ -108,7 +172,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="900px", out.height="450px", fig.cap="tSNE Plot for k=7"}
 
-load(file="presentation_files/img/tsne-7.RData")
+load(file="presentation_files/img/2d-tsne-7.RData")
 p
 ```
 ::::
@@ -129,7 +193,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="900px", out.height="450px", fig.cap="UMAP Plot for k=7"}
 
-load(file="presentation_files/img/umap-7.RData")
+load(file="presentation_files/img/2d-umap-7.RData")
 p
 ```
 ::::
@@ -175,7 +239,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=3"}
 
-load(file="presentation_files/img/pca-3.RData")
+load(file="presentation_files/img/2d-pca-3.RData")
 p
 ```
 ::::
@@ -183,7 +247,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=5"}
 
-load(file="presentation_files/img/pca-5.RData")
+load(file="presentation_files/img/2d-pca-5.RData")
 p
 ```
 ::::
@@ -191,7 +255,7 @@ p
 :::: {.column width="100%"}
 ```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=7"}
 
-load(file="presentation_files/img/pca-7.RData")
+load(file="presentation_files/img/2d-pca-7.RData")
 p
 ```
 ::::
@@ -207,7 +271,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=3"}
 
-load(file="presentation_files/img/tsne-3.RData")
+load(file="presentation_files/img/2d-tsne-3.RData")
 p
 ```
 ::::
@@ -215,7 +279,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=5"}
 
-load(file="presentation_files/img/tsne-5.RData")
+load(file="presentation_files/img/2d-tsne-5.RData")
 p
 ```
 ::::
@@ -223,7 +287,7 @@ p
 :::: {.column width="100%"}
 ```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=7"}
 
-load(file="presentation_files/img/tsne-7.RData")
+load(file="presentation_files/img/2d-tsne-7.RData")
 p
 ```
 ::::
@@ -237,7 +301,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=3"}
 
-load(file="presentation_files/img/umap-3.RData")
+load(file="presentation_files/img/2d-umap-3.RData")
 p
 ```
 ::::
@@ -245,7 +309,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=5"}
 
-load(file="presentation_files/img/umap-5.RData")
+load(file="presentation_files/img/2d-umap-5.RData")
 p
 ```
 ::::
@@ -253,7 +317,7 @@ p
 :::: {.column width="100%"}
 ```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=7"}
 
-load(file="presentation_files/img/umap-7.RData")
+load(file="presentation_files/img/2d-umap-7.RData")
 p
 ```
 ::::
@@ -267,7 +331,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=7"}
 
-load(file="presentation_files/img/pca-7.RData")
+load(file="presentation_files/img/2d-pca-7.RData")
 p
 ```
 ::::
@@ -275,7 +339,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=7"}
 
-load(file="presentation_files/img/tsne-7.RData")
+load(file="presentation_files/img/2d-tsne-7.RData")
 p
 ```
 ::::
@@ -283,7 +347,7 @@ p
 :::: {.column width="100%"}
 ```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=7"}
 
-load(file="presentation_files/img/umap-7.RData")
+load(file="presentation_files/img/2d-umap-7.RData")
 p
 ```
 ::::

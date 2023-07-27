@@ -397,7 +397,6 @@ tsne_2d <- function(tsne_df, df, color, shape, k, is_tsne, results_path) {
     ))) +
     xlab("TSNE-2D-1") +
     ylab("TSNE-2D-2") +
-    labs(color = "Label") +
     scale_color_brewer(palette = "Set1")
   
   # Save plot as PNG and HTML
@@ -410,7 +409,7 @@ tsne_3d <- function(tsne_df, df, color, shape, k, results_path) {
   final <- cbind(data.frame(tsne_df), df[[color]], df[[shape]])
   p <- plot_ly(final,
                x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
-               color = ~color, shape = ~shape,
+               color = df[[color]], shape = ~shape,
                text = paste(
                  "Identifier: ", df$gisaid_epi_isl, "<br>",
                  "Variant: ", df$variant, "<br>",
@@ -462,7 +461,7 @@ umap_2d <- function(umap_df, df, color, shape, k, results_path) {
     ))) +
     xlab("UMAP_1") +
     ylab("UMAP_2") +
-    labs(color = "Label") +
+    labs(shape = "shape", color="color") +
     scale_color_brewer(palette = "Set1")
   
   # Save plot as PNG and HTML
@@ -475,7 +474,7 @@ umap_3d <- function(umap_df, df, color, shape, k, results_path) {
   final <- cbind(data.frame(umap_df[["layout"]]), color, shape)
   p <- plot_ly(final,
                x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
-               color = ~color, shape = ~shape,
+               color = df[[color]], shape = ~shape,
                text = paste(
                  "Identifier: ", df$gisaid_epi_isl, "<br>",
                  "Variant: ", df$variant, "<br>",

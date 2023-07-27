@@ -311,212 +311,212 @@ for (i in 1:length(kmer_list)) {
 # Initialize list of operations to benchmark and their arguments
 # Format: {operation:function, args:list}
 ops <- list(
-            # preprocess.R
-            list(get_sample,
-                 list(gisaid_data_path, gisaid_extract_path,
-                      seed, strat_size, country_exposure)),
-            list(sanitize_sample,
-                 list(metadata_all)),
-            list(generate_interm,
-                 list(fasta_all, metadata_all, interm_write_path, stamp)),
-            list(compile_overview,
-                 list(metadata_all, compile_write_path, stamp)),
-            # list(make_treemaps,
-            #      list(metadata_all, treemaps_write_path, stamp)),
-            # kmer-analysis.R
-            list(get_kmers,
-                 list(fasta_all, metadata_all, 3, stamp)),
-            list(get_kmers,
-                 list(fasta_all, metadata_all, 5, stamp)),
-            list(get_kmers,
-                 list(fasta_all, metadata_all, 7, stamp)),
-            # list(get_kmers_all,
-            #      list(kmer_list, fasta_all, metadata_all, stamp)),
-            # dim-reduce.R
-            ## PCA
-            list(pca_fn,   # k = 3
-                 list(draux[[1]][[2]])),
-            list(pca_fn,   # k = 5
-                 list(draux[[2]][[2]])),
-            list(pca_fn,   # k = 7
-                 list(draux[[3]][[2]])),
-            # list(pca_fn_all,
-            #      list(draux)),
-            ## TSNE 2D
-            list(tsne_fn,                 # k = 3
-                 list(draux[[1]][[3]], 2, tsne_initial_dims,
-                      tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed)),
-            list(tsne_fn,                  # k = 5
-                 list(draux[[2]][[3]], 2, tsne_initial_dims,
-                      tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed)),
-            list(tsne_fn,                   # k = 7
-                 list(draux[[3]][[3]], 2, tsne_initial_dims,
-                      tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed)),
-            # list(tsne_fn_all,
-            #      list(draux, 2, tsne_initial_dims,
+            # # preprocess.R
+            # list(get_sample,
+            #      list(gisaid_data_path, gisaid_extract_path,
+            #           seed, strat_size, country_exposure)),
+            # list(sanitize_sample,
+            #      list(metadata_all)),
+            # list(generate_interm,
+            #      list(fasta_all, metadata_all, interm_write_path, stamp)),
+            # list(compile_overview,
+            #      list(metadata_all, compile_write_path, stamp)),
+            # # list(make_treemaps,
+            # #      list(metadata_all, treemaps_write_path, stamp)),
+            # # kmer-analysis.R
+            # list(get_kmers,
+            #      list(fasta_all, metadata_all, 3, stamp)),
+            # list(get_kmers,
+            #      list(fasta_all, metadata_all, 5, stamp)),
+            # list(get_kmers,
+            #      list(fasta_all, metadata_all, 7, stamp)),
+            # # list(get_kmers_all,
+            # #      list(kmer_list, fasta_all, metadata_all, stamp)),
+            # # dim-reduce.R
+            # ## PCA
+            # list(pca_fn,   # k = 3
+            #      list(draux[[1]][[2]])),
+            # list(pca_fn,   # k = 5
+            #      list(draux[[2]][[2]])),
+            # list(pca_fn,   # k = 7
+            #      list(draux[[3]][[2]])),
+            # # list(pca_fn_all,
+            # #      list(draux)),
+            # ## TSNE 2D
+            # list(tsne_fn,                 # k = 3
+            #      list(draux[[1]][[3]], 2, tsne_initial_dims,
             #           tsne_perplexity, tsne_max_iter,
             #           tsne_seed = seed)),
-            ## TSNE 3D
-            list(tsne_fn,                   # k = 3
-                 list(draux[[1]][[3]], 3, tsne_initial_dims,
-                      tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed)),
-            list(tsne_fn,                   # k = 5
-                 list(draux[[2]][[3]], 3, tsne_initial_dims,
-                      tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed)),
-            list(tsne_fn,                   # k = 7
-                 list(draux[[3]][[3]], 3, tsne_initial_dims,
-                      tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed)),
-            # list(tsne_fn_all,
-            #      list(draux, 3, tsne_initial_dims,
+            # list(tsne_fn,                  # k = 5
+            #      list(draux[[2]][[3]], 2, tsne_initial_dims,
             #           tsne_perplexity, tsne_max_iter,
             #           tsne_seed = seed)),
-            ## UMAP 2D
-            list(umap_fn,                 # k = 3
-                 list(draux[[1]][[3]], 2, umap_n_neighbors,
-                      umap_metric, umap_min_dist,
-                      umap_seed = seed)),
-            list(umap_fn,                 # k = 5
-                 list(draux[[2]][[3]], 2, umap_n_neighbors,
-                      umap_metric, umap_min_dist,
-                      umap_seed = seed)),
-            list(umap_fn,                 # k = 7
-                 list(draux[[3]][[3]], 2, umap_n_neighbors,
-                      umap_metric, umap_min_dist,
-                      umap_seed = seed)),
-            # list(umap_fn_all,
-            #      list(draux, 2, umap_n_neighbors,
+            # list(tsne_fn,                   # k = 7
+            #      list(draux[[3]][[3]], 2, tsne_initial_dims,
+            #           tsne_perplexity, tsne_max_iter,
+            #           tsne_seed = seed)),
+            # # list(tsne_fn_all,
+            # #      list(draux, 2, tsne_initial_dims,
+            # #           tsne_perplexity, tsne_max_iter,
+            # #           tsne_seed = seed)),
+            # ## TSNE 3D
+            # list(tsne_fn,                   # k = 3
+            #      list(draux[[1]][[3]], 3, tsne_initial_dims,
+            #           tsne_perplexity, tsne_max_iter,
+            #           tsne_seed = seed)),
+            # list(tsne_fn,                   # k = 5
+            #      list(draux[[2]][[3]], 3, tsne_initial_dims,
+            #           tsne_perplexity, tsne_max_iter,
+            #           tsne_seed = seed)),
+            # list(tsne_fn,                   # k = 7
+            #      list(draux[[3]][[3]], 3, tsne_initial_dims,
+            #           tsne_perplexity, tsne_max_iter,
+            #           tsne_seed = seed)),
+            # # list(tsne_fn_all,
+            # #      list(draux, 3, tsne_initial_dims,
+            # #           tsne_perplexity, tsne_max_iter,
+            # #           tsne_seed = seed)),
+            # ## UMAP 2D
+            # list(umap_fn,                 # k = 3
+            #      list(draux[[1]][[3]], 2, umap_n_neighbors,
             #           umap_metric, umap_min_dist,
             #           umap_seed = seed)),
-            ## UMAP 3D
-            list(umap_fn,                 # k = 3
-                 list(draux[[1]][[3]], 3, umap_n_neighbors,
-                      umap_metric, umap_min_dist,
-                      umap_seed = seed)),
-            list(umap_fn,                 # k = 5
-                 list(draux[[2]][[3]], 3, umap_n_neighbors,
-                      umap_metric, umap_min_dist,
-                      umap_seed = seed)),
-            list(umap_fn,                 # k = 7
-                 list(draux[[3]][[3]], 3, umap_n_neighbors,
-                      umap_metric, umap_min_dist,
-                      umap_seed = seed)),
-            # list(umap_fn_all,
-            #      list(draux, 3, umap_n_neighbors,
+            # list(umap_fn,                 # k = 5
+            #      list(draux[[2]][[3]], 2, umap_n_neighbors,
             #           umap_metric, umap_min_dist,
             #           umap_seed = seed)),
-            # Clustering AGNES
-            list(dendrogram_create_variant,
-                 list(3, kmers[[1]], agnes_write_path)),
-            list(dendrogram_create_variant,
-                 list(5, kmers[[2]], agnes_write_path)),
-            list(dendrogram_create_variant,
-                 list(7, kmers[[3]], agnes_write_path)),
-            # list(dendro_var_all,
-            #      list(kmer_list, kmers, agnes_write_path)),
+            # list(umap_fn,                 # k = 7
+            #      list(draux[[3]][[3]], 2, umap_n_neighbors,
+            #           umap_metric, umap_min_dist,
+            #           umap_seed = seed)),
+            # # list(umap_fn_all,
+            # #      list(draux, 2, umap_n_neighbors,
+            # #           umap_metric, umap_min_dist,
+            # #           umap_seed = seed)),
+            # ## UMAP 3D
+            # list(umap_fn,                 # k = 3
+            #      list(draux[[1]][[3]], 3, umap_n_neighbors,
+            #           umap_metric, umap_min_dist,
+            #           umap_seed = seed)),
+            # list(umap_fn,                 # k = 5
+            #      list(draux[[2]][[3]], 3, umap_n_neighbors,
+            #           umap_metric, umap_min_dist,
+            #           umap_seed = seed)),
+            # list(umap_fn,                 # k = 7
+            #      list(draux[[3]][[3]], 3, umap_n_neighbors,
+            #           umap_metric, umap_min_dist,
+            #           umap_seed = seed)),
+            # # list(umap_fn_all,
+            # #      list(draux, 3, umap_n_neighbors,
+            # #           umap_metric, umap_min_dist,
+            # #           umap_seed = seed)),
+            # # Clustering AGNES
+            # list(dendrogram_create_variant,
+            #      list(3, kmers[[1]], agnes_write_path)),
+            # list(dendrogram_create_variant,
+            #      list(5, kmers[[2]], agnes_write_path)),
+            # list(dendrogram_create_variant,
+            #      list(7, kmers[[3]], agnes_write_path)),
+            # # list(dendro_var_all,
+            # #      list(kmer_list, kmers, agnes_write_path)),
             list(dendrogram_create_region,
                  list(3, kmers[[1]], agnes_write_path)),
             list(dendrogram_create_region,
-                 list(5, kmers[[2]], agnes_write_path)),
-            list(dendrogram_create_region,
-                 list(7, kmers[[3]], agnes_write_path))
+                 list(5, kmers[[2]], agnes_write_path))
+            # list(dendrogram_create_region,
+            #      list(7, kmers[[3]], agnes_write_path))
             # list(dendro_reg_all,
             #      list(kmer_list, kmers, agnes_write_path))
             )
 
 # Also initialize names of the functions (can't get it programmatically)
 names <- list(
-              "get_sample",
-              "sanitize_sample",
-              "generate_interm",
-              "compile_overview",
-              # "make_treemaps",
-              "get_kmers_3",
-              "get_kmers_5",
-              "get_kmers_7",
-              # "get_kmers_all",
-              "pca_3",
-              "pca_5",
-              "pca_7",
-              # "pca_all",
-              "tsne_2d_3",
-              "tsne_2d_5",
-              "tsne_2d_7",
-              # "tsne_2d_all",
-              "tsne_3d_3",
-              "tsne_3d_5",
-              "tsne_3d_7",
-              # "tsne_3d_all",
-              "umap_2d_3",
-              "umap_2d_5",
-              "umap_2d_7",
-              # "umap_2d_all",
-              "umap_3d_3",
-              "umap_3d_5",
-              "umap_3d_7",
-              # "umap_3d_all",
-              "agnes_var_3",
-              "agnes_var_5",
-              "agnes_var_7",
-              # "agnes_var_all",
+              # "get_sample",
+              # "sanitize_sample",
+              # "generate_interm",
+              # "compile_overview",
+              # # "make_treemaps",
+              # "get_kmers_3",
+              # "get_kmers_5",
+              # "get_kmers_7",
+              # # "get_kmers_all",
+              # "pca_3",
+              # "pca_5",
+              # "pca_7",
+              # # "pca_all",
+              # "tsne_2d_3",
+              # "tsne_2d_5",
+              # "tsne_2d_7",
+              # # "tsne_2d_all",
+              # "tsne_3d_3",
+              # "tsne_3d_5",
+              # "tsne_3d_7",
+              # # "tsne_3d_all",
+              # "umap_2d_3",
+              # "umap_2d_5",
+              # "umap_2d_7",
+              # # "umap_2d_all",
+              # "umap_3d_3",
+              # "umap_3d_5",
+              # "umap_3d_7",
+              # # "umap_3d_all",
+              # "agnes_var_3",
+              # "agnes_var_5",
+              # "agnes_var_7",
+              # # "agnes_var_all",
               "agnes_reg_3",
-              "agnes_reg_5",
-              "agnes_reg_7"
+              "agnes_reg_5"
+              # "agnes_reg_7"
               # "agnes_reg_all"
               )
 
 # Addon: profiling boolean list and units char list for finer control
 control <- list(
                 # preprocess.R
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
                 # list(TRUE, "seconds"),
-                # kmer-analysis.R
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
                 # list(TRUE, "seconds"),
-                # PCA
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
                 # list(TRUE, "seconds"),
-                # TSNE 2D
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
                 # list(TRUE, "seconds"),
-                # TSNE 3D
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                # # list(TRUE, "seconds"),
+                # # kmer-analysis.R
                 # list(TRUE, "seconds"),
-                # UMAP 2D
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
                 # list(TRUE, "seconds"),
-                # UMAP 3D
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
                 # list(TRUE, "seconds"),
-                # Clustering AGNES variant
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                # # list(TRUE, "seconds"),
+                # # PCA
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # # list(TRUE, "seconds"),
+                # # TSNE 2D
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # # list(TRUE, "seconds"),
+                # # TSNE 3D
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # # list(TRUE, "seconds"),
+                # # UMAP 2D
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # # list(TRUE, "seconds"),
+                # # UMAP 3D
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # # list(TRUE, "seconds"),
+                # # Clustering AGNES variant
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
                 # list(TRUE, "seconds"),
                 # Clustering AGNES region
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
                 list(TRUE, "seconds")
+                # list(TRUE, "seconds")
                 # list(TRUE, "seconds")
                 )
 
@@ -536,7 +536,9 @@ raw_df <- data.frame(matrix(nrow = bm_times, ncol = length(cols)))
 colnames(raw_df) <- cols
 raw_df[,] <- sapply(raw_df[,], as.numeric)
 raw_path <- paste(bm_write_path, sprintf("ro3-%s-%s-%s.csv",
-                                         strat_size, processor, mitigations),
+                                         strat_size,
+                                         stringr::str_to_lower(processor),
+                                         mitigations),
                   sep = "/")
 # BENCHMARKER
 # Get results and append to dataframe (actual benchmarking part)
