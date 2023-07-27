@@ -149,7 +149,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="900px", out.height="450px", fig.cap="Principal Components Plot for k=7"}
 
-load(file="presentation_files/img/pca-7.RData")
+load(file="presentation_files/img/2d-pca-7.RData")
 p
 ```
 ::::
@@ -172,7 +172,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="900px", out.height="450px", fig.cap="tSNE Plot for k=7"}
 
-load(file="presentation_files/img/tsne-7.RData")
+load(file="presentation_files/img/2d-tsne-7.RData")
 p
 ```
 ::::
@@ -193,7 +193,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="900px", out.height="450px", fig.cap="UMAP Plot for k=7"}
 
-load(file="presentation_files/img/umap-7.RData")
+load(file="presentation_files/img/2d-umap-7.RData")
 p
 ```
 ::::
@@ -239,7 +239,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=3"}
 
-load(file="presentation_files/img/pca-3.RData")
+load(file="presentation_files/img/2d-pca-3.RData")
 p
 ```
 ::::
@@ -247,7 +247,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=5"}
 
-load(file="presentation_files/img/pca-5.RData")
+load(file="presentation_files/img/2d-pca-5.RData")
 p
 ```
 ::::
@@ -255,7 +255,7 @@ p
 :::: {.column width="100%"}
 ```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=7"}
 
-load(file="presentation_files/img/pca-7.RData")
+load(file="presentation_files/img/2d-pca-7.RData")
 p
 ```
 ::::
@@ -271,7 +271,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=3"}
 
-load(file="presentation_files/img/tsne-3.RData")
+load(file="presentation_files/img/2d-tsne-3.RData")
 p
 ```
 ::::
@@ -279,7 +279,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=5"}
 
-load(file="presentation_files/img/tsne-5.RData")
+load(file="presentation_files/img/2d-tsne-5.RData")
 p
 ```
 ::::
@@ -287,7 +287,7 @@ p
 :::: {.column width="100%"}
 ```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=7"}
 
-load(file="presentation_files/img/tsne-7.RData")
+load(file="presentation_files/img/2d-tsne-7.RData")
 p
 ```
 ::::
@@ -301,7 +301,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=3"}
 
-load(file="presentation_files/img/umap-3.RData")
+load(file="presentation_files/img/2d-umap-3.RData")
 p
 ```
 ::::
@@ -309,7 +309,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=5"}
 
-load(file="presentation_files/img/umap-5.RData")
+load(file="presentation_files/img/2d-umap-5.RData")
 p
 ```
 ::::
@@ -317,7 +317,7 @@ p
 :::: {.column width="100%"}
 ```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=7"}
 
-load(file="presentation_files/img/umap-7.RData")
+load(file="presentation_files/img/2d-umap-7.RData")
 p
 ```
 ::::
@@ -331,7 +331,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=7"}
 
-load(file="presentation_files/img/pca-7.RData")
+load(file="presentation_files/img/2d-pca-7.RData")
 p
 ```
 ::::
@@ -339,7 +339,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=7"}
 
-load(file="presentation_files/img/tsne-7.RData")
+load(file="presentation_files/img/2d-tsne-7.RData")
 p
 ```
 ::::
@@ -347,7 +347,7 @@ p
 :::: {.column width="100%"}
 ```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=7"}
 
-load(file="presentation_files/img/umap-7.RData")
+load(file="presentation_files/img/2d-umap-7.RData")
 p
 ```
 ::::
