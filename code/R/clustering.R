@@ -24,6 +24,10 @@ dendrogram_create_variant <- function(k, kmers, results_path, include_plots = FA
   model <- agnes(numeric_data_norm, metric = "euclidean",method="single")
   dendrogram <- as.dendrogram(model)
   
+  if (!include_plots) {
+    return()
+  }
+  
   # extract dendrogram segment data
   print("Plotting dendrogram...")
   dendrogram_data <- dendro_data(dendrogram)
@@ -36,10 +40,6 @@ dendrogram_create_variant <- function(k, kmers, results_path, include_plots = FA
     dplyr::rename(sample_name = label) %>%
     left_join(metadata, by = 'sample_name')
   dendrogram_end<-subset(dendrogram_ends,sample_name!="<NA>")
-  
-  if (!include_plots) {
-    return()
-  }
   
   # generate color variant color palette
   variant_color <- brewer.pal(n = 6, name = 'Paired')
@@ -88,6 +88,10 @@ dendrogram_create_region <- function(k, kmers, results_path, include_plots = FAL
   dendrogram <- as.dendrogram(model)
   plot(dendrogram)
   
+  if (!include_plots) {
+    return()
+  }
+  
   # extract dendrogram segment data
   dendrogram_data <- dendro_data(dendrogram)
   dendrogram_segments <- dendrogram_data$segments # contains all dendrogram segment data
@@ -99,10 +103,6 @@ dendrogram_create_region <- function(k, kmers, results_path, include_plots = FAL
     left_join(dendrogram_data$labels, by = 'x') %>% # .$labels contains the row names from dist_matrix (i.e., sample_name)
     dplyr::rename(sample_name = label) %>%
     left_join(metadata, by = 'sample_name') 
-  
-  if (!include_plots) {
-    return()
-  }
   
   # Generate custom color palette for dendrogram ends based on metadata variable
   unique_vars <- levels(factor(dendrogram_ends$division_exposure)) %>% 
