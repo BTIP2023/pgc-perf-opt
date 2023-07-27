@@ -44,7 +44,7 @@ dendrogram_create_variant <- function(k, kmers, results_path) {
     geom_segment(data = dendrogram_segments,
                  aes(x=x, y=y, xend=xend, yend=yend)) +
     geom_segment(data = dendrogram_end,
-                 aes(x=x, y=y.x, xend=xend, yend=yend, color = variant, text = paste('sample name: ', sample_name,
+                 aes(x=x, y=y.x, xend=xend, yend=yend, color = variant, label = paste('sample name: ', sample_name,
                                                                                      '<br>',
                                                                                      'Variant: ', variant))) + # test aes is for plotly
     scale_color_manual(values = variant_color) + scale_y_reverse() + coord_flip() +
@@ -117,7 +117,7 @@ dendrogram_create_region <- function(k, kmers, results_path) {
     geom_segment(data = dendrogram_segments, 
                  aes(x=x, y=y, xend=xend, yend=yend)) +
     geom_segment(data = dendrogram_ends,
-                 aes(x=x, y=y.x, xend=xend, yend=yend, color = division_exposure, text = paste('sample name: ', sample_name,
+                 aes(x=x, y=y.x, xend=xend, yend=yend, color = division_exposure, label = paste('sample name: ', sample_name,
                                                                                      '<br>',
                                                                                      'Region ', division_exposure))) + # test aes is for plotly
     scale_color_manual(values = var_color) + scale_y_reverse() + coord_flip() +
