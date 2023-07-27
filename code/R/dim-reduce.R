@@ -397,7 +397,6 @@ tsne_2d <- function(tsne_df, df, color, shape, k, is_tsne, results_path) {
     ))) +
     xlab("TSNE-2D-1") +
     ylab("TSNE-2D-2") +
-    labs(color = "Label") +
     scale_color_brewer(palette = "Set1")
   
   # Save plot as PNG and HTML
@@ -462,7 +461,7 @@ umap_2d <- function(umap_df, df, color, shape, k, results_path) {
     ))) +
     xlab("UMAP_1") +
     ylab("UMAP_2") +
-    labs(color = "Label") +
+    labs(shape = "shape", color="color") +
     scale_color_brewer(palette = "Set1")
   
   # Save plot as PNG and HTML

@@ -88,7 +88,6 @@ umap_n_neighbors <- 15
 umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 color <- "variant"
-shape <- "sex"
 shape <- "year"
 include_plots <- TRUE
 
