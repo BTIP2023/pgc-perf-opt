@@ -111,15 +111,15 @@ bm_write_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 if (OS == "Windows") {
   processor <- stringr::str_extract(system("systeminfo",
-                                           intern = TRUE)[17], "AMD|Linux")
+                                           intern = TRUE)[17], "AMD|Intel")
 } else {
   processor <- stringr::str_extract(system("lscpu | grep 'Model name'",
-                                           intern = TRUE), "AMD|Linux")
+                                           intern = TRUE), "AMD|Intel")
 }
 # valid values: ["All"|"Some"(Linux only)|"None"]
 # Mitigations are automatically detected in Linux by write_to_log.
 # Don't forget to set this to current runtime configuration of the benchmark.
-mitigations <- "All"
+mitigations <- "all"
 
 # HELPER FUNCTIONS ##########################################
 # Benchmark passed operation.
