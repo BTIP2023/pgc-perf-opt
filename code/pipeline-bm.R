@@ -563,13 +563,11 @@ for (i in 1:length(ops)) {
 }
 
 # Write (append) results to accumulator file in bm_write_path
-if (!failsafe) {
-  filepath <- paste(bm_write_path, "ro3.csv", sep = "/")
-  if (!file.exists(filepath)) {
-    readr::write_csv(results, filepath)
-  } else {
-    readr::write_csv(results, filepath, append = TRUE)
-  }
+filepath <- paste(bm_write_path, "ro3.csv", sep = "/")
+if (!file.exists(filepath)) {
+  readr::write_csv(results, filepath)
+} else {
+  readr::write_csv(results, filepath, append = TRUE)
 }
 
 # Write hardware specs and parameters used to log.txt
