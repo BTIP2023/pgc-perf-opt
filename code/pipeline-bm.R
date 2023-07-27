@@ -145,7 +145,8 @@ bm_cpu <- function(op, args, use_profiling, unit,
     }
     # Compute min, lq, mean, median, uq, and max
     summ <- validate::summary(all_times)
-    # Addon: Also save the 
+    # Addon: Also save the individual runtimes
+    # Already in all_times
     # Perform necessary conversion of data from seconds to desired unit
     if (unit == "nanoseconds") {
       summ[-7] <- lapply(summ[-7], function(x){round(x*1e+09,3)})
@@ -164,10 +165,12 @@ bm_cpu <- function(op, args, use_profiling, unit,
     res <- c(summ, times)
   } else {
     # Start benchmark
-    summ <- summary(microbenchmark(do.call(op, args),
-                                   times = times, unit = unit,
-                                   control = list(order = "inorder",
-                                                  warmup = warmup)))[-1]
+    mbm <- microbenchmark(do.call(op, args),
+                          times = times, unit = unit,
+                          control = list(order = "inorder",
+                                         warmup = warmup))
+    summ <- summary(mbm)[-1]
+    all_times <- mbm$time
     # Perform necessary conversion of data from ns to desired unit
     if (unit == "seconds") {
       summ[-7] <- lapply(summ[-7], function(x){round(x*1e-09,3)})
@@ -180,6 +183,7 @@ bm_cpu <- function(op, args, use_profiling, unit,
     }
     res <- summ
   }
+  list(res, all_times)
 }
 
 # TODO!
@@ -505,6 +509,13 @@ results[, 1:3] <- sapply(results[, 1:3], as.character)
 results[, 4:11] <- sapply(results[, 4:11], as.numeric)
 results[, 12:14] <- sapply(results[, 12:14], as.character)
 
+# Addon: Initialize raw dataframe
+cols <- names
+raw_df <- data.frame(matrix(nrow = bm_times, ncol = length(cols)))
+colnames(raw_df) <- cols
+raw_df[,] <- sapply(raw_df[,], as.numeric)
+raw_path <- paste(bm_write_path, sprintf("ro3-%s.csv", strat_size))
+
 # BENCHMARKER
 # Get results and append to dataframe (actual benchmarking part)
 failsafe <- TRUE  # failsafe addon
@@ -525,7 +536,10 @@ for (i in 1:length(ops)) {
     profiler <- "microbenchmark"
   
   # BENCHMARKER
-  res <- bm_cpu(op, args, use_profiling, unit, times = bm_times)
+  list[res, raw] <- bm_cpu(op, args, use_profiling, unit, times = bm_times)
+  # Addon: raw results for stat, always rewrites csv in raw_path
+  raw_df[, i] <- raw
+  readr::write_csv(raw_df, raw_path)
   
   # Append results to results
   # If failsafe, then write row immediately to persistent file
@@ -539,7 +553,7 @@ for (i in 1:length(ops)) {
       readr::write_csv(results, fs_path)
     } else {
       readr::write_csv(results, fs_path, append = TRUE)
-    } 
+    }
   } else {
     results[nrow(results)+1, 1:3] <- c(opname, profiler, unit)
     results[nrow(results), 4:10] <- res[1:7]
@@ -555,7 +569,7 @@ if (!failsafe) {
     readr::write_csv(results, filepath)
   } else {
     readr::write_csv(results, filepath, append = TRUE)
-  } 
+  }
 }
 
 # Write hardware specs and parameters used to log.txt
