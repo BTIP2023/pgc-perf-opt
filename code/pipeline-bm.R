@@ -94,6 +94,7 @@ umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 color <- "variant"
 shape <- "sex"
+include_plots <- TRUE  # shared with clustering
 
 # dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
 factor1 <- "variant"
@@ -144,6 +145,7 @@ bm_cpu <- function(op, args, use_profiling, unit,
     }
     # Compute min, lq, mean, median, uq, and max
     summ <- validate::summary(all_times)
+    # Addon: Also save the 
     # Perform necessary conversion of data from seconds to desired unit
     if (unit == "nanoseconds") {
       summ[-7] <- lapply(summ[-7], function(x){round(x*1e+09,3)})

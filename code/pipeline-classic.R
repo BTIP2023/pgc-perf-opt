@@ -89,7 +89,7 @@ umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 color <- "variant"
 shape <- "sex"
-include_plots <- TRUE
+include_plots <- TRUE  # shared with clustering
 
 # dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
 # factor1 <- "variant"
@@ -165,13 +165,13 @@ for (i in 1:length(kmer_list)) {
 #Step 4: AGNES Clustering by Variant
 for (i in 1:length(kmer_list)) {
   k <- kmer_list[i]
-  dendrogram_create_variant(k, kmers[[i]], agnes_write_path)
+  dendrogram_create_variant(k, kmers[[i]], agnes_write_path, include_plots)
 }
 
 #Step 5: AGNES Clustering by Region
 for (i in 1:length(kmer_list)) {
   k <- kmer_list[i]
-  dendrogram_create_region(k, kmers[[i]], agnes_write_path)
+  dendrogram_create_region(k, kmers[[i]], agnes_write_path, include_plots)
 }
 
 message("All operations completed successfully!")

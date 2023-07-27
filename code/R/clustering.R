@@ -1,4 +1,4 @@
-dendrogram_create_variant <- function(k, kmers, results_path) { 
+dendrogram_create_variant <- function(k, kmers, results_path, include_plots = FALSE) { 
   # process kmers dataframe, note that this was read outside the function 
   df <- kmers
   dat <- df %>%
@@ -36,6 +36,10 @@ dendrogram_create_variant <- function(k, kmers, results_path) {
     dplyr::rename(sample_name = label) %>%
     left_join(metadata, by = 'sample_name')
   dendrogram_end<-subset(dendrogram_ends,sample_name!="<NA>")
+  
+  if (!include_plots) {
+    return()
+  }
   
   # generate color variant color palette
   variant_color <- brewer.pal(n = 6, name = 'Paired')
