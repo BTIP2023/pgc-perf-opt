@@ -88,12 +88,9 @@ umap_n_neighbors <- 15
 umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 color <- "variant"
-<<<<<<< HEAD
 shape <- "sex"
-include_plots <- TRUE
-=======
 shape <- "year"
->>>>>>> fe1423b (removed filtering from pipeline-classic)
+include_plots <- TRUE
 
 # dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
 # factor1 <- "variant"

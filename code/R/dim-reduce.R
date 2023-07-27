@@ -92,6 +92,12 @@ save_plot <- function(method, results_path, k, p, is_3d = FALSE) {
   if (is_3d) {
     # Save plot_ly obj. as PNG
     # save_image(p, paste(results_path, filename, sep = "/"))
+    
+    # Convert ggplot object to ggplotly
+    p <- ggplotly(p) 
+    # Save as RData
+    save(p, file = file.path(results_path, paste0(method, "-", k, ".RData")))
+    
   } else {
     # Save as PNG
     ggsave(filename, p, results_path,
@@ -234,7 +240,7 @@ screeplot <- function(pca_df, k, results_path) {
 
 # Function that generates factor loadings of first
 # n_components Principal Components
-factor_loadings <- function(pca_df, x, k, n_components) {
+factor_loadings <- function(pca_df, x, k, n_components, results_path) {
   print(paste("Generating factor loadings plot of first", n_components,
               "PCs...",
               sep = " "
@@ -259,7 +265,7 @@ factor_loadings <- function(pca_df, x, k, n_components) {
       )
     
     # Save plot as PNG and HTML
-    save_plot(paste("loadings", i, sep = "-"), k, p)
+    save_plot(paste("loadings", i, sep = "-"), results_path, k, p)
   }
 }
 
@@ -536,7 +542,7 @@ dim_reduce <- function(k, kmers, results_path, tsne_seed, tsne_perplexity,
     screeplot(pca_df, k, results_path)
     
     # Generate factor loadings plot of first 3 principal components
-    factor_loadings(pca_df, x, k, 3)
+    factor_loadings(pca_df, x, k, 3, results_path)
     
     # Generate graph of individuals
     indiv(pca_df, k, results_path)
