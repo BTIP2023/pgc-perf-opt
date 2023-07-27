@@ -265,6 +265,27 @@ NROWS <- nrow(metadata_all)
 message(sprintf("Running pipeline-bm.R benchmark on %s with mitigations: %s", OS, mitigations))
 message(sprintf("Number of selected samples are: %d", NROWS))
 
+# Write hardware specs and parameters used to log.txt
+param_string <- paste(c("---------PARAMETERS---------",
+                        paste0("MITIGATIONS STATUS:\t", mitigations),
+                        paste0("seed:\t\t\t", seed),
+                        paste0("kmer_list:\t\t", paste(kmer_list, collapse = ", ")),
+                        paste0("strat_size:\t\t", strat_size),
+                        paste0("number_samples:\t\t", NROWS),
+                        paste0("country_exposure:\t", country_exposure),
+                        paste0("tsne_perplexity:\t", tsne_perplexity),
+                        paste0("tsne_max_iter:\t\t", tsne_max_iter),
+                        paste0("umap_n_neighbors:\t", umap_n_neighbors),
+                        paste0("umap_metric:\t\t", umap_metric),
+                        paste0("umap_min_dist:\t\t", umap_min_dist),
+                        paste0("color:\t\t\t", color),
+                        paste0("shape:\t\t\t", shape, "\n")),
+                      collapse = "\n")
+
+message("Writing logs... ", appendLF = FALSE)
+write_to_log(bm_write_path, "bm_log.txt", param_string, stamp)
+message("Writing logs... DONE!")
+
 # dim-reduce-aux: Prepare for dim-reduce algorithms
 # List format: {(df_k, x_k, pca_df_k), ...}
 draux <- list()
@@ -570,28 +591,6 @@ if (!file.exists(filepath)) {
 } else {
   readr::write_csv(results, filepath, append = TRUE)
 }
-
-# Write hardware specs and parameters used to log.txt
-
-param_string <- paste(c("---------PARAMETERS---------",
-  paste0("MITIGATIONS STATUS:\t", mitigations),
-  paste0("seed:\t\t\t", seed),
-  paste0("kmer_list:\t\t", paste(kmer_list, collapse = ", ")),
-  paste0("strat_size:\t\t", strat_size),
-  paste0("number_samples:\t\t", NROWS),
-  paste0("country_exposure:\t", country_exposure),
-  paste0("tsne_perplexity:\t", tsne_perplexity),
-  paste0("tsne_max_iter:\t\t", tsne_max_iter),
-  paste0("umap_n_neighbors:\t", umap_n_neighbors),
-  paste0("umap_metric:\t\t", umap_metric),
-  paste0("umap_min_dist:\t\t", umap_min_dist),
-  paste0("color:\t\t\t", color),
-  paste0("shape:\t\t\t", shape, "\n")),
-  collapse = "\n")
-
-message("Writing logs... ", appendLF = FALSE)
-write_to_log(bm_write_path, "bm_log.txt", param_string, stamp)
-message("Writing logs... DONE!")
 
 message("All operations completed successfully!")
 
