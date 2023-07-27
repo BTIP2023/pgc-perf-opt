@@ -51,9 +51,9 @@ title-slide-attributes:
 ## Does processor vulnerability mitigations (Spectre and Meltdown) significantly affect the runtime of the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/spectre_meltdown.png){.fragment fig-align="center" height=60% width=60%}
 
-# Workflow Overview {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+# Improved Workflow {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
-# Workflow Improvments {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+## FASTA and Metadata files were extracted from .tar files obtained from the GISAID database {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ## Entries with erroneous metadata entries were filtered from the data set {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 

@@ -89,7 +89,8 @@ umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 color <- "variant"
 shape <- "sex"
-include_plots <- TRUE  # shared with clustering
+shape <- "year"
+include_plots <- TRUE
 
 # dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
 # factor1 <- "variant"
@@ -125,7 +126,7 @@ metadata_all <- compile_overview(metadata_all, compile_write_path, stamp)
 # Step 1.5D: make_treemaps()
 # NOTE: The treemap() function in helper.R
 # can generate any treemap you can think of, yeah!
-make_treemaps(metadata_all, treemaps_write_path, stamp)
+#make_treemaps(metadata_all, treemaps_write_path, stamp)
 
 # Step 2: get_kmers()
 for (k in kmer_list) {
@@ -157,8 +158,8 @@ for (i in 1:length(kmer_list)) {
              tsne_max_iter, tsne_initial_dims,
              umap_seed = seed, umap_n_neighbors,
              umap_metric, umap_min_dist, color = color, shape = shape,
-             filter1_factor = factor1, filter1_values = values1, # OPTIONAL
-             filter2_factor = factor2, filter2_values = values2, # OPTIONAL
+#             filter1_factor = factor1, filter1_values = values1, # OPTIONAL
+#             filter2_factor = factor2, filter2_values = values2, # OPTIONAL
              include_plots = include_plots)
 }
 
