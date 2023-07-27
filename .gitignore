@@ -70,6 +70,10 @@ presentations/research-updates-3/*.html
 presentations/final-presentation/presentation_files/libs/
 presentations/final-presentation/*.html
 presentations/final-presentation/presentation_files/img/*.RData
+presentations/final-presentation/presentation_files/img/*.csv
+presentations/final-presentation/presentation_files/img/*.tsv
+presentations/final-presentation/presentation_files/img/*.fasta
+presentations/final-presentation/presentation_files/img/desktop.ini
 presentations/*/presentation_files/*.RData
 *.drawio
 
