@@ -70,7 +70,7 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 # Note that valid strat_size will only be those with corresponding
 # files in `data/interm` and `data/kmers`
-strat_size <- 100
+strat_size <- 1000
 
 # preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
@@ -106,7 +106,7 @@ values2 <- c("2023")
 agnes_write_path <- "results/dendrogram"
 
 # Benchmark parameters
-bm_times <- 1L   # how many times should routine be evaluated
+bm_times <- 10L   # how many times should routine be evaluated
 bm_write_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 if (OS == "Windows") {
@@ -300,8 +300,8 @@ ops <- list(
                  list(fasta_all, metadata_all, interm_write_path, stamp)),
             list(compile_overview,
                  list(metadata_all, compile_write_path, stamp)),
-            list(make_treemaps,
-                 list(metadata_all, treemaps_write_path, stamp)),
+            # list(make_treemaps,
+            #      list(metadata_all, treemaps_write_path, stamp)),
             # kmer-analysis.R
             list(get_kmers,
                  list(fasta_all, metadata_all, 3, stamp)),
@@ -414,7 +414,7 @@ names <- list(
               "sanitize_sample",
               "generate_interm",
               "compile_overview",
-              "make_treemaps",
+              # "make_treemaps",
               "get_kmers_3",
               "get_kmers_5",
               "get_kmers_7",
@@ -456,7 +456,7 @@ control <- list(
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
                 # kmer-analysis.R
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
@@ -514,8 +514,9 @@ cols <- names
 raw_df <- data.frame(matrix(nrow = bm_times, ncol = length(cols)))
 colnames(raw_df) <- cols
 raw_df[,] <- sapply(raw_df[,], as.numeric)
-raw_path <- paste(bm_write_path, sprintf("ro3-%s.csv", strat_size), sep = "/")
-
+raw_path <- paste(bm_write_path, sprintf("ro3-%s-%s-%s.csv",
+                                         strat_size, processor, mitigations),
+                  sep = "/")
 # BENCHMARKER
 # Get results and append to dataframe (actual benchmarking part)
 failsafe <- TRUE  # failsafe addon
