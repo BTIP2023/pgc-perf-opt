@@ -59,12 +59,12 @@ source("code/R/clustering.R")
 seed <- 1234
 stamp <- get_time()
 write_fastacsv <- TRUE
-kmer_list <- c(3)
+kmer_list <- c(3, 5, 7)
 # strat_size: no. of samples per stratum. Current nrow(data) = 24671.
 # Also consider using sample_frac for proportionate allocation.
 # Note that valid strat_size will only be those with corresponding
 # files in `data/interm` and `data/kmers`
-strat_size <- 100
+strat_size <- 1000
 
 # preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
@@ -89,10 +89,25 @@ umap_min_dist <- 0.1
 color <- "variant"
 shape <- "sex"
 shape <- "year"
-include_plots <- TRUE
+include_plots <- FALSE
+
+# # dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
+# factor1 <- "variant"
+# values1 <- c("Omicron", "Omicron Sub")
+# factor2 <- "year"
+# values2 <- c("2023")
 
 # clustering-x.R::dendogram_create_x() parameters
 agnes_write_path <- "results/dendrogram"
+
+# Benchmarking parameters
+bm_times <- 10 
+bm_unit <- "milliseconds"
+alpha_value <- 0.05
+
+# Backends to compare
+selected_backends <- c("NETLIB", "ATLAS", "OPENBLASSERIAL",
+                       "MKLSERIAL", "BLISSERIAL")
 
 # FUNCTIONS ###############################################
 # Benchmarking function
@@ -265,8 +280,9 @@ check_stat_diff <- function(data, use_anova, alpha_val){
   }
 }
 
+# Function that plots and logs test results
 should_plot <- function(method_res, title, k, file_path) {
-  # Plot function if there is statistical difference  
+  # Plot if there is statistical difference  
   if(method_res$diff$is_diff) {
     plot_results(method_res, title, k, file_path)
     stat_res <- c("At least one of the values is statistically different from the others.",
@@ -289,36 +305,6 @@ assess_bm <- function(method_bm, selected_backends, bm_times) {
   diff <- check_stat_diff(data, use_anova, alpha_value)
   return(list(data = data, diff = diff))
 }
-
-# SET PARAMETERS ###########################################
-# dim-reduce.R::dim_reduce() parameters
-kmers_data_path <- "data/kmers"
-dimreduce_write_path <- "results/dim-reduce/R"
-tsne_perplexity <- 40
-tsne_max_iter <- 1000
-tsne_initial_dims <- 50
-umap_n_neighbors <- 15
-umap_metric <- "euclidean"
-umap_min_dist <- 0.1
-color <- "variant"
-shape <- "sex"
-shape <- "year"
-include_plots <- FALSE
-
-# # dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
-# factor1 <- "variant"
-# values1 <- c("Omicron", "Omicron Sub")
-# factor2 <- "year"
-# values2 <- c("2023")
-
-# Benchmarking parameters
-bm_times <- 5 
-bm_unit <- "milliseconds"
-alpha_value <- 0.05
-
-# Backends to compare
-selected_backends <- c("NETLIB", "ATLAS", "OPENBLASSERIAL",
-                       "MKLSERIAL", "BLISSERIAL")
 
 for(i in 1:length(kmer_list)) {
   k <- kmer_list[i]
