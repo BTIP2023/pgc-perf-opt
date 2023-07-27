@@ -505,6 +505,8 @@ results[, 12:14] <- sapply(results[, 12:14], as.character)
 
 # BENCHMARKER
 # Get results and append to dataframe (actual benchmarking part)
+failsafe <- TRUE  # failsafe addon
+fs_path <- paste(bm_write_path, "ro3-fs.csv", sep = "/")
 res <- list()
 for (i in 1:length(ops)) {
   # Get arguments
@@ -524,18 +526,34 @@ for (i in 1:length(ops)) {
   res <- bm_cpu(op, args, use_profiling, unit, times = bm_times)
   
   # Append results to results
-  results[nrow(results)+1, 1:3] <- c(opname, profiler, unit)
-  results[nrow(results), 4:10] <- res[1:7]
-  results[nrow(results), 11] <- strat_size
-  results[nrow(results), 12:14] <- c(processor, mitigations, stamp)
+  # If failsafe, then write row immediately to persistent file
+  # Else, accumulate results before writeback
+  if (failsafe) {
+    results[1, 1:3] <- c(opname, profiler, unit)
+    results[1, 4:10] <- res[1:7]
+    results[1, 11] <- strat_size
+    results[1, 12:14] <- c(processor, mitigations, stamp)
+    if (!file.exists(fs_path)) {
+      readr::write_csv(results, fs_path)
+    } else {
+      readr::write_csv(results, fs_path, append = TRUE)
+    } 
+  } else {
+    results[nrow(results)+1, 1:3] <- c(opname, profiler, unit)
+    results[nrow(results), 4:10] <- res[1:7]
+    results[nrow(results), 11] <- strat_size
+    results[nrow(results), 12:14] <- c(processor, mitigations, stamp)
+  }
 }
 
 # Write (append) results to accumulator file in bm_write_path
-filepath <- paste(bm_write_path, "ro3.csv", sep = "/")
-if (!file.exists(filepath)) {
-  readr::write_csv(results, filepath)
-} else {
-  readr::write_csv(results, filepath, append = TRUE)
+if (!failsafe) {
+  filepath <- paste(bm_write_path, "ro3.csv", sep = "/")
+  if (!file.exists(filepath)) {
+    readr::write_csv(results, filepath)
+  } else {
+    readr::write_csv(results, filepath, append = TRUE)
+  } 
 }
 
 # Write hardware specs and parameters used to log.txt
