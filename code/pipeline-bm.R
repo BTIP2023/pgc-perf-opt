@@ -115,10 +115,10 @@ if (OS == "Windows") {
   processor <- stringr::str_extract(system("lscpu | grep 'Model name'",
                                            intern = TRUE), "AMD|Linux")
 }
-# valid values: ["ALL"|"SOME" (Linux only)|"NONE"]
+# valid values: ["All"|"Some"(Linux only)|"None"]
 # Mitigations are automatically detected in Linux by write_to_log.
 # Don't forget to set this to current runtime configuration of the benchmark.
-mitigations <- "ALL"
+mitigations <- "All"
 
 # HELPER FUNCTIONS ##########################################
 # Benchmark passed operation.
@@ -500,9 +500,8 @@ cols <-  c("op", "profiler", "unit",
 results <- data.frame(matrix(nrow = 0, ncol = length(cols)))
 colnames(results) <- cols
 results[, 1:3] <- sapply(results[, 1:3], as.character)
-results[, 3:9] <- sapply(results[, 3:9], as.numeric)
-results[, 10:13] <- sapply(results[, 10:13], as.character)
-results[14] <- sapply(results[14], as.numeric)
+results[, 4:11] <- sapply(results[, 4:11], as.numeric)
+results[, 12:14] <- sapply(results[, 12:14], as.character)
 
 # BENCHMARKER
 # Get results and append to dataframe (actual benchmarking part)
@@ -526,9 +525,9 @@ for (i in 1:length(ops)) {
   
   # Append results to results
   results[nrow(results)+1, 1:3] <- c(opname, profiler, unit)
-  results[nrow(results), 4:9] <- res[1:6]
-  results[nrow(results), 10:11] <- c(res[[7]], strat_size)
-  results[nrow(results), 12:14] <- c(processor, mitigations, timestamp)
+  results[nrow(results), 4:10] <- res[1:7]
+  results[nrow(results), 11] <- strat_size
+  results[nrow(results), 12:14] <- c(processor, mitigations, stamp)
 }
 
 # Write (append) results to accumulator file in bm_write_path
