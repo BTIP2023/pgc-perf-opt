@@ -101,7 +101,7 @@ include_plots <- FALSE
 agnes_write_path <- "results/dendrogram"
 
 # Benchmarking parameters
-bm_times <- 10 
+bm_times <- 1 
 bm_unit <- "milliseconds"
 alpha_value <- 0.05
 
@@ -202,6 +202,7 @@ should_anova <- function(data, alpha_value) {
     message("The data is normally distributed. We proceed with Bartlett's Test to test homogeneity of variance.")
     # Check Assumption #2: Equal Variance
     message("Performing Bartlett's Test...")
+    bartlett_res <- bartlett.test(time ~ backend, data=data)
     p_val <- bartlett_res$p.value
     message(paste0("Bartlett's Test is DONE w/ p-value ", p_val))
 
@@ -377,18 +378,6 @@ for(i in 1:length(kmer_list)) {
   # Perform Statistical Analysis on Dimensionality Reduction results
   dimred_res <- assess_bm(dimred_bm, selected_backends, bm_times)
 
-  # Benchmark backends on entire pipeline
-  pipeline_file <- "code/pipeline-classic.R"
-  pipeline_bm <- benchmark_backends(source,
-                                    list(pipeline_file),
-                                    selected_backends,
-                                    bm_times,
-                                    bm_unit,
-                                    use_profiling = TRUE)
-
-  # Perform Statistical Analysis on Pipeline results
-  pipeline_res <- assess_bm(pipeline_bm, selected_backends, bm_times)
-
   message(paste0("Benchmarking ", k, "-mer Done :>"))
   
   # Plotting Routines
@@ -408,13 +397,25 @@ for(i in 1:length(kmer_list)) {
   
   # Plot t-SNE benchmark results
   should_plot(tsne_bm, "tsne", k, results_path)
-  
+
   # Plot UMAP benchmark results
   should_plot(umap_bm, "umap", k, results_path)
-  
+
   # Plot dim_reduce benchmark results
   should_plot(dimred_bm, "dimred", k, results_path)
-  
-  # Plot pipeline benchmark results
-  should_plot(pipeline_bm, "pipeline", k, results_path)
 }
+
+# Benchmark backends on entire pipeline
+pipeline_file <- "code/pipeline-classic.R"
+pipeline_bm <- benchmark_backends(source,
+                                  list(pipeline_file),
+                                  selected_backends,
+                                  bm_times,
+                                  bm_unit,
+                                  use_profiling = TRUE)
+
+# Perform Statistical Analysis on Pipeline results
+pipeline_res <- assess_bm(pipeline_bm, selected_backends, bm_times)
+
+# Plot pipeline benchmark results
+should_plot(pipeline_bm, "pipeline", k, results_path)
