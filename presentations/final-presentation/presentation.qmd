@@ -56,19 +56,29 @@ title-slide-attributes:
 ## Improved Workflow summary {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/pipeline-flowchart.png){.fragment fig-align="center" height=60% width=60%}
 
-## Data Preprocessing: FASTA and Metadata files were extracted from .tar files obtained from the GISAID database. {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Preprocessing: FASTA and Metadata files were extracted from .tar files obtained from the GISAID database. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Data Preprocessing: A treemap that visualizes the distribution of different  {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Preprocessing: A treemap that visualizes the distribution of different  {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Data Preprocessing: A stratified random sampler was utilized to obtain a smaller sample of all the sequences available in the GISAID database. {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Preprocessing: A stratified random sampler was utilized to obtain a smaller sample of all the sequences available in the GISAID database. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Data Preprocessing: Entries with erroneous metadata entries were filtered from the data set to prevent issues in downstream analysis {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Preprocessing: Entries with erroneous metadata entries were filtered from the data set to prevent issues in downstream analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Data Preprocessing: Sequences and metadata of preprocessed data can be saved for possible use in further downstream analysis {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Preprocessing: Sequences and metadata of preprocessed data can be saved for possible use in further downstream analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## kmer analysis: kmer frequencies can be used to represent a specific sequence for downstream profiling {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## k-mer analysis: k-mer frequencies can be used to represent a specific sequence for downstream profiling {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Dimensional-Reduction: PCA analysis is able to reduce the number of dimensions of the highly dimensional k-mer data set using linear reduction{data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+```{r out.width="900px", out.height="450px"}
+
+library(readr)
+library(flextable)
+
+p <- read.csv(file="presentation_files/img/kmer_3_100.csv", nrows=10)
+p_table <- flextable(p)
+p_table
+```
+
+## Dimensional-Reduction: PCA analysis is able to reduce the number of dimensions of the highly dimensional k-mer data set using linear reduction{data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::::: {.columns}
 
@@ -91,7 +101,7 @@ p
 :::::
 
 
-## Dimensional-Reduction: tSNE is an non-linear method that is able to reduce the number of dimensions of the highly dimensional k-mer data set {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Dimensional-Reduction: tSNE is an non-linear method that is able to reduce the number of dimensions of the highly dimensional k-mer data set {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::::: {.columns}
 
@@ -113,7 +123,7 @@ p
 
 :::::
 
-## Dimensional-Reduction: UMAP is a newer non-linear method that is able to reduce the number of dimensions of the highly dimensional k-mer data set {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Dimensional-Reduction: UMAP is a newer non-linear method that is able to reduce the number of dimensions of the highly dimensional k-mer data set {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ::::: {.columns}
 
 :::: {.column width="50%"}
@@ -134,13 +144,14 @@ p
 
 :::::
 
-## AGNES Clustering: AGNES Clustering uses a "bottom-up" approach to group similar data points together into a dendrogram {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## AGNES Clustering: AGNES Clustering uses a "bottom-up" approach to group similar data points together into a dendrogram {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
 ::::: {.columns}
 
 :::: {.column width="50%"}
 ```{r out.width="900px", out.height="450px", fig.cap="Dendrogram grouping sequences by variant"}
 
-load(file="presentation_files/img/clustering-variant.RData")
+load(file="presentation_files/img/clustering-variant-7.RData")
 p
 ```
 ::::
@@ -148,7 +159,7 @@ p
 :::: {.column width="50%"}
 ```{r out.width="900px", out.height="450px", fig.cap="Dendrogram grouping sequences by region"}
 
-load(file="presentation_files/img/clustering-region.RData")
+load(file="presentation_files/img/clustering-region-7.RData")
 p
 ```
 ::::
@@ -157,9 +168,134 @@ p
 
 # Insights from the plots generated by the pipeline {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
+## Dimensional analysis results in increased clustering as k increases {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=3"}
+
+load(file="presentation_files/img/pca-3.RData")
+p
+```
+::::
+
+:::: {.column width="50%"}
+```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=5"}
+
+load(file="presentation_files/img/pca-5.RData")
+p
+```
+::::
+
+:::: {.column width="100%"}
+```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=7"}
+
+load(file="presentation_files/img/pca-7.RData")
+p
+```
+::::
 
 
-# Benchmarking of the pipeline using different linear algebra libraries and processor vulnerability mitigations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"} 
+:::::
+
+
+## Dimensional analysis results in increased clustering as k increases {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=3"}
+
+load(file="presentation_files/img/tsne-3.RData")
+p
+```
+::::
+
+:::: {.column width="50%"}
+```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=5"}
+
+load(file="presentation_files/img/tsne-5.RData")
+p
+```
+::::
+
+:::: {.column width="100%"}
+```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=7"}
+
+load(file="presentation_files/img/tsne-7.RData")
+p
+```
+::::
+
+:::::
+
+## Dimensional analysis results in increased clustering as k increases {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=3"}
+
+load(file="presentation_files/img/umap-3.RData")
+p
+```
+::::
+
+:::: {.column width="50%"}
+```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=5"}
+
+load(file="presentation_files/img/umap-5.RData")
+p
+```
+::::
+
+:::: {.column width="100%"}
+```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=7"}
+
+load(file="presentation_files/img/umap-7.RData")
+p
+```
+::::
+
+:::::
+
+## UMAP analysis results in the most distinct clustering between variants {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+```{r out.width="800px", out.height="400px", fig.cap="Principal Components Plot for k=7"}
+
+load(file="presentation_files/img/pca-7.RData")
+p
+```
+::::
+
+:::: {.column width="50%"}
+```{r out.width="800px", out.height="400px", fig.cap="tSNE Plot for k=7"}
+
+load(file="presentation_files/img/tsne-7.RData")
+p
+```
+::::
+
+:::: {.column width="100%"}
+```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=7"}
+
+load(file="presentation_files/img/umap-7.RData")
+p
+```
+::::
+
+:::::
+
+
+# Benchmarking of the pipeline using different linear algebra libraries {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"} 
+
+
+# Benchmarking of the pipeline using different processor vulnerability mitigations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"} 
+
 
 # Conclusion {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
