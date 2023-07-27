@@ -108,6 +108,13 @@ agnes_write_path <- "results/dendrogram"
 bm_times <- 1L   # how many times should routine be evaluated
 bm_write_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
+if (OS == "Windows") {
+  processor <- stringr::str_extract(system("systeminfo",
+                                           intern = TRUE)[17], "AMD|Linux")
+} else {
+  processor <- stringr::str_extract(system("lscpu | grep 'Model name'",
+                                           intern = TRUE), "AMD|Linux")
+}
 # valid values: ["ALL"|"SOME" (Linux only)|"NONE"]
 # Mitigations are automatically detected in Linux by write_to_log.
 # Don't forget to set this to current runtime configuration of the benchmark.
@@ -384,7 +391,7 @@ ops <- list(
             list(dendrogram_create_variant,
                  list(7, kmers[[3]], agnes_write_path)),
             list(dendro_var_all,
-                 list(kmer_list, kmers_data_path, agnes_write_path)),
+                 list(kmer_list, kmers, agnes_write_path)),
             list(dendrogram_create_region,
                  list(3, kmers[[1]], agnes_write_path)),
             list(dendrogram_create_region,
@@ -392,7 +399,7 @@ ops <- list(
             list(dendrogram_create_region,
                  list(7, kmers[[3]], agnes_write_path)),
             list(dendro_reg_all,
-                 list(kmer_list, kmers_data_path, agnes_write_path))
+                 list(kmer_list, kmers, agnes_write_path))
             )
 
 # Also initialize names of the functions (can't get it programmatically)
@@ -487,15 +494,15 @@ control <- list(
                 )
 
 # Initialize results dataframe
-cols <-  c("op", "unit",
+cols <-  c("op", "profiler", "unit",
            "min", "lq", "mean", "median", "uq", "max", "neval",
-           "profiler", "mitigations", "timestamp", "strat_size")
+           "strat_size", "processor", "mitigations", "timestamp")
 results <- data.frame(matrix(nrow = 0, ncol = length(cols)))
 colnames(results) <- cols
-results[, 1:2] <- sapply(results[, 1:2], as.character)
+results[, 1:3] <- sapply(results[, 1:3], as.character)
 results[, 3:9] <- sapply(results[, 3:9], as.numeric)
-results[, 10:12] <- sapply(results[, 10:12], as.character)
-results[, 13] <- sapply(results[, 13], as.numeric)
+results[, 10:13] <- sapply(results[, 10:13], as.character)
+results[14] <- sapply(results[14], as.numeric)
 
 # BENCHMARKER
 # Get results and append to dataframe (actual benchmarking part)
@@ -518,11 +525,10 @@ for (i in 1:length(ops)) {
   res <- bm_cpu(op, args, use_profiling, unit, times = bm_times)
   
   # Append results to results
-  results[nrow(results)+1, 1:2] <- c(opname, unit)
-  results[nrow(results), 3:8] <- res[1:6]
-  results[nrow(results), 9] <- res[[7]]
-  results[nrow(results), 10:12] <- c(profiler, mitigations, stamp)
-  results[nrow(results), 13] <- strat_size
+  results[nrow(results)+1, 1:3] <- c(opname, profiler, unit)
+  results[nrow(results), 4:9] <- res[1:6]
+  results[nrow(results), 10:11] <- c(res[[7]], strat_size)
+  results[nrow(results), 12:14] <- c(processor, mitigations, timestamp)
 }
 
 # Write (append) results to accumulator file in bm_write_path
