@@ -51,12 +51,12 @@ title-slide-attributes:
 ## Does processor vulnerability mitigations (Spectre and Meltdown) significantly affect the runtime of the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/spectre_meltdown.png){.fragment fig-align="center" height=60% width=60%}
 
-# Improved Workflow {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+# Improved unsupervised machine learning pipeline {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
 ## Improved Workflow summary {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/pipeline-flowchart.png){.fragment fig-align="center" height=60% width=60%}
 
-## Data Preprocessing: FASTA and Metadata files were extracted and cleaned from .tar files obtained from the GISAID database. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Extraction: FASTA and Metadata files were extracted and cleaned from .tar files obtained from the GISAID database. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::::: {.columns}
 
@@ -136,7 +136,7 @@ p_table
 
 ## Heatmaps of k-mer tables showed no obvious differences in k-mer frequencies between samples {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-```{r out.width="1800px", out.height="900px", fig.cap="7-mer heatmap"}
+```{r out.width="1800px", out.height="900px", fig.cap="3-mer heatmap"}
 
 load(file="presentation_files/img/heatmap-3.RData")
 p
@@ -216,7 +216,7 @@ p
 ```{r out.width="900px", out.height="450px", fig.cap="Dendrogram grouping sequences by variant"}
 
 load(file="presentation_files/img/clustering-variant-7.RData")
-p
+ggp
 ```
 ::::
 
@@ -224,7 +224,7 @@ p
 ```{r out.width="900px", out.height="450px", fig.cap="Dendrogram grouping sequences by region"}
 
 load(file="presentation_files/img/clustering-region-7.RData")
-p
+ggp
 ```
 ::::
 
@@ -364,6 +364,8 @@ p
 # Conclusion {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
 # Recommendations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+# Acknowledgements {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
 # References {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
