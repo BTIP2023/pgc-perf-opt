@@ -70,7 +70,7 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 # Note that valid strat_size will only be those with corresponding
 # files in `data/interm` and `data/kmers`
-strat_size <- 100
+strat_size <- 1000
 
 # preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
@@ -105,7 +105,7 @@ values2 <- c("2023")
 agnes_write_path <- "results/dendrogram"
 
 # Benchmark parameters
-bm_times <- 1L   # how many times should routine be evaluated
+bm_times <- 10L   # how many times should routine be evaluated
 bm_write_path <- "benchmarks/ro3"
 OS <- pacman::p_detectOS()
 if (OS == "Windows") {
@@ -303,8 +303,8 @@ ops <- list(
                  list(fasta_all, metadata_all, 5, stamp)),
             list(get_kmers,
                  list(fasta_all, metadata_all, 7, stamp)),
-            list(get_kmers_all,
-                 list(kmer_list, fasta_all, metadata_all, stamp)),
+            # list(get_kmers_all,
+            #      list(kmer_list, fasta_all, metadata_all, stamp)),
             # dim-reduce.R
             ## PCA
             list(pca_fn,   # k = 3
@@ -328,10 +328,10 @@ ops <- list(
                  list(draux[[3]][[3]], 2, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
                       tsne_seed = seed)),
-            list(tsne_fn_all,
-                 list(draux, 2, tsne_initial_dims,
-                      tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed)),
+            # list(tsne_fn_all,
+            #      list(draux, 2, tsne_initial_dims,
+            #           tsne_perplexity, tsne_max_iter,
+            #           tsne_seed = seed)),
             ## TSNE 3D
             list(tsne_fn,                   # k = 3
                  list(draux[[1]][[3]], 3, tsne_initial_dims,
@@ -345,10 +345,10 @@ ops <- list(
                  list(draux[[3]][[3]], 3, tsne_initial_dims,
                       tsne_perplexity, tsne_max_iter,
                       tsne_seed = seed)),
-            list(tsne_fn_all,
-                 list(draux, 3, tsne_initial_dims,
-                      tsne_perplexity, tsne_max_iter,
-                      tsne_seed = seed)),
+            # list(tsne_fn_all,
+            #      list(draux, 3, tsne_initial_dims,
+            #           tsne_perplexity, tsne_max_iter,
+            #           tsne_seed = seed)),
             ## UMAP 2D
             list(umap_fn,                 # k = 3
                  list(draux[[1]][[3]], 2, umap_n_neighbors,
@@ -362,10 +362,10 @@ ops <- list(
                  list(draux[[3]][[3]], 2, umap_n_neighbors,
                       umap_metric, umap_min_dist,
                       umap_seed = seed)),
-            list(umap_fn_all,
-                 list(draux, 2, umap_n_neighbors,
-                      umap_metric, umap_min_dist,
-                      umap_seed = seed)),
+            # list(umap_fn_all,
+            #      list(draux, 2, umap_n_neighbors,
+            #           umap_metric, umap_min_dist,
+            #           umap_seed = seed)),
             ## UMAP 3D
             list(umap_fn,                 # k = 3
                  list(draux[[1]][[3]], 3, umap_n_neighbors,
@@ -379,10 +379,10 @@ ops <- list(
                  list(draux[[3]][[3]], 3, umap_n_neighbors,
                       umap_metric, umap_min_dist,
                       umap_seed = seed)),
-            list(umap_fn_all,
-                 list(draux, 3, umap_n_neighbors,
-                      umap_metric, umap_min_dist,
-                      umap_seed = seed)),
+            # list(umap_fn_all,
+            #      list(draux, 3, umap_n_neighbors,
+            #           umap_metric, umap_min_dist,
+            #           umap_seed = seed)),
             # Clustering AGNES
             list(dendrogram_create_variant,
                  list(3, kmers[[1]], agnes_write_path)),
@@ -390,16 +390,16 @@ ops <- list(
                  list(5, kmers[[2]], agnes_write_path)),
             list(dendrogram_create_variant,
                  list(7, kmers[[3]], agnes_write_path)),
-            list(dendro_var_all,
-                 list(kmer_list, kmers, agnes_write_path)),
+            # list(dendro_var_all,
+            #      list(kmer_list, kmers, agnes_write_path)),
             list(dendrogram_create_region,
                  list(3, kmers[[1]], agnes_write_path)),
             list(dendrogram_create_region,
                  list(5, kmers[[2]], agnes_write_path)),
             list(dendrogram_create_region,
-                 list(7, kmers[[3]], agnes_write_path)),
-            list(dendro_reg_all,
-                 list(kmer_list, kmers, agnes_write_path))
+                 list(7, kmers[[3]], agnes_write_path))
+            # list(dendro_reg_all,
+            #      list(kmer_list, kmers, agnes_write_path))
             )
 
 # Also initialize names of the functions (can't get it programmatically)
@@ -412,35 +412,35 @@ names <- list(
               "get_kmers_3",
               "get_kmers_5",
               "get_kmers_7",
-              "get_kmers_all",
+              # "get_kmers_all",
               "pca_3",
               "pca_5",
               "pca_7",
-              "pca_all",
+              # "pca_all",
               "tsne_2d_3",
               "tsne_2d_5",
               "tsne_2d_7",
-              "tsne_2d_all",
+              # "tsne_2d_all",
               "tsne_3d_3",
               "tsne_3d_5",
               "tsne_3d_7",
-              "tsne_3d_all",
+              # "tsne_3d_all",
               "umap_2d_3",
               "umap_2d_5",
               "umap_2d_7",
-              "umap_2d_all",
+              # "umap_2d_all",
               "umap_3d_3",
               "umap_3d_5",
               "umap_3d_7",
-              "umap_3d_all",
+              # "umap_3d_all",
               "agnes_var_3",
               "agnes_var_5",
               "agnes_var_7",
-              "agnes_var_all",
+              # "agnes_var_all",
               "agnes_reg_3",
               "agnes_reg_5",
-              "agnes_reg_7",
-              "agnes_reg_all"
+              "agnes_reg_7"
+              # "agnes_reg_all"
               )
 
 # Addon: profiling boolean list and units char list for finer control
@@ -455,42 +455,42 @@ control <- list(
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
                 # PCA
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
                 # TSNE 2D
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
                 # TSNE 3D
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
                 # UMAP 2D
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
                 # UMAP 3D
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
                 # Clustering AGNES variant
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
+                # list(TRUE, "seconds"),
                 # Clustering AGNES region
                 list(TRUE, "seconds"),
                 list(TRUE, "seconds"),
-                list(TRUE, "seconds"),
                 list(TRUE, "seconds")
+                # list(TRUE, "seconds")
                 )
 
 # Initialize results dataframe
