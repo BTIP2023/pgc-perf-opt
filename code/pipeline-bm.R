@@ -519,6 +519,7 @@ raw_path <- paste(bm_write_path, sprintf("ro3-%s.csv", strat_size), sep = "/")
 # BENCHMARKER
 # Get results and append to dataframe (actual benchmarking part)
 failsafe <- TRUE  # failsafe addon
+fs_df <- results
 fs_path <- paste(bm_write_path, "ro3-fs.csv", sep = "/")
 res <- list()
 for (i in 1:length(ops)) {
@@ -544,21 +545,20 @@ for (i in 1:length(ops)) {
   # Append results to results
   # If failsafe, then write row immediately to persistent file
   # Else, accumulate results before writeback
+  results[nrow(results)+1, 1:3] <- c(opname, profiler, unit)
+  results[nrow(results), 4:10] <- res[1:7]
+  results[nrow(results), 11] <- strat_size
+  results[nrow(results), 12:14] <- c(processor, mitigations, stamp)
   if (failsafe) {
-    results[1, 1:3] <- c(opname, profiler, unit)
-    results[1, 4:10] <- res[1:7]
-    results[1, 11] <- strat_size
-    results[1, 12:14] <- c(processor, mitigations, stamp)
+    fs_df[1, 1:3] <- c(opname, profiler, unit)
+    fs_df[1, 4:10] <- res[1:7]
+    fs_df[1, 11] <- strat_size
+    fs_df[1, 12:14] <- c(processor, mitigations, stamp)
     if (!file.exists(fs_path)) {
-      readr::write_csv(results, fs_path)
+      readr::write_csv(fs_df, fs_path)
     } else {
-      readr::write_csv(results, fs_path, append = TRUE)
+      readr::write_csv(fs_df, fs_path, append = TRUE)
     }
-  } else {
-    results[nrow(results)+1, 1:3] <- c(opname, profiler, unit)
-    results[nrow(results), 4:10] <- res[1:7]
-    results[nrow(results), 11] <- strat_size
-    results[nrow(results), 12:14] <- c(processor, mitigations, stamp)
   }
 }
 
