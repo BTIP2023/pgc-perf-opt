@@ -63,7 +63,7 @@ dendrogram_create_variant <- function(k, kmers, results_path, include_plots = FA
   
 }
 
-dendrogram_create_region <- function(k, kmers, results_path) {
+dendrogram_create_region <- function(k, kmers, results_path, include_plots = FALSE) {
   # process kmers dataframe, note that this was read outside the function 
   df <- kmers
   dat <- df %>%
@@ -99,6 +99,10 @@ dendrogram_create_region <- function(k, kmers, results_path) {
     left_join(dendrogram_data$labels, by = 'x') %>% # .$labels contains the row names from dist_matrix (i.e., sample_name)
     dplyr::rename(sample_name = label) %>%
     left_join(metadata, by = 'sample_name') 
+  
+  if (!include_plots) {
+    return()
+  }
   
   # Generate custom color palette for dendrogram ends based on metadata variable
   unique_vars <- levels(factor(dendrogram_ends$division_exposure)) %>% 
