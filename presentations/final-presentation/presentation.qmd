@@ -33,11 +33,11 @@ title-slide-attributes:
 
 # Background of the Study {background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Bioinformatics pipelines
+## Bioinformatics pipelines {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Linear Algebra libraries
+## Linear Algebra libraries {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Processor vulnerability mitigations
+## Processor vulnerability mitigations {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 
 # Objectives of the Study {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
@@ -53,18 +53,113 @@ title-slide-attributes:
 
 # Improved Workflow {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
-## FASTA and Metadata files were extracted from .tar files obtained from the GISAID database {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Improved Workflow summary {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/pipeline-flowchart.png){.fragment fig-align="center" height=60% width=60%}
 
-## Entries with erroneous metadata entries were filtered from the data set {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Preprocessing: FASTA and Metadata files were extracted from .tar files obtained from the GISAID database. {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## A stratified random sampler was utilized to create smaller data sets for code testing {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Preprocessing: A treemap that visualizes the distribution of different  {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Dimensional reduction analysis (PCA, tSNE, and UMAP) was refactored from Python to R {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Preprocessing: A stratified random sampler was utilized to obtain a smaller sample of all the sequences available in the GISAID database. {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Data Preprocessing: Entries with erroneous metadata entries were filtered from the data set to prevent issues in downstream analysis {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Data Preprocessing: Sequences and metadata of preprocessed data can be saved for possible use in further downstream analysis {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## kmer analysis: kmer frequencies can be used to represent a specific sequence for downstream profiling {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Dimensional-Reduction: PCA analysis is able to reduce the number of dimensions of the highly dimensional k-mer data set using linear reduction{data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::::: {.columns}
+
+:::: {.column width="50%"}
+```{r out.width="900px", out.height="450px", fig.cap="Principal Components Plot for k=7"}
+
+load(file="presentation_files/img/pca-7.RData")
+p
+```
+::::
+
+:::: {.column width="50%"}
+```{r out.width="900px", out.height="450px", fig.cap="3D Principal Components Plot for k=7"}
+
+load(file="presentation_files/img/3d-pca-7.RData")
+p
+```
+::::
+
+:::::
 
 
-# Improved Workflow Benchmarking {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+## Dimensional-Reduction: tSNE is an non-linear method that is able to reduce the number of dimensions of the highly dimensional k-mer data set {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Linux-based container was created to standardize environment for benchmarking across different systems {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+::::: {.columns}
+
+:::: {.column width="50%"}
+```{r out.width="900px", out.height="450px", fig.cap="tSNE Plot for k=7"}
+
+load(file="presentation_files/img/tsne-7.RData")
+p
+```
+::::
+
+:::: {.column width="50%"}
+```{r out.width="900px", out.height="450px", fig.cap="3D tSNE Plot for k=7"}
+
+load(file="presentation_files/img/3d-tsne-7.RData")
+p
+```
+::::
+
+:::::
+
+## Dimensional-Reduction: UMAP is a newer non-linear method that is able to reduce the number of dimensions of the highly dimensional k-mer data set {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+::::: {.columns}
+
+:::: {.column width="50%"}
+```{r out.width="900px", out.height="450px", fig.cap="UMAP Plot for k=7"}
+
+load(file="presentation_files/img/umap-7.RData")
+p
+```
+::::
+
+:::: {.column width="50%"}
+```{r out.width="900px", out.height="450px", fig.cap="3D UMAP Plot for k=7"}
+
+load(file="presentation_files/img/3d-umap-7.RData")
+p
+```
+::::
+
+:::::
+
+## AGNES Clustering: AGNES Clustering uses a "bottom-up" approach to group similar data points together into a dendrogram {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+::::: {.columns}
+
+:::: {.column width="50%"}
+```{r out.width="900px", out.height="450px", fig.cap="Dendrogram grouping sequences by variant"}
+
+load(file="presentation_files/img/clustering-variant.RData")
+p
+```
+::::
+
+:::: {.column width="50%"}
+```{r out.width="900px", out.height="450px", fig.cap="Dendrogram grouping sequences by region"}
+
+load(file="presentation_files/img/clustering-region.RData")
+p
+```
+::::
+
+:::::
+
+# Insights from the plots generated by the pipeline {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+
+
+# Benchmarking of the pipeline using different linear algebra libraries and processor vulnerability mitigations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"} 
 
 # Conclusion {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
