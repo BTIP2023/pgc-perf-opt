@@ -77,7 +77,7 @@ plotter <- function(data1, data2, processor) {
   for (i in 1:length(opnames)) {
     rows <- data1[i] %>%
       dplyr::rename("time" = opnames[[i]]) %>%
-      mutate(operation = paste0(opnames[[i]], "_ALL"), mitigations = "all", .before = time)
+      mutate(operation = paste0(opnames[[i]], "_all"), mitigations = "all", .before = time)
     df <- df %>%
       bind_rows(rows) %>%
       drop_na()
@@ -85,7 +85,7 @@ plotter <- function(data1, data2, processor) {
   for (i in 1:length(opnames)) {
     rows <- data2[i] %>%
       dplyr::rename("time" = opnames[[i]]) %>%
-      mutate(operation = paste0(opnames[[i]], "_NONE"), mitigations = "none", .before = time)
+      mutate(operation = paste0(opnames[[i]], "_none"), mitigations = "none", .before = time)
     df <- df %>%
       bind_rows(rows) %>%
       drop_na()
@@ -93,8 +93,11 @@ plotter <- function(data1, data2, processor) {
   
   p <- plot_ly(df, y = ~time, color = ~operation, type = "box")
   p <- p %>% layout(title = list(text = sprintf("%s Mitigations All vs None", processor)),
-                                 x = 0.5,
-                                 xref = "paper")
+                    x = 0.5,
+                    xref = "paper",
+                    yaxis = list(type = "log", showgrid=T,
+                                 ticks="outside",
+                                 tickvals=c(0.001,0.01,0.1,1,10,100,1000), autorange=TRUE))
 }
 
 html1 <- plotter(data1, data2, "AMD")
@@ -102,3 +105,4 @@ html2 <- plotter(data3, data4, "Intel")
 
 saveWidget2(html1, "benchmarks/ro3/amd.html")
 saveWidget2(html2, "benchmarks/ro3/intel.html")
+
