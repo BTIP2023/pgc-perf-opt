@@ -45,7 +45,7 @@ title-slide-attributes:
 ## Improvement of a sample pipeline that discriminates between COVID19 variants using an unsupervised machine learning framework {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/journal.pone.0285719.png){.fragment fig-align="center" height=40% width=40%}
 
-## Which linear algebra library implementation (BLAS,LAPACK,OpenCL,IntelMLK) gives the most optimal runtime for the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Which linear algebra library implementation (ATLAS, BLISS, NETLIB, OPENBLAS, and IntelMLK) gives the most optimal runtime for the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/linear-algebra.jpg){.fragment fig-align="center" height=60% width=60%}
 
 ## Does processor vulnerability mitigations (Spectre and Meltdown) significantly affect the runtime of the workflow? {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
@@ -92,7 +92,7 @@ p_table
 
 <iframe src="presentation_files/img/reg_var_lin.html" width=1800px height=900px></iframe>
 
-## Data Preprocessing: Sequences and metadata of cleaned and sampled data were saved for possible use in further downstream analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Data Preprocessing: Sequences and metadata of sampled data were saved for possible use in further downstream analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::::: {.columns}
 
@@ -165,7 +165,7 @@ p
 :::::
 
 
-## Dimensional-Reduction: tSNE is an non-linear method that is able to reduce the number of dimensions of the highly dimensional k-mer data set {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Clustering Visualization: tSNE is an non-linear method that is able to visualize the highly dimensional k-mer data set in a two-dimensional plot {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::::: {.columns}
 
@@ -187,7 +187,7 @@ p
 
 :::::
 
-## Dimensional-Reduction: UMAP is a newer non-linear method that is able to reduce the number of dimensions of the highly dimensional k-mer data set {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Clustering-visualization: UMAP is a newer non-linear method that is able to the highly dimensional k-mer data set in a two-dimensional plot {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ::::: {.columns}
 
 :::: {.column width="50%"}
@@ -208,7 +208,7 @@ p
 
 :::::
 
-## AGNES Clustering: AGNES Clustering uses a "bottom-up" approach to group similar data points together into a dendrogram {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Clustering-visualization: AGNES Clustering uses a "bottom-up" approach to cluster similar data points together into a dendrogram {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::::: {.columns}
 
@@ -324,7 +324,7 @@ p
 
 :::::
 
-## UMAP analysis results in the most distinct clustering between variants {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## UMAP visualization results in the most distinct clustering between variants {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::::: {.columns}
 
@@ -344,11 +344,19 @@ p
 ```
 ::::
 
-:::: {.column width="100%"}
+:::: {.column width="50%"}
 ```{r out.width="800px", out.height="400px", fig.cap="UMAP Plot for k=7"}
 
 load(file="presentation_files/img/2d-umap-7.RData")
 p
+```
+::::
+
+:::: {.column width="50%"}
+```{r out.width="800px", out.height="400px", fig.cap="Dendrogram for k=7"}
+
+load(file="presentation_files/img/clustering-variant-7.RData")
+ggp
 ```
 ::::
 
@@ -357,15 +365,31 @@ p
 
 # Benchmarking of the pipeline using different linear algebra libraries {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"} 
 
+## The use of NETLIB linear algebra library results in the best performance for PCA (k=7) {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+<iframe src="presentation_files/img/pca-7-benchmark.html" width=1800px height=900px></iframe>
+
+## The use of MKL linear algebra library provides the fastest runtime for t-SNE analysis (k=7) {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+<iframe src="presentation_files/img/tsne-7-benchmark.html" width=2000px height=900px></iframe>
+
+## The BLISS linear algebra library results in the fastest runtime for UMAP analysis (k=5) {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+<iframe src="presentation_files/img/umap-5-benchmark.html" width=2000px height=900px></iframe>
 
 # Benchmarking of the pipeline using different processor vulnerability mitigations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"} 
 
-
 # Conclusion {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+  - An unsupervised machine learning-based pipeline that was able to discriminate between major Sars-CoV-2 variants of concern was created
+  - 
 
 # Recommendations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+  - Scale up the number of sequences used to generate the plots with the use of HPC
+  - 
 
 # Acknowledgements {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+The group would like to acknowledge the 281 different authors of the SARS-CoV-2 sequences from the Philippines submitted to GISAID. Some of which are in the audience today. 
 
 # References {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
