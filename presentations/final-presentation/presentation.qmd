@@ -379,6 +379,14 @@ ggp
 
 # Benchmarking of the pipeline using different processor vulnerability mitigations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"} 
 
+## Benchmarking using AMD processor show that disabling mitigations can improve some and worsen some routines (k=7) {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+<iframe src="presentation_files/img/amd.html" width=2000px height=900px></iframe>
+
+## Benchmarking using Intel Processor show that disabling mitigations mostly improves all routines {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+<iframe src="presentation_files/img/intel.html" width=2000px height=900px></iframe>
+
 # Conclusion {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
   - An unsupervised machine learning-based pipeline that was able to discriminate between major Sars-CoV-2 variants of concern was created
   - 
@@ -389,7 +397,13 @@ ggp
 
 # Acknowledgements {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
-The group would like to acknowledge the 281 different authors of the SARS-CoV-2 sequences from the Philippines submitted to GISAID. Some of which are in the audience today. 
+The group would like to acknowledge the 281 different authors of the SARS-CoV-2 sequences from the Philippines submitted to GISAID. Some of which are from PGC and are in the audience today. 
+
+```{r out.width="900px", out.height="900px"}
+
+p <- readLines("presentation_files/img/authors.txt")
+p
+```
 
 # References {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
