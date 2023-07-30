@@ -1,29 +1,41 @@
 # pgc-perf-opt
-A project to benchmark the performance of an unsupervised machine learning bioinformatic workflows according to the status of Spectre/Meltdown patches and the choice of linear algebra libraries.
+Performance Evaluation and Optimization of an Unsupervised Machine Learning Pipeline for Discriminating Major SARS-CoV-2 Variants in the Philippines
+
+A highly scaleable unsupervised machine learning (UML) pipeline for discriminating major SARS-CoV-2 variants in the Philippines. Also includes performance benchmarks of said workflow according to the applied linear algebra library backend and processor vulnerability mitigations.
+
+**Research Objectives:**
+1. Create an improved UML variant discriminator pipeline that can work on any raw GISAID input, esp. for Philippines SARS-CoV-2 data, with enhanced usability, efficiency, and scalability.
+2. Understand the impact of an optimized linear algebra library backend on the UML bioinformatics workflow.
+3. Understand the impact of processor vulnerability mitigations on the UML bioinformatics workflow.
 
 ## Data
-This section will describe characteristics of the data such as sources, size, and format. These will motivate the upcoming data importation, sanitation, visualization, and analysis. Different data configurations may also be used in different benchmarks.
+This section describes the characteristics of the data such as sources, sizes, and formats, motivating the approach to data wrangling and downstream analysis. Different data configurations may also be used in different benchmarks.
 
 ### On GISAID Data
-For data obtained from GISAID, only **accession numbers** must be referenced. Do not release the actual datasets. GISAID (2012) gives the following reason:
+For data obtained from GISAID, only the **accession numbers** are referenced in this remote repository instead of the actual dataset. GISAID (2012) gives the following reason:
 
 > GISAID does not promote the release of data to databases where access to data is anonymous and the rights of the submitter are relinquished.  GISAID already provides the public with open access to data in a transparent way.
 
 Please see `data/README.md` for further instructions.
 
-## Workflows
-This section will describe the collected bioinformatics workflows. Currently, only the code from the reference repository will be benchmarked for the prototype benchmark workflow.
-
-Said workflow found in `code/pipeline-classic.R` has the following structure:
-![code/pipeline-classic.R](presentations/pipeline-flowchart.png)
+The accession numbers can be found in `data/overview/accession.all`.
 
 ## Code
-This section will explain the code used for running the workflows and the benchmarks. Relevant hardware, software, and data configurations must be explicitly noted for each benchmark.
+This section contains the code for the variant discriminator workflow. Said workflow found in `code/pipeline-classic.R` has the following structure:
+![code/pipeline-classic.R](presentations/pipeline-flowchart.png)
+
+Raw GISIAD data is placed in `data/GISAID`. The source `code` then does the following:
+- Data extraction, wrangling, sanitation, overview compilation, and augmentation of `data/GISAID`.
+- k-mer counting which produces augmented k-mer, metadata, and heatmap files in `data/kmers` and `data/overview`.
+- UML dimensionality reduction and clustering techniques, the results of which are stored in `results` and presented in `presentations`.
 
 Pilot code may also be written for more novel workflows. For instance, see [this](https://www.frontiersin.org/articles/10.3389/fbioe.2015.00035/full) wheat mutation analysis article.
 
 ## Results
 This section will summarize the performance evaluations of each benchamrk. Possibly, results from novel bioinformatics workflows or benchmark approaches may also be discussed here.
+
+## Benchmarks
+Relevant hardware, software, and data configurations must be explicitly noted for each benchmark.
 
 ## Presentations
 This section will contain directories for the research proposal presentations, research updates and the final research presentation.
