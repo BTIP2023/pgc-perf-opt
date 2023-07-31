@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# Bash script to install project's base dependencies
-
 set -e
 
 ## build ARGs
