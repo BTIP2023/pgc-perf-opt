@@ -157,9 +157,9 @@ p
 ::::
 
 :::: {.column width="100%"}
-```{r out.width="800px", out.height="400px", fig.cap="Vargraph for k=3"}
+```{r out.width="800px", out.height="400px", fig.cap="Biplot for k=3"}
 
-load(file="presentation_files/img/vargraph-3.RData")
+load(file="presentation_files/img/biplot-3.RData")
 p
 ```
 ::::
