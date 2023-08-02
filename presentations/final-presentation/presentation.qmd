@@ -393,14 +393,14 @@ ggp
 
 <iframe src="presentation_files/img/intel.html" width=2000px height=900px></iframe>
 
-# Conclusion {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+# Conclusion & Recommendations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## Conclusion {data-background="presentation_files/img/PGCSlideLight.svg" transition="slide-in"}
   - An unsupervised machine learning-based pipeline that was able to discriminate between major Sars-CoV-2 variants of concern was created
   - For PCA, NetLib performed better than all other single-threaded libraries. IntelMKL appears to be the fastest library for running t-SNE in R, while AMDBliss performed the best in UMAP. No significant results were obtained from the pipeline benchmark, most likely due to the reduced sample size and computation complexity following time constraints.
   - There is evidence that disabling Spectre and Meltdown mitigations could improve the performance of bioinformatics algorithms, however, more data on larger samples are needed for more conclusive results.
-  
-# Recommendations {background-color="#447099" data-background="presentation_files/img/PGCSlideLight.svg" transition="slide-in"}
 
-## Recommendations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+## Recommendations {data-background="presentation_files/img/PGCTitleSlideLight.svg" transition="slide-in"}
   - Scale up the number of sequences used to generate the plots with the use of HPC
   - More time processing a larger amount of samples may be need to better see statistical significance
   - Techniques performed in the study can be applied to other projects
@@ -410,6 +410,8 @@ ggp
 
 # Acknowledgements {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
+## Acknowledgements {data-background="presentation_files/img/PGCSlideLight.svg" transition="slide-in"}
+
 The group would like to acknowledge the 281 different authors of the SARS-CoV-2 sequences from the Philippines submitted to GISAID. Some of which are from PGC and are in the audience today. 
 
 ```{r out.width="900px", out.height="900px"}
@@ -418,16 +420,45 @@ p <- readLines("presentation_files/img/authors.txt")
 p
 ```
 
+
+# Documentation {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## CRediT (Contribution Roles Taxonomy) {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+  - Mark Joseph Garrovillas: Conceptualization, Supervision, Project Administration, Resources, Data Curation, Methodology (lead)
+  - Brylle Joshua Logroño: Data Curation, Formal Analysis (equal), Investigation (equal), Methodology, Software (lead), Validation (equal), Visualization
+  - John Matthew Felices: Data Curation, Formal Analysis (equal), Investigation (equal), Methodology, Software, Validation (equal), Visualization (lead)
+  - Yenzy Urson Hebron: Data Curation (lead), Formal Analysis (equal), Investigation (equal), Methodology, Software (lead), Validation (equal), Visualization
+
+## R Session Info {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+```{r out.width="900px", out.height="900px"}
+
+p <- readLines("presentation_files/img/sessionInfo.txt")
+p
+```
+
 # References {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
 ## References {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-- Research Article:
+- Research Articles:
 
   - <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0285719>
+  - <https://www.frontiersin.org/articles/10.3389/fbioe.2015.00035/full>
+  
+- Repositories
+  - <https://github.com/ai-covariants/analysis-mutations>
+  
+- Web Articles
+  - <https://meltdownattack.com/>
+  - <https://www.microsoft.com/en-us/security/blog/2018/01/09/understanding-the-performance-impact-of-spectre-and-meltdown-mitigations-on-windows-systems/>
+  - <https://blog.bioturing.com/2022/01/14/umap-vs-t-sne-single-cell-rna-seq-data-visualization/>
+  - <https://blog.bioturing.com/2018/06/14/principal-component-analysis-explained-simply/>
+  - <https://plotly.com/r/t-sne-and-umap-projections/>
+
+## References {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 - Image Sources:
   - <https://i.ytimg.com/vi/0WDhKCPtbng/maxresdefault.jpg>
   - <https://web.archive.org/web/20180620212658/https://danielmiessler.com/images/Screen-Shot-2018-01-05-at-08.29.00.png>
-  - <https://www.docker.com/wp-content/uploads/2022/03/vertical-logo-monochromatic.png>
-  - <https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Git-logo.svg/1280px-Git-logo.svg.png>
+
