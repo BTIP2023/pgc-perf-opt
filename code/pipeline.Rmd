@@ -1,22 +1,23 @@
-# pgc-perf-opt
+# pgc-perf-opt pipeline.R
 An unsupervised machine learning (UML) SARS-CoV-2 variant discriminator workflow. UML techniques used are principal components analysis (PCA), t-distributed stochastic neighbor embedding (t-SNE), uniform manifold approximation (UMAP), and agglomerative clustering (AGNES). Produces visualizations of SARS-CoV-2 genome samples with good and intuitive clustering particularly for high k-mer counting k values. Prediction is a nice-to-have feature, but because the UML techniques are mainly designed towards visualization or dimensionality reduction, predictive capabilities will have to be augmented via supervised learning.
 
 The workflow is currently set to only use Philippine SARS-CoV-2 data (see `data/GISAID`) and also filters out samples not collected in the Philippines (see `country_exposure` parameter), but it can be set to use other countries in the parameters section.
 
-# Load Packages
+# 1. Setup
+## A. Load Packages
 If this project is not running in a project-specific environment (e.g. the pgc-perf-opt Docker image), then the following packages will also have to be installed (and then loaded) for the pipeline to work. We will use the CRAN repository as our main source.
 ```{r message=FALSE}
 options(repos = "https://cloud.r-project.org/")
 ```
 
 We will use the `pacman` package to conveniently organize our project's packages.
-``` {r message=FALSE}
+```{r message=FALSE}
 if (!require("pacman"))
   install.packages("pacman")
 library(pacman)
 ```
 
-If we are not running on a tailor-made environment, we also install `xml2` in advance to prepare for Tidyverse installation in Linux. Note that in Windows RStudio, this is installed by default. This is also a good time to demonstrate how our development life cycle took care to maintain intercompatibility between Linux and Windows, and this is most evident in the pipeline and in `helper.R::write_to_log`.
+If we are not running on a tailor-made environment, we also install `xml2` in advance to prepare for Tidyverse installation in Linux. Note that in Windows RStudio, this is installed by default. This is also a good time to demonstrate how our development life cycle took care to maintain intercompatibility between Linux and Windows, and this is most evident in the pipeline and in `code/R/helper.R::write_to_log`.
 ```{r message=FALSE}
 if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
   install.packages("xml2", dependencies = TRUE, INSTALL_opts = c("--no-lock"))
@@ -25,37 +26,38 @@ if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
 ```
 
 Let us use pacman to load add-on packages as desired. Observe that redundancies in dependencies were carefully removed, e.g. `dplyr` and `ggplot2` are already in the `tidyverse` so we can omit them.
-```{r messages=FALSE}
-pacman::p_load(plyr, dplyr, GGally, ggthemes, ggvis,
-               httr, lubridate, plotly, psych,
-               rio, markdown, rmarkdown, shiny,
-               stringr, tidyr, tidyverse,
-               ape, kmer, readr, validate, gsubfn, seqinr,
+```{r message=FALSE}
+pacman::p_load(plyr, GGally, ggthemes, ggvis, plotly, psych,
+               rio, markdown, shiny, tidyverse,
+               ape, kmer, validate, gsubfn, seqinr,
                umap, htmlwidgets, factoextra, scales,
                Rtsne, tsne, RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
-               microbenchmark, data.table,
-               highcharter, glue)
+               microbenchmark, data.table, highcharter)
 
-
+# ggbiplot is installed separately via install_github
 if (!require(ggbiplot))
-  install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
+  devtools::install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
 pacman::p_load(ggbiplot)
-
-# validate used for %vin% operator 
-# gsubfn used to destructure more than one return value
-# devtools supports install_github for installing ggbiplot
-# Note: Divisive k-means clustering available via kmer::cluster
 ```
 
-# LOAD SOURCES #############################################
-source("code/R/helper.R")
-source("code/R/preprocess.R")
-source("code/R/kmer-analysis.R")
-source("code/R/dim-reduce.R")
-source("code/R/clustering.R")
+Some notes on the dependencies:
 
-# SET PARAMETERS ###########################################
+* `validate` is used for the `%vin%` operator 
+* `gsubfn` is used to destructure more than one return value
+* `devtools` supports `install_github` for installing `ggbiplot`
+
+## B. Load Sources
+If this file is loaded in RStudio with the corresponding `.Rproject`, then the root must be the directory where the `.Rproject` file can be found. Unfortunately, RMarkdown files do not respond to `.Rproject`, and hence still works on its own directory space, necessitating the use of `code` relative paths in the following sources.
+```{r}
+source("R/helper.R")
+source("R/preprocess.R")
+source("R/kmer-analysis.R")
+source("R/dim-reduce.R")
+source("R/clustering.R")
+```
+
+## C. Set Parameters
 # pipeline.R general parameters
 # stamp <- [get_time():str|NULL]
 # if stamp = "", then generated files won't be timestamped
@@ -130,6 +132,7 @@ metadata_all <- compile_overview(metadata_all, compile_write_path, stamp)
 #make_treemaps(metadata_all, treemaps_write_path, stamp)
 
 # Step 2: get_kmers()
+# get_kmers() prefers fasta_all in the DNAbin format
 for (k in kmer_list) {
   get_kmers(fasta_all, metadata_all, k, stamp)
 }
