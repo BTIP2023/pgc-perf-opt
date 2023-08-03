@@ -33,10 +33,58 @@ title-slide-attributes:
 
 # Background of the Study {background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Background of the Study {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-  - Unsupervised machine learning can be used to aid in tracking variants of SARS-CoV-2
-  - Optimized linear algebra libraries are designed to be improve performance by faster communication with the hardware layer
-  - Patches on processor vulnerabilities such as Meltdown and Spectre have been shown to severely impact performance
+## Contagious threats underscore our need for effective biosurveillance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+::: {layout-ncol=2}
+![](presentation_files/img/pandemic-4.webp)
+
+![](presentation_files/img/pandemic-2.jpg)
+:::
+## A good understanding of the foe helps us mount an effective response {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/pandemic-3.webp){fig-align="center"}
+
+## Unsupervised machine learning can aid in identifying and understanding SARS-CoV-2 variants
+::: {layout-ncol=2 layout-valign="center"}
+![](presentation_files/img/clusters.png)
+
+![](presentation_files/img/variants.png)
+:::
+
+## Chandra et. al (2023) demonstrated the viability of UML in variant analysis
+![](presentation_files/img/journal.pone.0285719.png){fig-align="center"}
+
+## UML Techniques to explore are:
+
+1. Principal Components Analysis (PCA)
+2. t-Distributed Stochastic Neighbor Embedding (t-SNE)
+3. Uniform Manifold Approximation (UMAP)
+4. Agglomerative Nesting (AGNES)
+
+### PCA performs Linear Dimensionality Reduction
+![PCA rotating line visualization](presentation_files/img/pca-animated.gif){fig-align="center"}
+
+PCA collapses dimensions by building new components that effectively represents the original dataset with maximum variance and minimum error.
+
+### t-SNE and UMAP performs Nonlinear Dimensionality Reduction
+::: {layout-ncol=2 layout-valign="center"}
+![t-SNE follows per-point nonlinear distance comparisons](presentation_files/img/tsne-animated.gif)
+
+![UMAP projects data from a manifold](presentation_files/img/umap-animated.gif)
+:::
+
+t-SNE and UMAP uses statistical and topological techniques to map data points to lower dimensions, respectively.
+
+### AGNES performs hiearchical clustering
+![](presentation_files/img/agnes-animated.gif)
+
+AGNES clusters samples into hierarchies or dendrograms, all towards creating visualizations and treatments that we humans can wrap our heads around.
+
+### With these cutting-edge UML strategies, new insights may be gained that will boost our collective fight against infectious diseases.
+
+## Rationale 1: Chandra et al.'s approach is ripe for optimization {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Rationale 2: Optimized linear algebra libraries are designed to enhance improve performance by faster communication with the hardware layer {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+## Rationale 3: Patches on processor vulnerabilities such as Meltdown and Spectre have been shown to severely impact performance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 # Objectives of the Study {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
@@ -383,7 +431,15 @@ ggp
 
 <iframe src="presentation_files/img/umap-5-benchmark.html" width=2000px height=900px></iframe>
 
-# Benchmarking of PCA, tSNE, and UMAP using different processor (AMD & Intel) vulnerability mitigations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"} 
+# Benchmarking of PCA, tSNE, and UMAP using different processor (AMD & Intel) vulnerability mitigations {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
+
+## Approach includes Manually Disabling Protections {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+::: {layout-nrow=2}
+![Linux: With mitigations.](presentation_files/img/ro3-mitigations-all.png)
+
+![Linux: Without mitigations.](presentation_files/img/ro3-mitigations-none.png)
+
+:::
 
 ## Benchmarking using AMD processor show that disabling mitigations can improve some and worsen some routines (k=7) {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
