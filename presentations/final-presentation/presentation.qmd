@@ -34,7 +34,7 @@ title-slide-attributes:
 # Background and Rationale {background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ## Contagious threats underscore our need for effective biosurveillance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-::: {layout-ncol=2}
+::: {layout-ncol=2 layout-valign="center"}
 ![](presentation_files/img/pandemic-4.webp){fig-align="center"}
 
 ![](presentation_files/img/pandemic-2.jpg){fig-align="left"}
@@ -84,9 +84,9 @@ AGNES clusters samples into hierarchies or dendrograms, all towards creating vis
 
 ![](presentation_files/img/lab-full-suit.jpg){fig-align="center"}
 
-## **Rationale 1:** Chandra and others' approach may uncover new insights about COVID-19 in the Philippines. Moreover, their approach is ripe for optimization. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## *Rationale 1:* Treating Philippine Data with an enhanced UML workflow based on Chandra et al. (2023) may uncover new insights about COVID-19 in the country. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-::: {layout-ncol=2}
+::: {layout-ncol=2 layout-valign="center"}
 ![](presentation_files/img/gear-optimize.png){fig-align="center"}
 ```{.r code-line-numbers="|6-7|12,14-15|23-27"}
 #Import all the required libraries
@@ -126,9 +126,11 @@ for(k in kmer_list)
 
 :::
 
+**Moreover, Chandra and others' approach is [ripe for optimization]{style="color:red;"}.**
+
 For instance, hardcoded working directories and variant names hinder reproducibility and prevents scaling up the project to more variants based on the data. Efficiency also suffers from running `kmer_df` once for each variant name.
 
-Among many other reasons, an in-house UML workflow inspired by Chandra et al. (2023) is in order.
+Among many other reasons, an in-house and inspired yet highly original UML variant classifier workflow is in order.
 
 ## Performance Evaluation and Optimization Rationales
 
