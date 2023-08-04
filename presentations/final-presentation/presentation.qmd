@@ -22,6 +22,9 @@ format:
     transition: slide
     background-transition: fade
     transition-speed: slow
+    slides:
+      overflow: scroll !important;
+      pointer-events: auto !important;
 title-slide-attributes:
       data-background-image: presentation_files/img/PGCTitleSlideDark.svg
       data-background-size: cover
@@ -162,15 +165,15 @@ This helps ensure that the variant classifier performs well on larger and larger
 ::: {layout-ncol=2 layout-valign="bottom"}
 ![This design may significantly boost our workflows.](presentation_files/img/linalg-libs.png){fig-align="left"}
 
-![Sample benchmarking of linear algebra libraries.](presentation_files/img/linalg-comparisons.png){fig-align="left" fig-height=200%}
+![Sample benchmarking of linear algebra libraries.](presentation_files/img/linalg-comparisons.png){fig-align="left" width=150% height=150%}
 
 :::
 
-## *Rationale 3:* Patches on processor vulnerabilities such as Meltdown and Spectre have been shown to severely impact performance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-::: {layout-nrow=2}
-![](presentation_files/img/meltre.png){}
+## *Rationale 3:* Patches for CPU vulnerabilities such as Meltdown and Spectre have been shown to negatively impact performance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+::: {layout="[[50],[25]]"}
+![](presentation_files/img/meltre.png){fig-align="center" height=60% width=40%}
 
-![](presentation_files/img/cpus-1.jpg){}
+![](presentation_files/img/cpus-1.jpg){fig-align="center" height=60% width=40%}
 
 :::
 
@@ -189,7 +192,7 @@ This helps ensure that the variant classifier performs well on larger and larger
 # Improved unsupervised machine learning pipeline {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
 ## Improved Workflow summary {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-![](presentation_files/img/pipeline-flowchart.png){.fragment fig-align="center" height=60% width=60%}
+![](presentation_files/img/pipeline-flowchart-2.png){.fragment fig-align="center" height=60% width=60%}
 
 ## Data Extraction: FASTA and Metadata files were extracted and cleaned from .tar files obtained from the GISAID database. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
