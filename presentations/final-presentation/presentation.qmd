@@ -31,28 +31,30 @@ title-slide-attributes:
       transition-speed: slow
 ---
 
-# Background of the Study {background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
+# Background and Rationale {background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ## Contagious threats underscore our need for effective biosurveillance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ::: {layout-ncol=2}
-![](presentation_files/img/pandemic-4.webp)
+![](presentation_files/img/pandemic-4.webp){fig-align="center"}
 
-![](presentation_files/img/pandemic-2.jpg)
+![](presentation_files/img/pandemic-2.jpg){fig-align="left"}
 :::
 ## A good understanding of the foe helps us mount an effective response {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/pandemic-3.webp){fig-align="center"}
 
-## Unsupervised machine learning can aid in identifying and understanding SARS-CoV-2 variants
+## Unsupervised machine learning can aid in identifying and understanding SARS-CoV-2 variants {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ::: {layout-ncol=2 layout-valign="center"}
 ![](presentation_files/img/clusters.png)
 
 ![](presentation_files/img/variants.png)
 :::
 
-## Chandra et. al (2023) demonstrated the viability of UML in variant analysis
+## Chandra et. al (2023) demonstrated the viability of UML in variant analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/journal.pone.0285719.png){fig-align="center"}
 
-## UML Techniques to explore are:
+[Chandra, R., Bansal, C., Kang, M., Blau, T., Agarwal, V., Singh, P., Wilson, L. O. W., & Vasan, S. (2023). Unsupervised machine learning framework for discriminating major variants of concern during COVID-19. PLOS ONE, 18(5), e0285719. https://doi.org/10.1371/journal.pone.0285719. Reference repository at https://github.com/ai-covariants/analysis-mutations.]{.aside style="color:gray;"}
+
+## UML Techniques to explore are: {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 1. Principal Components Analysis (PCA)
 2. t-Distributed Stochastic Neighbor Embedding (t-SNE)
@@ -60,29 +62,80 @@ title-slide-attributes:
 4. Agglomerative Nesting (AGNES)
 
 ### PCA performs Linear Dimensionality Reduction
-![PCA rotating line visualization](presentation_files/img/pca-animated.gif){fig-align="center"}
+![PCA rotating line visualization.](presentation_files/img/pca-animated.gif){fig-align="center"}
 
 PCA collapses dimensions by building new components that effectively represents the original dataset with maximum variance and minimum error.
 
-### t-SNE and UMAP performs Nonlinear Dimensionality Reduction
+### t-SNE and UMAP performs Nonlinear Dimensionality Reduction {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ::: {layout-ncol=2 layout-valign="center"}
-![t-SNE follows per-point nonlinear distance comparisons](presentation_files/img/tsne-animated.gif)
+![t-SNE follows per-point nonlinear distance comparisons.](presentation_files/img/tsne-animated.gif)
 
-![UMAP projects data from a manifold](presentation_files/img/umap-animated.gif)
+![UMAP projects data from a multi-dimensional manifold to 2D space.](presentation_files/img/umap-animated.gif)
 :::
 
-t-SNE and UMAP uses statistical and topological techniques to map data points to lower dimensions, respectively.
+t-SNE and UMAP uses statistical and topological techniques to reveal hidden patterns in the data and map data points to lower dimensions.
 
-### AGNES performs hiearchical clustering
+### AGNES performs hiearchical clustering {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/agnes-animated.gif)
 
 AGNES clusters samples into hierarchies or dendrograms, all towards creating visualizations and treatments that we humans can wrap our heads around.
 
-### With these cutting-edge UML strategies, new insights may be gained that will boost our collective fight against infectious diseases.
+### With these cutting-edge UML strategies, new insights may be gained that will boost our collective fight against infectious diseases. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Rationale 1: Chandra et al.'s approach is ripe for optimization {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+![](presentation_files/img/lab-full-suit.jpg){fig-align="center"}
+
+## **Rationale 1:** Chandra and others' approach may uncover new insights about COVID-19 in the Philippines. Moreover, their approach is ripe for optimization. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+::: {layout-ncol=2}
+![](presentation_files/img/gear-optimize.png){fig-align="center"}
+```{.r code-line-numbers="|6-7|12,14-15|23-27"}
+#Import all the required libraries
+library(ape)
+library(kmer)
+library("dplyr")
+
+#set the working directory 
+setwd("/Users/chaarvibansal/Desktop/analysis-mutations/data-updated")
+
+#Function computes the kmer of given length 
+kmer_df = function(filePath,variant,k){
+  kmer = read.FASTA(filePath)
+  kmer3 = kcount(kmer, k = k)
+  target = rep((variant),length(kmer))
+  kmer_df1 = data.frame(kmer3, target)
+  return(kmer_df1)
+}
+
+#Different lengths of kmers to be used 
+kmer_list = list(3,5,7)
+
+for(k in kmer_list)
+{
+  alpha = kmer_df('alpha.fasta','alpha',k)
+  beta = kmer_df('beta.fasta','beta',k)
+  gamma = kmer_df('gamma.fasta','gamma',k)
+  omicron = kmer_df('omicron.fasta','omicron',k)
+  delta = kmer_df('delta.fasta','delta',k)
+  
+  data = bind_rows(alpha, beta, delta, gamma, omicron)
+  outputName = sprintf("covid_kmer_%d.csv",k)
+  #store the combined data in a csv file 
+  write.csv(data, outputName)
+}
+```
+
+:::
+
+For instance, hardcoded working directories and variant names hinder reproducibility and prevents scaling up the project to more variants based on the data. Efficiency also suffers from running `kmer_df` once for each variant name.
+
+Among many other reasons, an in-house UML workflow inspired by Chandra et al. (2023) is in order.
+
+## Performance Evaluation and Optimization Rationales
+
 
 ## Rationale 2: Optimized linear algebra libraries are designed to enhance improve performance by faster communication with the hardware layer {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+
 
 ## Rationale 3: Patches on processor vulnerabilities such as Meltdown and Spectre have been shown to severely impact performance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
