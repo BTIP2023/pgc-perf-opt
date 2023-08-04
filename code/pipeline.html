@@ -461,8 +461,9 @@ intermediate files.</li>
 <li><code>kmer_list</code> (<code>c(int)</code>): list of kmer values to
 evaluate.
 <ul>
-<li>Used in <code>pipeline.R</code> but not in this document, where only
-k-value <code>7</code> will be the focus of evaluations.</li>
+<li>Default in <code>pipeline.R</code> is <code>c(3, 5, 7)</code> but
+not in this document, where only k-value <code>7</code> will be the
+focus of evaluations.</li>
 </ul></li>
 <li><code>strat_size</code> (<code>int</code>): number of samples
 randomly selected per stratum.
@@ -475,18 +476,27 @@ files in both <code>data/interm</code> and <code>data/kmers</code>.</li>
 <li>This parameter only serves to limit the amount of samples to process
 for low-performance computers.</li>
 </ul></li>
+<li><code>include_plots</code> (<code>bool</code>): whether or not to
+generate plots.
+<ul>
+<li>Used by <code>dim-reduce.R</code> and <code>clustering.R</code>
+(AGNES) routines.</li>
+</ul></li>
 </ul>
 <pre class="r"><code>seed &lt;- 1234
 stamp &lt;- get_time()
 write_fastacsv &lt;- TRUE
-kmer_list &lt;- c(3, 5, 7)
-strat_size &lt;- 100</code></pre>
+kmer_list &lt;- c(7)
+strat_size &lt;- 100
+include_plots &lt;- TRUE</code></pre>
 </div>
 <div id="preprocess.r-parameters" class="section level3">
 <h3>preprocess.R Parameters</h3>
 <p>These parameters control how the raw GISAID data is processed from
 extraction to preparing the FASTA and metadata files for downstream
-analysis.</p>
+analysis. The variable names are self-explanatory, aside from
+<code>country_exposure</code> which dictates the country to filter for
+in <code>preprocess.R::get_sample()</code>.</p>
 <pre class="r"><code>gisaid_data_path &lt;- &quot;data/GISAID&quot;
 gisaid_extract_path &lt;- &quot;data/GISAID/datasets&quot;
 country_exposure &lt;- &quot;Philippines&quot;
@@ -495,8 +505,64 @@ compile_write_path &lt;- &quot;data/overview&quot;
 treemaps_write_path &lt;- &quot;data/overview/treemaps&quot;
 heatmaps_write_path &lt;- &quot;data/overview/heatmaps&quot;</code></pre>
 </div>
+<div id="kmer-analysis.r-parameters" class="section level3">
+<h3>kmer-analysis.R Parameters</h3>
+<p>There are no parameters for <code>kmer-analysis.R</code> routines.
+Said routines will always take FASTA and metadata passed from the global
+environment, hence running <code>preprocess.R</code> routines to
+completion at least once is necessary before running
+<code>kmer-analysis.R</code> routines. <code>kmer-analysis.R</code> will
+also always write its output to <code>data/kmers</code>.</p>
+</div>
 <div id="dim-reduce.r-parameters" class="section level3">
 <h3>dim-reduce.R Parameters</h3>
+<p>These parameters control the dimensionality reduction algorithms.
+Hypertuning these parameters may be in order to achieve good and
+efficient clustering. Please consult <code>code/R/dim-reduce.Rmd</code>
+for more in-depth explanation on <code>dim-reduce.R</code>. Also see
+<code>?tsne::tsne</code> and <code>?umap::umap</code> for more
+information. Brief explanations of these parameters now follow:</p>
+<ul>
+<li><code>kmers_data_path</code> (<code>str</code>): where to fetch the
+kmer data to be processed.</li>
+<li><code>dimreduce_write_path</code> (<code>str</code>): where to write
+results of dimensionality reduction.</li>
+<li><code>tsne_perplexity</code> (<code>int</code>): guess about the
+number of close neighbors each point has.</li>
+<li><code>tsne_max_iter</code> (<code>int</code>): bounds the number of
+<code>tsne</code> iterations
+<ul>
+<li>Limited to 1000 to avoid infinite convergence, but may be increased
+in faster computers.</li>
+</ul></li>
+<li><code>tsne_initial_dims</code> (<code>int</code>): number of
+dimensions to “start” from, more aggressively collapsing higher
+dimensions.</li>
+<li><code>umap_n_neighbors</code> (<code>int</code>): constrains the
+size of the local neighborhood where the manifold structure of the data
+may be learned.</li>
+<li><code>umap_metric</code> (<code>str</code>): determines how
+distances between data points are computed.
+<ul>
+<li>Available metrics are: euclidean, manhattan, cosine, pearson, and
+pearson2.</li>
+</ul></li>
+<li><code>umap_min_dist</code> (<code>int</code>): determines how close
+points appear in the final layout.</li>
+<li><code>color</code>: determines which metadata attribute to use for
+assigning colors to the clusters.
+<ul>
+<li>See metadata columns for available values.</li>
+</ul></li>
+<li><code>shape</code>: determines which metadata attribute to use for
+assigning shapes to the clusters.
+<ul>
+<li>See metadata columns for available values.</li>
+</ul></li>
+</ul>
+<p>Note that <code>color</code> and <code>shape</code> work together to
+determine a two-level clustering for the dimensionality reduction
+visualizations.</p>
 <pre class="r"><code>kmers_data_path &lt;- &quot;data/kmers&quot;
 dimreduce_write_path &lt;- &quot;results/dim-reduce/R&quot;
 tsne_perplexity &lt;- 40
@@ -507,9 +573,8 @@ umap_metric &lt;- &quot;euclidean&quot;
 umap_min_dist &lt;- 0.1
 color &lt;- &quot;variant&quot;
 shape &lt;- &quot;year&quot;
-include_plots &lt;- TRUE
 
-# dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
+# dim-reduce.R Filters - OPTIONAL
 # factor1 &lt;- &quot;variant&quot;
 # values1 &lt;- c(&quot;Omicron&quot;, &quot;Omicron Sub&quot;)
 # factor2 &lt;- &quot;year&quot;
@@ -605,6 +670,8 @@ message(“DONE!”) }</p>
 </div>
 <div id="step-3-dim_reduce" class="section level1">
 <h1>Step 3: dim_reduce()</h1>
+<p>The idea is that the clusters are already there. Dimensionality
+reduction merely allows us to see them.</p>
 <p>for (i in 1:length(kmer_list)) { k &lt;- kmer_list[i] dim_reduce(k,
 kmers[[i]], dimreduce_write_path, tsne_seed = seed, tsne_perplexity,
 tsne_max_iter, tsne_initial_dims, umap_seed = seed, umap_n_neighbors,

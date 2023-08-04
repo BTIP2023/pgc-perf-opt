@@ -69,22 +69,25 @@ These parameters are shared by multiple subroutines.
   + Any stamp is valid, but the recommended stamps are "`str(strat_size)`" (same string as `strat_size` value, to be discussed later), "`get_time()`", and `NULL` or "" (empty string) for no stamp.
 * `write_fastacsv` (`bool`): controls writing of intermediate files.
 * `kmer_list` (`c(int)`): list of kmer values to evaluate.
-  + Used in `pipeline.R` but not in this document, where only k-value `7` will be the focus of evaluations.
+  + Default in `pipeline.R` is `c(3, 5, 7)` but not in this document, where only k-value `7` will be the focus of evaluations.
 * `strat_size` (`int`): number of samples randomly selected per stratum.
   + Current `nrow(data) = 24761`, hence `strat_size <- 25000` will ensure the selection of ALL samples in the entire data. 
   + Valid `strat_size` will only be those with corresponding files in both `data/interm` and `data/kmers`.
   + This parameter only serves to limit the amount of samples to process for low-performance computers.
+* `include_plots` (`bool`): whether or not to generate plots.
+  + Used by `dim-reduce.R` and `clustering.R` (AGNES) routines.
 
 ```{r}
 seed <- 1234
 stamp <- get_time()
 write_fastacsv <- TRUE
-kmer_list <- c(3, 5, 7)
+kmer_list <- c(7)
 strat_size <- 100
+include_plots <- TRUE
 ```
 
 ### preprocess.R Parameters
-These parameters control how the raw GISAID data is processed from extraction to preparing the FASTA and metadata files for downstream analysis.
+These parameters control how the raw GISAID data is processed from extraction to preparing the FASTA and metadata files for downstream analysis. The variable names are self-explanatory, aside from `country_exposure` which dictates the country to filter for in `preprocess.R::get_sample()`.
 
 ```{r}
 gisaid_data_path <- "data/GISAID"
@@ -96,7 +99,29 @@ treemaps_write_path <- "data/overview/treemaps"
 heatmaps_write_path <- "data/overview/heatmaps"
 ```
 
+### kmer-analysis.R Parameters
+There are no parameters for `kmer-analysis.R` routines. Said routines will always take FASTA and metadata passed from the global environment, hence running `preprocess.R` routines to completion at least once is necessary before running `kmer-analysis.R` routines. `kmer-analysis.R` will also always write its output to `data/kmers`.
+
 ### dim-reduce.R Parameters
+These parameters control the dimensionality reduction algorithms. Hypertuning these parameters may be in order to achieve good and efficient clustering. Please consult `code/R/dim-reduce.Rmd` for more in-depth explanation on `dim-reduce.R`. Also see `?tsne::tsne` and `?umap::umap` for more information. Brief explanations of these parameters now follow:
+
+* `kmers_data_path` (`str`): where to fetch the kmer data to be processed.
+* `dimreduce_write_path` (`str`): where to write results of dimensionality reduction.
+* `tsne_perplexity` (`int`): guess about the number of close neighbors each point has.
+* `tsne_max_iter` (`int`): bounds the number of `tsne` iterations
+  + Limited to 1000 to avoid infinite convergence, but may be increased in faster computers.
+* `tsne_initial_dims` (`int`): number of dimensions to "start" from, more aggressively collapsing higher dimensions.
+* `umap_n_neighbors` (`int`):  constrains the size of the local neighborhood where the manifold structure of the data may be learned.
+* `umap_metric` (`str`): determines how distances between data points are computed.
+  + Available metrics are: euclidean, manhattan, cosine, pearson, and pearson2.
+* `umap_min_dist` (`int`): determines how close points appear in the final layout.
+* `color`: determines which metadata attribute to use for assigning colors to the clusters.
+  + See metadata columns for available values.
+* `shape`: determines which metadata attribute to use for assigning shapes to the clusters.
+  + See metadata columns for available values.
+  
+Note that `color` and `shape` work together to determine a two-level clustering for the dimensionality reduction visualizations.
+
 ```{r}
 kmers_data_path <- "data/kmers"
 dimreduce_write_path <- "results/dim-reduce/R"
@@ -108,9 +133,8 @@ umap_metric <- "euclidean"
 umap_min_dist <- 0.1
 color <- "variant"
 shape <- "year"
-include_plots <- TRUE
 
-# dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
+# dim-reduce.R Filters - OPTIONAL
 # factor1 <- "variant"
 # values1 <- c("Omicron", "Omicron Sub")
 # factor2 <- "year"
@@ -174,6 +198,8 @@ for (i in 1:length(kmer_list)) {
 # }
 
 # Step 3: dim_reduce()
+The idea is that the clusters are already there. Dimensionality reduction merely allows us to see them.
+
 for (i in 1:length(kmer_list)) {
   k <- kmer_list[i]
   dim_reduce(k, kmers[[i]], dimreduce_write_path,

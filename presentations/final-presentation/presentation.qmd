@@ -78,6 +78,8 @@ PCA collapses dimensions by building new components that effectively represents 
 
 t-SNE and UMAP uses statistical and topological techniques to reveal hidden patterns in the data and map data points to lower dimensions.
 
+**Key idea: The clusters are already there. Dimensionality reduction merely allows us to see them.**
+
 ### AGNES performs hiearchical clustering {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/agnes-animated.gif)
 
