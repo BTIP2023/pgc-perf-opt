@@ -1,4 +1,10 @@
+---
+title: "pgc-perf-opt pipeline"
+output: html_notebook
+---
+
 # pgc-perf-opt pipeline.R
+
 An unsupervised machine learning (UML) SARS-CoV-2 variant discriminator workflow. UML techniques used are principal components analysis (PCA), t-distributed stochastic neighbor embedding (t-SNE), uniform manifold approximation (UMAP), and agglomerative clustering (AGNES). Produces visualizations of SARS-CoV-2 genome samples with good and intuitive clustering particularly for high k-mer counting k values. Prediction is a nice-to-have feature, but because the UML techniques are mainly designed towards visualization or dimensionality reduction, predictive capabilities will have to be augmented via supervised learning.
 
 The workflow is currently set to only use Philippine SARS-CoV-2 data (see `data/GISAID`) and also filters out samples not collected in the Philippines (see `country_exposure` parameter), but it can be set to use other countries in the parameters section.
@@ -48,13 +54,13 @@ Some notes on the dependencies:
 * `devtools` supports `install_github` for installing `ggbiplot`
 
 ## B. Load Sources
-If this file is loaded in RStudio with the corresponding `.Rproject`, then the root is the directory where the `.Rproject` file can be found. Unfortunately, RMarkdown files do not respond to `.Rproject`, and hence still works on its own directory space, necessitating the use of `code` relative paths in the following sources.
+If this file is loaded in RStudio with the corresponding `.Rproject`, then the root is the directory where the `.Rproject` file can be found. Unfortunately, RMarkdown files do not respond to `.Rproject`, and hence still works on its own directory space, necessitating the use of  relative paths in the following sources.
 ```{r}
-source("R/helper.R")
-source("R/preprocess.R")
-source("R/kmer-analysis.R")
-source("R/dim-reduce.R")
-source("R/clustering.R")
+source("code/R/helper.R")
+source("code/R/preprocess.R")
+source("code/R/kmer-analysis.R")
+source("code/R/dim-reduce.R")
+source("code/R/clustering.R")
 ```
 
 ## C. Set Parameters
@@ -146,14 +152,190 @@ shape <- "year"
 agnes_write_path <- "results/dendrogram"
 ```
 
-# RUN PIPELINE #############################################
-Instead of functions sourced externally, they are expanded in here.
+# 2. Run Pipeline
+Instead of functions sourced externally (as we did in the setup), they are expanded here for better understanding and coherence. We still show at the top how the routine call originally looked like in the pipeline.
 
-# Step 1: get_sample()
+## A. get_sample()
+This function is responsible for 
+
+**Sourced call:**
+```{r}
+get_sample <- function(gisaid_data_path = "data/GISAID",
+                       gisaid_extract_path = "data/GISAID/datasets",
+                       seed = 1234, strat_size = 100,
+                       country_exposure = "Philippines") {
+  # Extract GISAID data.
+  if (dir.exists(gisaid_extract_path)) {
+    message("GISAID data already extracted from tar archives.")
+  } else {
+    message("Extracting GISAID data to data/GISAID/datasets/...")
+    tars <- list.files(gisaid_data_path, pattern = ".+\\.tar")
+    for (file_name in tars) {
+      subdir <- str_match(file_name, pattern = "[^-]+-[^-]+")
+      message(paste("Extracting to:", subdir))
+      untar(paste(gisaid_data_path, file_name, sep = "/"),
+            exdir = paste(gisaid_extract_path, subdir, sep = "/"))
+    }
+  }
+  
+  # Merge all extracted fasta and tsv files.
+  ## fasta contains sequence, while tsv contains metadata.
+  omicron_sub = c("ba275", "xbb", "xbb_1.5", "xbb_1.16", "xbb1.91")
+  
+  fastas <- list.files(gisaid_extract_path, recursive = TRUE,
+                       pattern = ".+\\.fasta")
+  tsvs <- list.files(gisaid_extract_path, recursive = TRUE,
+                     pattern = ".+\\.tsv")
+  nfiles <- length(fastas)
+  
+  ## Accumulators: fasta_all and metadata_all
+  fasta_all <- list()
+  metadata_all <- tibble()
+
+  ## Warnings suppressed for data parsing, but handled cleanly so don't worry.
+  suppressWarnings({
+    for (i in 1:nfiles) {
+      fasta_path <- paste(gisaid_extract_path, fastas[i], sep = "/")
+      tsv_path <- paste(gisaid_extract_path, tsvs[i], sep = "/")
+      variant <- str_match(fasta_path, pattern = "(?<=-).*(?=\\/)")
+      if (variant %vin% omicron_sub) {
+        variant <- "Omicron Sub"
+      }
+      variant <- str_to_title(variant)
+      
+      message(paste0("Reading ", fasta_path, "... "))
+      # Parse then merge fasta file with accumulator.
+      fasta <- ape::read.FASTA(fasta_path)
+      fasta_all <- append(fasta_all, fasta)
+      message("\bDONE.")
+      
+      message(paste0("Reading ", tsv_path, "... "))
+      # Parse then merge metaData file with accumulator.
+      # Defer sanitation after random sampling so fasta and metaData kept 1:1.
+      # Can't directly col_types = "c_c_D____ccc___if_c__cc_____" because
+      # of dirt in some columns, still need to use characters.
+      metaData <- readr::read_tsv(tsv_path,
+                                  col_select = c(1,3,5,10,11,12,16,17,19,22,23),
+                                  show_col_types = FALSE)
+      message("\bDONE.")
+      
+      # Not removing raw date as I believe it is useful for sorting or can be
+      # parsed on an as-needed basis. Dropped year, month, day: just extract
+      # them from the date using lubridate::{year,month,day}(date).
+      metaData <- metaData %>%
+        dplyr::mutate(variant = as.character(variant))
+      
+      # Note: Cannot use tidyr::nest(fasta or tibble(fasta)), see reason below.
+      
+      # Coerce guessed column types to correct types (also for bind_rows).
+      # NAs introduced by coercion will be dropped later because dropping
+      # metadata rows must be consistent with dropping fasta entries for
+      # the reason that nested DNAbin lists are not supported in R.
+      metaData$age <- as.integer(metaData$age)
+      metaData$sex <- as.character(metaData$sex)
+      
+      metadata_all <- bind_rows(metadata_all, metaData)
+    }
+  })
+
+  rm(fasta)
+  rm(metaData)
+
+  # Print out number of samples beforehand to guide future strat_size.
+  message(paste("\nTotal number of samples in complete, unpruned data:",
+              nrow(metadata_all)))
+  message("Variant distribution in complete data:")
+  metadata_all %>%
+    dplyr::group_by(variant) %>%
+    dplyr::count() %>% print()
+
+  # Addon: Filter by country_exposure.
+  drop_idxs <- which(metadata_all$country_exposure != country_exposure)
+  fasta_all <- fasta_all[is.na(pmatch(1:length(fasta_all), drop_idxs))]
+  metadata_all <- metadata_all[is.na(pmatch(1:nrow(metadata_all), drop_idxs)),]
+  
+  rm(drop_idxs)
+  
+  # At this point, fasta_all and metadata_all contains the needed data.
+  # Now do stratified random sampling.
+  set.seed(seed)
+  
+  # Append rowname column for fasta_all subsetting.
+  # Drop this column before exporting.
+  meta_grouped <- metadata_all %>%
+    dplyr::group_by(variant) %>%
+    tibble::rownames_to_column()
+  
+  # Do not preserve grouping structure (below only) to avoid NULL groups
+  # If number of samples in variant group < strat_size, then filter from
+  # meta_grouped and put temporarily in dropped_variants.
+  # If number of samples is variant group >= strat_size, then get those
+  # and place in meta_grouped, then randomly sample each of those groups
+  dropped_variants <- filter(meta_grouped, n() < strat_size)
+  meta_grouped <- filter(meta_grouped, n() >= strat_size)
+  # TODO: consider sample_frac()
+  if (nrow(meta_grouped) >= strat_size)
+    meta_grouped <- sample_n(meta_grouped, strat_size)
+  metadata_all <- bind_rows(meta_grouped, dropped_variants)
+  
+  # Remove grouping information from tibble, let downstream handle it
+  metadata_all <- dplyr::ungroup(metadata_all)
+  
+  rm(dropped_variants)
+  rm(meta_grouped)
+  
+  set.seed(NULL)
+  
+  idxs <- as.integer(metadata_all$rowname)
+  fasta_all <- fasta_all[idxs]
+  
+  # Drop explicit rowname column, already used to subset fasta_all.
+  metadata_all <- metadata_all %>% select(!rowname)
+  
+  # Drop rows with NA values and type mismatches.
+  # Get the idxs of the dropped metadata_all rows then drop them in fasta_all.
+  drop_idxs1 <- which(is.na(metadata_all), arr.ind=TRUE)[,1]
+  drop_idxs2 <- c(which(is.numeric(metadata_all$sex)),
+                  which(!(metadata_all$sex %vin% list("Male", "Female"))))
+  drop_idxs3 <- which(lengths(fasta_all) == 0)
+  drop_idxs <- unique(c(drop_idxs1, drop_idxs2, drop_idxs3))
+  
+  # Dropping below is analogous to select inverse.
+  # pmatch creates matches, val for match and NA for no match.
+  # We only take those without matches, i.e. those that won't be dropped.
+  fasta_all <- fasta_all[is.na(pmatch(1:length(fasta_all), drop_idxs))]
+  metadata_all <- metadata_all[is.na(pmatch(1:nrow(metadata_all), drop_idxs)),]
+  
+  rm(idxs, drop_idxs1, drop_idxs2, drop_idxs3, drop_idxs)
+  
+  # Addon: Add age_group, adjacent to age column
+  metadata_all <- metadata_all %>%
+    dplyr::mutate(age_group = cut(age, breaks=c(0,14,24,64,500),
+                                  include.lowest=T,
+                                  labels=c("0-14", "15-24", "25-64", "65+")),
+                  .after = age)
+  
+  # At this point, data has been stratified and randomly sampled.
+  # We may now return it for further cleaning and downstream use.
+  message(paste("\nNumber of randomly selected samples in stratified data:",
+                nrow(metadata_all)))
+  message("Variant distribution in selected samples:")
+  metadata_all %>%
+    dplyr::group_by(variant) %>%
+    dplyr::count() %>% print()
+  
+  list(fasta_all, metadata_all)
+}
+```
+
+```{r}
 list[fasta_all, metadata_all] <- get_sample(gisaid_data_path,
                                             gisaid_extract_path,
                                             seed, strat_size,
                                             country_exposure)
+```
+
+**Expanded call:**
 
 # Step 1.5A: sanitize_sample()
 metadata_all <- sanitize_sample(metadata_all)
