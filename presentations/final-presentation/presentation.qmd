@@ -88,6 +88,7 @@ AGNES clusters samples into hierarchies or dendrograms, all towards creating vis
 
 ::: {layout-ncol=2 layout-valign="center"}
 ![](presentation_files/img/gear-optimize.png){fig-align="center"}
+
 ```{.r code-line-numbers="|6-7|12,14-15|23-27"}
 #Import all the required libraries
 library(ape)
@@ -154,31 +155,19 @@ A great hurdle to spreading bioinformatics knowledge is inadequate access to pow
 
 Hence, our team looked for — and found — tweaks that could boost our bioinformatics workflows regardless of hardware limitations.
 
-We conduct our pilot benchmarks on the UML workflow that we developed. 
+## We conduct our pilot benchmarks on the UML workflow that we developed.
+This helps ensure that the variant classifier performs well on larger and larger datasets.
 
-## {auto-animate=true auto-animate-easing="ease-in-out"}
-**BLAS/LAPACK libraries work closely with the hardware layer.**
+## *Rationale 2:* Optimized linear algebra libraries may offer improved bioinformatics performance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+::: {layout-ncol=2 layout-valign="bottom"}
+![This design may significantly boost our workflows.](presentation_files/img/linalg-libs.png){fig-align="left"}
 
-![](presentation_files/img/linalg-libs.png){fig-align="center"}
-
-This may yield significant performance boost.
-
-## {auto-animate=true auto-animate-easing="ease-in-out"}
-***Rationale 2:* Optimized linear algebra libraries may offer improved bioinformatics performance** 
-
-::: {layout-ncol=2}
-![](presentation_files/img/linalg-libs.png){fig-align="center"}
-
-![](presentation_files/img/linalg-comparisons.png){fig-align="center"}
-
+![Sample benchmarking of linear algebra libraries.](presentation_files/img/linalg-comparisons.png){fig-align="left" fig-height=200%}
 
 :::
 
-## Meltdown and Spectre
-
-
 ## *Rationale 3:* Patches on processor vulnerabilities such as Meltdown and Spectre have been shown to severely impact performance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-::: {layout-ncol=2}
+::: {layout-nrow=2}
 ![](presentation_files/img/meltre.png){}
 
 ![](presentation_files/img/cpus-1.jpg){}
