@@ -1,0 +1,604 @@
+---
+title: "Dimensionality Reduction"
+author: "Brylle Joshua Logroño"
+date: "2023-08-02"
+output: html_document
+---
+
+#### This document contains dimensionality reduction contents.
+
+## Time Complexity of PCA, t-SNE, and UMAP
+
+### PCA
+PCA (Principal Component Analysis) is a widely used technique for dimensionality reduction. The time complexity of PCA depends on the number of data-points (n) and the number of features (p). In the worst-case scenario (based on the definition), the time complexity of PCA is O(p^2n + p^3), where n is the number of data-points and p is the number of features.
+
+The computation of the covariance matrix contributes O(p^2n) to the overall complexity, while the eigen-value decomposition adds O(p^3). In R, using the `prcomp` function with scaling to implement PCA as SVD (Singular Value Decomposition) of the Dataset matrix results in a time complexity of O(n^2p + p^3).
+
+For reference and more information:
+- [StackOverflow - Complexity of PCA](https://stackoverflow.com/questions/20507646/how-is-the-complexity-of-pca-ominp3-n3)
+- [Medium - Computational Complexity of PCA](https://alekhyo.medium.com/computational-complexity-of-pca-4cb61143b7e5)
+- [SVD Implementation to Speed up PCA](https://www.slideshare.net/YounesCharfaoui/principal-component-analysis-code-and-time-complexity-127431697)
+
+### t-SNE
+t-SNE (t-distributed Stochastic Neighbor Embedding) is another dimensionality reduction technique. Its time complexity is O(n^2), where n is the number of data-points.
+
+For reference and more information:
+- [t-SNE Paper (arXiv)](https://arxiv.org/pdf/1512.01655.pdf)
+
+### UMAP
+UMAP (Uniform Manifold Approximation and Projection) is a popular dimensionality reduction method. Its time complexity varies based on the dimension of the target reduced space (d) and the number of data-points (n). In the average case, the complexity is O(d * n^1.14), while in the worst-case scenario, it is O(n^2).
+
+For reference and more information:
+- [UMAP GitHub Issue](https://github.com/lmcinnes/umap/issues/8)
+- [ResearchGate - UMAP Publication](https://www.researchgate.net/publication/323141395)
+
+```{r load-prereq, echo = FALSE}
+source("./R/helper.R")
+if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
+  install.packages("xml2", dependencies = TRUE, INSTALL_opts = c("--no-lock"))
+  pacman::p_load(xml2)
+}
+
+# Use pacman to load add-on packages as desired.
+# TODO: Remove redundancies in dependencies. E.g., dplyr and ggplot2
+# are already dependencies of tidyverse.
+pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
+               httr, lubridate, plotly, psych,
+               rio, markdown, rmarkdown, shiny,
+               stringr, tidyr, tidyverse,
+               ape, kmer, readr, validate, gsubfn, seqinr,
+               umap, htmlwidgets, factoextra, scales,
+               Rtsne, tsne, RColorBrewer, ggfortify, devtools,
+               ggdendro, dendextend, cluster, colorspace,
+               microbenchmark, data.table,
+               highcharter, glue)
+if (!require(ggbiplot))
+  install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
+pacman::p_load(ggbiplot)
+```
+
+```{r include-functions, echo = FALSE}
+# Function to extract the timestamp from the kmer files
+extract_time <- function(string) {
+  parts <- strsplit(string, "_")[[1]]
+  as.numeric(gsub(".csv", "", parts[3]))
+}
+
+# Function to search and read the CSV file
+read_kmer_csv <- function(data_path, k) {
+  print("Reading CSV file...")
+  # Get the list of files matching the pattern
+  file_pattern <- paste0("kmer_", k, "_", ".*\\.csv$")
+  file_list <- list.files(
+    path = data_path, pattern = file_pattern,
+    full.names = FALSE
+  )
+  
+  # Check if any files are found
+  if (length(file_list) == 0) {
+    message("No files found for k = ", k)
+    return(NULL)
+  }
+  
+  # Sort the strings based on the timestamp in descending order
+  sorted_strings <- file_list[order(sapply(file_list, extract_time),
+                                    decreasing = TRUE
+  )]
+  
+  df <- read.csv(paste(data_path, sorted_strings[1], sep = "/"))
+  return(df)
+}
+
+# Function for saving 2D plots as PNG and HTML
+save_plot <- function(method, results_path, k, p, is_3d = FALSE) {
+  print("Saving plot...")
+  # File name for saving
+  filename <- paste0(method, "-", k, ".png")
+  
+  # Note: 3D plots are plot_ly objects, 2D plots are ggplot objects.
+  if (is_3d) {
+    # Save plot_ly obj. as PNG
+    # save_image(p, paste(results_path, filename, sep = "/"))
+    
+    # Convert ggplot object to ggplotly
+    p <- ggplotly(p) 
+    # Save as RData
+    save(p, file = file.path(results_path, paste0(method, "-", k, ".RData")))
+    
+  } else {
+    # Save as PNG
+    ggsave(filename, p, results_path,
+           device = "png", width = 5, height = 5,
+           dpi = 300, bg = "white"
+    )
+    # Convert ggplot object to ggplotly
+    p <- ggplotly(p) 
+    # Save as RData
+    save(p, file = file.path(results_path, paste0(method, "-", k, ".RData")))
+  }
+  # Save as HTML
+  html_file <- paste0(results_path, "/", method, "-", k, ".html")
+  saveWidget2(widget = p, file = html_file)
+}
+
+# Function for pre-processing and scaling of data
+pre_process <- function(df) {
+  print("Pre-processing and scaling data...")
+  # Extract year from date column
+  
+  # Determine the columns to use (drop metadata, retain k-mers)
+  slice_col <- which(colnames(df) == "strain")
+  x <- df[, 2:(slice_col - 1)]
+  # color <- df[[factor1]]
+  
+  # Check for columns that have zero variance for PCA
+  non_zero_var_cols <- apply(x, 2, var) > 0
+  x <- x[, non_zero_var_cols]
+  
+  if (ncol(x) < 2) {
+    stop("Insufficient columns with non-zero variance for PCA.")
+  }
+  
+  # Scale data
+  x <- scale(x)
+  
+  # (This is needed for labeling of points in 3D plots)
+  df$year <- format(as.Date(df$date), "%Y")
+  
+  return(x)
+}
+
+# Function to execute before main dim-reduce codes
+pre_reduce <- function(results_path, kmers, k, filter1_factor, 
+                       filter1_values, filter2_factor, filter2_values) {
+  # Check if the directory already exists
+  if (!dir.exists(results_path)) {
+    # Create the directory if it doesn't exist
+    dir.create(results_path, recursive = TRUE)
+  }
+  # Process kmers dataframe
+  df <- kmers
+  df$year <- format(as.Date(df$date), "%Y")
+  
+  # Making filter values optional
+  # if(missing(filter1_factor) && missing(filter1_values) &&
+  #    missing(filter2_factor) && missing(filter2_values)){
+  #   
+  # } else if(missing(filter2_factor) && missing(filter2_values)){
+  #   
+  #   df <- filter(df, df[[filter1_factor]] %in% filter1_values)
+  #   
+  # } else if(missing(filter1_factor) && missing(filter1_values)){
+  #   
+  #   df <- filter(df, df[[filter2_factor]] %in% filter2_values)
+  #   
+  # } else {
+  #   df <- filter(df, df[[filter1_factor]] %in% filter1_values)
+  #   df <- filter(df, df[[filter2_factor]] %in% filter2_values)
+  # }
+  
+  # Pre-process the data
+  x <- pre_process(df)
+  return(list(df = df, x = x))
+}
+
+# Function that performs PCA
+pca_fn <- function(x) {
+  print("Performing PCA...")
+  pca_df <- prcomp(x, center = TRUE)
+  return(pca_df)
+}
+
+# Function that performs t-SNE (Rtsne library)
+rtsne_fn <- function(pca_results, tsne_dims, tsne_perplexity, tsne_max_iter, 
+                     tsne_seed) {
+  print("Performing t-SNE...")
+  set.seed(tsne_seed)
+  tsne_df <- Rtsne(pca_results,
+                   dims = tsne_dims, perplexity = tsne_perplexity,
+                   max_iter = tsne_max_iter, check_duplicate = FALSE,
+                   pca = FALSE
+  )
+  return(tsne_df)
+}
+
+# Function that includes visualization for each t-SNE iteration
+ecb <- function(x) {
+  epoc_df <- data.frame(x, color = factor1, shape = factor2)
+  
+  plt <- ggplot(epoc_df, aes(
+    x = X1, y = X2,
+    label = color, color = color, shape = shape
+  )) +
+    geom_text()
+  
+  print(plt)
+}
+
+# Function that performs t-SNE (tsne library)
+tsne_fn <- function(pca_results, tsne_dims, tsne_initial_dims, tsne_perplexity, 
+                    tsne_max_iter, tsne_seed) {
+  print("Performing t-SNE...")
+  set.seed(tsne_seed)
+  if (tsne_dims == 2) {
+    tsne_df <- tsne(pca_results,
+                    k = tsne_dims,
+                    initial_dims = tsne_initial_dims,
+                    perplexity = tsne_perplexity,
+                    max_iter = tsne_max_iter,
+                    # epoch_callback = ecb
+    )
+  } else {
+    tsne_df <- tsne(pca_results,
+                    k = tsne_dims,
+                    initial_dims = tsne_initial_dims,
+                    perplexity = tsne_perplexity,
+                    max_iter = tsne_max_iter
+    )
+  }
+  
+  return(tsne_df)
+}
+
+# Function that performs UMAP
+umap_fn <- function(x, umap_dims, umap_n_neighbors, umap_metric, 
+                    umap_min_dist, umap_seed) {
+  print("Performing UMAP...")
+  umap_df <- umap(x,
+                  n_components = umap_dims, n_neighbors = umap_n_neighbors,
+                  metric = umap_metric, min_dist = umap_min_dist,
+                  random_state = umap_seed
+  )
+  return(umap_df)
+}
+```
+
+### Dimensionality Reduction Code
+These are the needed parameters for dim-reduce:
+```{r params}
+k <- 7
+seed <- 1234
+results_path <- "../results/dim-reduce/R"
+
+# t-SNE Parameters
+tsne_perplexity <- 40
+tsne_max_iter <- 1000
+tsne_initial_dims <- 50
+tsne_seed <- seed
+
+# UMAP Parameters
+umap_n_neighbors <- 15
+umap_metric <- "euclidean"
+umap_min_dist <- 0.1
+umap_seed <- seed
+color <- "variant"
+shape <- "year"
+include_plots <- TRUE
+### OPTIONAL ###
+# filter1_factor <- "variant"
+# filter1_values <- c("Omicron", "Omicron Sub")
+# filter2_factor <- "year"
+# filter2_values <- c("2023")
+```
+
+```{r kmer}
+# GET KMERS FROM PRE-WRITTEN FILES (depends on strat_size)
+# LOAD SOURCES #############################################
+strat_size <- 100
+kmers_data_path <- "../data/kmers"
+k_path <- sprintf("%s/kmer_%d_%d.csv", kmers_data_path, k, strat_size)
+message(sprintf("Reading %s for later... ", k_path), appendLF = FALSE)
+kmers <- utils::read.csv(k_path)
+message("DONE!")
+```
+
+## Dimensionality Reduction Methods
+### Principal Component Analysis (PCA)
+PCA is a popular method for dimensionality reduction that transforms high-dimensional data into a lower-dimensional space. It identifies the principal components, which are linear combinations of the original features that capture the most variance in the data. In this code, PCA is used to reduce the dimensionality of the scaled data (x). The results are plotted in 2D and 3D PCA plots, screeplot, factor loadings plot, and many other more.
+
+```{r pca}
+pre_reduce_res <- pre_reduce(results_path, kmers, k, filter1_factor, 
+                               filter1_values, filter2_factor, filter2_values)
+  
+df <- pre_reduce_res$df                # df is the original dataset
+x <- pre_reduce_res$x                  # x is the scaled data
+
+# Perform PCA
+pca_df <- pca_fn(x)
+```
+
+### t-Distributed Stochastic Neighbor Embedding (t-SNE)
+t-SNE is a nonlinear dimensionality reduction technique that is particularly useful for visualizing high-dimensional data in a lower-dimensional space while preserving local structures. In this code, t-SNE is performed using the tsne or Rtsne library (based on user selection) on the PCA results. The function generates 2D and 3D t-SNE plots, which represent the data points in a way that maintains the similarity between nearby points.
+
+```{r tsne, message = FALSE, results = FALSE}
+# Perform t-SNE via 'tsne' library using PCA results (in 3 dimensions)
+# # Note: Uncomment the next two line to use tsne; otherwise, comment them
+tsne_df <- tsne_fn(pca_df$x, 3, tsne_initial_dims, tsne_perplexity,
+                   tsne_max_iter, tsne_seed)
+
+# Perform t-SNE via 'Rtsne' library using PCA results (in 3 dimensions)
+# # Note: Uncomment the next two lines to use Rtsne; otherwise, comment them
+# is_tsne <- FALSE
+# tsne_df <- rtsne_fn(pca_df$x, 3, tsne_perplexity, tsne_max_iter, tsne_seed)
+```
+
+### Uniform Manifold Approximation and Projection (UMAP)
+UMAP is another nonlinear dimensionality reduction method that seeks to preserve both local and global structures of the data. It is known for its ability to scale to large datasets. In this code, UMAP is used to project the scaled data (x) into a 3D space. The function generates 2D and 3D UMAP plots, which provide a reduced representation of the data while preserving the relationships between data points.
+
+```{r umap, message = FALSE, results = FALSE}
+# Perform UMAP (in 3 dimensions)
+umap_df <- umap_fn(x, 3, umap_n_neighbors, umap_metric, 
+                   umap_min_dist, umap_seed)
+```
+
+### 2D PCA plot:
+
+- This plot represents the data points projected onto the first two principal components obtained from PCA.
+- It helps visualize the overall distribution of the data in a 2D space while retaining the most significant variability in the data.
+- The plot may reveal clusters or patterns in the data.
+
+```{r 2dpca}
+# Generate 2D PCA plot
+pcolor <- df[[color]]
+pshape <- df[[shape]]
+
+p <- autoplot(pca_df, data = df) +
+  geom_point(aes(color = pcolor, shape = pshape, text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) +
+  scale_color_brewer(palette = "Set1")
+
+p <- ggplotly(p)
+p
+```
+
+### 3D PCA plot (pca_3d):
+- Similar to the 2D PCA plot, but in a 3D space.
+- It provides additional depth to visualize the data points and explore the variation in the first three principal components.
+- It allows for the identification of clusters or patterns that might not be apparent in the 2D projection.
+
+```{r 3dpca}
+# Generate 3D PCA plot
+p <- plot_ly(as.data.frame(pca_df$x[, 1:3]),
+             x = ~PC1, y = ~PC2, z = ~PC3, type = "scatter3d",
+             mode = "markers", color = df[[color]], symbol = df[[shape]],
+             text = paste(
+               "Identifier: ", df$gisaid_epi_isl, "\n",
+               "Variant: ", df$variant, "\n",
+               "Sex: ", df$sex, "\n",
+               "Division Exposure: ", df$division_exposure, "\n",
+               "Year: ", format(as.Date(df$date), "%Y"), "\n",
+               "Strain: ", df$strain, "\n",
+               "Pangolin Lineage: ", df$pangolin_lineage)
+             )
+
+p <- ggplotly(p)
+p
+```
+
+### Screeplot:
+- A screeplot is a line plot that shows the variance explained by each principal component.
+- It helps identify the number of principal components that capture most of the variance in the data.
+- The "elbow point" in the plot is often used to determine the appropriate number of principal components to retain.
+
+```{r scree}
+# Generate screeplot
+p <- fviz_eig(pca_df,
+              xlab = "Number of Principal Components")
+
+p <- ggplotly(p)
+p
+```
+
+
+### Factor Loadings plot (factor_loadings):
+- This plot shows the loadings of variables on the first three principal components.
+- It helps in understanding which variables contribute most to the principal components.
+- Variables with high absolute loadings contribute significantly to the components' variation.
+
+```{r loadings}
+# Generate factor loadings plot of first 3 principal components
+n_components <- 3
+
+# Extract factor loadings
+loadings <- pca_df$rotation
+
+# Plot bar plots for factor loadings of n principal components
+for (i in 1:n_components) {
+  # Create a data frame for the factor loadings
+  loadings_df <- data.frame(
+    variable = colnames(x),
+    loading = loadings[, i]
+  )
+  
+  # Create a bar plot using ggplot2
+  p <- ggplot(loadings_df, aes(x = variable, y = loading)) +
+    geom_bar(stat = "identity", fill = "blue") +
+    labs(
+      title = paste("Principal Component", i),
+      x = "Variables", y = "Factor Loadings"
+    )
+  p <- ggplotly(p)
+  p
+}
+```
+
+### Graph of Individuals:
+- Also known as a "score plot" or "individual plot," it displays the data points in the PCA space based on their scores on the principal components.
+- It helps to visualize how individual samples are distributed in the reduced PCA space.
+- Clusters of points close together may indicate similar samples in terms of the measured variables.
+
+```{r indiv}
+# Generate graph of individuals
+p <- fviz_pca_ind(pca_df,
+                  col.ind = "cos2", # Color by the quality of representation
+                  gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                  repel = TRUE, # Avoid text overlapping
+                  xlab = "PC1",
+                  ylab = "PC2")
+
+p <- ggplotly(p)
+p
+```
+
+### Graph of Variables (vars):
+- This plot shows the projection of the original variables onto the first two principal components.
+- It helps to understand how variables are related to each other and how they contribute to the PCA components.
+- Variables close to each other in the plot are positively correlated, while variables far apart are negatively correlated.
+
+```{r vars}
+# Generate graph of variables
+p <- fviz_pca_var(pca_df,
+                  col.var = "contrib", # Color by contributions to the PC
+                  gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                  repel = TRUE, # Avoid text overlapping
+                  xlab = "PC1",
+                  ylab = "PC2")
+
+p <- ggplotly(p)
+p
+```
+
+### Biplot:
+- A biplot combines the individual and variable plots into a single plot.
+- It helps to visualize both the data points and the variables in the same reduced-dimensional space.
+- This enables understanding the relationships between variables and individuals.
+
+```{r biplot}
+# Generate biplot
+p <- fviz_pca_biplot(pca_df,
+                     col.var = "#2E9FDF", # Variables color
+                     col.ind = "#696969", # Individuals color
+                     addEllipses = TRUE,
+                     xlab = "PC1",
+                     ylab = "PC2")
+
+p <- ggplotly(p)
+p
+```
+
+### 2D t-SNE plot (tsne_2d):
+- This plot represents the data points in a 2D space, using the t-distributed Stochastic Neighbor Embedding (t-SNE) algorithm.
+- t-SNE is useful for visualizing high-dimensional data and preserving local structures.
+- Clusters of points that appear close together in this plot are likely to be similar in the original high-dimensional space.
+
+```{r 2dtsne}
+# Generate 2D t-SNE plot
+tsne_df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2],
+                      color = df[[color]], shape = df[[shape]])
+p <- ggplot(tsne_df, aes(x = X1, y = X2, color = color, shape = shape)) +
+  geom_point(aes(text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) +
+  xlab("TSNE-2D-1") +
+  ylab("TSNE-2D-2") +
+  scale_color_brewer(palette = "Set1")
+
+p <- ggplotly(p)
+p
+```
+
+### 3D t-SNE plot
+- Similar to the 2D t-SNE plot, but in a 3D space, providing additional perspectives on the data distribution.
+- It can help identify more complex and intricate structures within the data.
+
+```{r 3dtsne}
+tsne_df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], X3 = tsne_df[, 3],
+                      color = df[[color]], shape = df[[shape]])
+final <- cbind(data.frame(tsne_df), df[[color]], df[[shape]])
+p <- plot_ly(final,
+             x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
+             color = df[[color]], symbol = ~shape,
+             text = paste(
+               "Identifier: ", df$gisaid_epi_isl, "<br>",
+               "Variant: ", df$variant, "<br>",
+               "Sex: ", df$sex, "<br>",
+               "Division Exposure: ", df$division_exposure, "<br>",
+               "Year: ", format(as.Date(df$date), "%Y"), "<br>",
+               "Strain: ", df$strain, "<br>",
+               "Pangolin Lineage: ", df$pangolin_lineage
+             )
+)
+
+p <- ggplotly(p)
+p
+```
+
+### 2D UMAP plot
+- This plot represents the data points in a 2D space using the Uniform Manifold Approximation and Projection (UMAP) algorithm.
+- UMAP is another dimensionality reduction technique similar to t-SNE, but often computationally more efficient.
+- It can reveal different structures or patterns in the data compared to t-SNE.
+
+```{r 2dumap}
+# Generate 2D UMAP plot
+emb <- umap_df$layout
+  
+x_o <- emb[, 1]
+y_o <- emb[, 2]
+
+p <- ggplot(
+  data = as.data.frame(emb),
+  aes(x = x_o, y = y_o, color = df[[color]], shape = df[[shape]])
+) +
+  geom_point(aes(text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) +
+  xlab("UMAP_1") +
+  ylab("UMAP_2") +
+  labs(shape = "shape", color="color") +
+  scale_color_brewer(palette = "Set1")
+
+p <- ggplotly(p)
+p
+```
+
+
+### 3D UMAP plot (umap_3d):
+- Similar to the 2D UMAP plot, but in a 3D space, providing additional perspectives on the data distribution.
+- It allows for exploring the data points' distribution and potential clusters in a more complex space.
+
+```{r 3dumap}
+# Generate 3D UMAP plot
+final <- cbind(data.frame(umap_df[["layout"]]), color, shape)
+p <- plot_ly(final,
+             x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
+             color = df[[color]], symbol = ~shape,
+             text = paste(
+               "Identifier: ", df$gisaid_epi_isl, "<br>",
+               "Variant: ", df$variant, "<br>",
+               "Sex: ", df$sex, "<br>",
+               "Division Exposure: ", df$division_exposure, "<br>",
+               "Year: ", format(as.Date(df$date), "%Y"), "<br>",
+               "Strain: ", df$strain, "<br>",
+               "Pangolin Lineage: ", df$pangolin_lineage
+             )
+)
+
+p <- p %>% add_markers()
+p <- p %>% layout(scene = list(
+  xaxis = list(title = "0"),
+  yaxis = list(title = "1"),
+  zaxis = list(title = "2")
+))
+
+p <- ggplotly(p)
+p
+```
