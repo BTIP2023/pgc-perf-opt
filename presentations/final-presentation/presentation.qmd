@@ -132,19 +132,20 @@ E.g., hardcoded working directories and variant names (as shown in the Chandra e
 
 ## Among many other reasons, an in-house, inspired yet highly original UML variant classifier workflow is in order.
 
-## Performance Evaluation and Optimization Rationales
+## Performance Evaluation and Optimization
 
 ::: {layout-ncol=2 layout-valign="center"}
 
 ![Access to powerful computers built for bioinformatics is limited.](presentation_files/img/hpc-1.png){fig-align="left"}
 
-::: {layout-ncol=2}
+::: {#fig-comps layout-ncol=2}
 
 ![](presentation_files/img/comshop-1.jpeg){}
 
 ![](presentation_files/img/comshop-2.jpg){}
 
 Many Filipinos only have access to these setups.
+<!-- TODO: Remove figure number -->
 :::
 
 :::
@@ -153,11 +154,37 @@ A great hurdle to spreading bioinformatics knowledge is inadequate access to pow
 
 Hence, our team looked for — and found — tweaks that could boost our bioinformatics workflows regardless of hardware limitations.
 
-## *Rationale 2:* Optimized linear algebra libraries are designed to enhance improve performance by faster communication with the hardware layer {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+We conduct our pilot benchmarks on the UML workflow that we developed. 
 
+## {auto-animate=true auto-animate-easing="ease-in-out"}
+**BLAS/LAPACK libraries work closely with the hardware layer.**
+
+![](presentation_files/img/linalg-libs.png){fig-align="center"}
+
+This may yield significant performance boost.
+
+## {auto-animate=true auto-animate-easing="ease-in-out"}
+***Rationale 2:* Optimized linear algebra libraries may offer improved bioinformatics performance** 
+
+::: {layout-ncol=2}
+![](presentation_files/img/linalg-libs.png){fig-align="center"}
+
+![](presentation_files/img/linalg-comparisons.png){fig-align="center"}
+
+
+:::
+
+## Meltdown and Spectre
 
 
 ## *Rationale 3:* Patches on processor vulnerabilities such as Meltdown and Spectre have been shown to severely impact performance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+::: {layout-ncol=2}
+![](presentation_files/img/meltre.png){}
+
+![](presentation_files/img/cpus-1.jpg){}
+
+:::
+
 
 # Objectives of the Study {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
