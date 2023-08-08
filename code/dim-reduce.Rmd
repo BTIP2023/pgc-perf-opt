@@ -490,9 +490,9 @@ p
 
 ```{r 2dtsne}
 # Generate 2D t-SNE plot
-tsne_df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2],
+tsne_df_2d <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2],
                       color = df[[color]], shape = df[[shape]])
-p <- ggplot(tsne_df, aes(x = X1, y = X2, color = color, shape = shape)) +
+p <- ggplot(tsne_df_2d, aes(x = X1, y = X2, color = color, shape = shape)) +
   geom_point(aes(text = paste(
     "Identifier: ", df$gisaid_epi_isl, "\n",
     "Variant: ", df$variant, "\n",
@@ -515,9 +515,9 @@ p
 - It can help identify more complex and intricate structures within the data.
 
 ```{r 3dtsne}
-tsne_df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], X3 = tsne_df[, 3],
+tsne_df_3d <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], X3 = tsne_df[, 3],
                       color = df[[color]], shape = df[[shape]])
-final <- cbind(data.frame(tsne_df), df[[color]], df[[shape]])
+final <- cbind(data.frame(tsne_df_3d), df[[color]], df[[shape]])
 p <- plot_ly(final,
              x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
              color = df[[color]], symbol = ~shape,
