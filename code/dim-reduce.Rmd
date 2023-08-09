@@ -40,8 +40,6 @@ if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
 }
 
 # Use pacman to load add-on packages as desired.
-# TODO: Remove redundancies in dependencies. E.g., dplyr and ggplot2
-# are already dependencies of tidyverse.
 pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                httr, lubridate, plotly, psych,
                rio, markdown, rmarkdown, shiny,
@@ -52,9 +50,6 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                ggdendro, dendextend, cluster, colorspace,
                microbenchmark, data.table,
                highcharter, glue)
-if (!require(ggbiplot))
-  install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
-pacman::p_load(ggbiplot)
 ```
 
 ```{r include-functions, echo = FALSE}
@@ -601,4 +596,20 @@ p <- p %>% layout(scene = list(
 
 p <- ggplotly(p)
 p
+```
+
+```{r session-info, echo=FALSE}
+# Retrieve session information
+session_info <- capture.output(sessionInfo())
+
+# Print session information
+cat("R Session Info:\n")
+cat("```r\n")
+cat(session_info, sep = "\n")
+cat("\n```")
+
+# Save session information to a text file
+session_info_file <- "R_session_info.txt"
+writeLines(session_info, session_info_file)
+cat("Session information saved to:", session_info_file, "\n")
 ```
