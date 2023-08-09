@@ -1,29 +1,42 @@
 ---
-title: "pgc-perf-opt pipeline"
+title: "pgc-perf-opt Pipeline"
+subtitle: "A SARS-CoV-2 Variant Discriminator using Unsupervised Machine Learning (UML) Techniques"
+author: "<b>Project Lead:</b> Mark Joseph Garrovillas, RCh</br><b>Interns:</b> Brylle Joshua Logroño, John Matthew Felices, Yenzy Urson Hebron"
+date: "July 2023"
+institution: "Core Facility for Bioinformatics"
 output: html_notebook
 ---
 
-# pgc-perf-opt pipeline.R
+This notebook tackles the main code in `code/pipeline.R`, guiding us through the workflow's setup and execution, along with a brief exploration of the results.
 
-An unsupervised machine learning (UML) SARS-CoV-2 variant discriminator workflow. UML techniques used are principal components analysis (PCA), t-distributed stochastic neighbor embedding (t-SNE), uniform manifold approximation (UMAP), and agglomerative clustering (AGNES). Produces visualizations of SARS-CoV-2 genome samples with good and intuitive clustering particularly for high k-mer counting k values. Prediction is a nice-to-have feature, but because the UML techniques are mainly designed towards visualization or dimensionality reduction, predictive capabilities will have to be augmented via supervised learning.
+This workflow can produce rich and intuitive clusterings of SARS-CoV-2 genome samples by treating $k$-mer count data with the following dimensionality reduction and clustering techniques:
 
-The workflow is currently set to only use Philippine SARS-CoV-2 data (see `data/GISAID`) and also filters out samples not collected in the Philippines (see `country_exposure` parameter), but it can be set to use other countries in the parameters section.
+* Principal components analysis (PCA)
+* t-distributed stochastic neighbor embedding (t-SNE)
+* Uniform manifold approximation (UMAP), and
+* Agglomerative clustering (AGNES).
+
+The efficiency and quality of the clusterings are also assessed, particularly the insights that can be extracted from the resulting visualizations. The $k$-mer counts of each sample are also augmented with metadata, which while not used to *perform* the clusterings to preserve the UML approach, enhances the results with descriptive labels.
+
+The workflow is well-tested on odd $k$-mer count matrices where $k = {3, 5, 7}$. It is currently set to only use Philippine SARS-CoV-2 data (see `data/GISAID`), filtering out samples not collected in the Philippines (see `country_exposure` parameter), but it can be set to use other countries in the parameters section of the Setup.
 
 # 1. Setup
 ## A. Load Packages
-If this project is not running in a project-specific environment (e.g. the pgc-perf-opt Docker image), then the following packages will also have to be installed (and then loaded) for the pipeline to work. We will use the CRAN repository as our main source.
-```{r message=FALSE}
+If this project is not running in a project-specific environment (e.g. the custom-made pgc-perf-opt Docker image), then the following packages will also have to be installed for the pipeline to work. Else, this section will only deal with loading the dependencies.
+
+We use the CRAN repository as our main source.
+```{r, message=FALSE}
 options(repos = "https://cloud.r-project.org/")
 ```
 
-We will use the `pacman` package to conveniently organize our project's packages.
+We use the `pacman` package to conveniently organize our project's packages.
 ```{r message=FALSE}
 if (!require("pacman"))
   install.packages("pacman")
 library(pacman)
 ```
 
-If we are not running on a tailor-made environment, we also install `xml2` in advance to prepare for Tidyverse installation in Linux. Note that in Windows RStudio, this is installed by default. This is also a good time to demonstrate how our development life cycle took care to maintain intercompatibility between Linux and Windows, and this is most evident in the pipeline and in `code/R/helper.R::write_to_log`.
+If we are not running on a tailor-made environment, we also install `xml2` in advance to prepare for Tidyverse installation in Linux. Note that in Windows RStudio, this is installed by default. This is also a good time to demonstrate how our development life cycle took care to maintain compatibility between Linux and Windows, and this is most evident in the pipeline and in `code/R/helper.R::write_to_log`.
 ```{r message=FALSE}
 if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
   install.packages("xml2", dependencies = TRUE, INSTALL_opts = c("--no-lock"))
@@ -31,13 +44,13 @@ if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
 }
 ```
 
-Let us use `pacman` to load add-on packages as desired. Observe that redundancies in dependencies were carefully removed, e.g. `dplyr` and `ggplot2` are already in the `tidyverse` so we can omit them.
+Let us use `pacman` to load add-on packages as desired. Observe that redundancies in dependencies were carefully removed, e.g. `dplyr` and `ggplot2` are already in the `tidyverse`, so we can omit them.
 ```{r message=FALSE}
 pacman::p_load(plyr, GGally, ggthemes, ggvis, plotly, psych,
-               rio, markdown, shiny, tidyverse,
-               ape, kmer, validate, gsubfn, seqinr,
-               umap, htmlwidgets, factoextra, scales,
-               Rtsne, tsne, RColorBrewer, ggfortify, devtools,
+               htmlwidgets, rio, markdown, shiny, tidyverse,
+               ape, seqinr, kmer, validate, gsubfn,
+               Rtsne, tsne, umap, factoextra, scales,
+               RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
                microbenchmark, data.table, highcharter)
 
@@ -47,11 +60,20 @@ if (!require(ggbiplot))
 pacman::p_load(ggbiplot)
 ```
 
-Some notes on the dependencies:
+Remarks on some of the dependencies:
 
-* `validate` is used for the `%vin%` operator 
-* `gsubfn` is used to destructure more than one return value
-* `devtools` supports `install_github` for installing `ggbiplot`
+* `plotly`: used together with `ggplot2` to produce interactive results.
+* `htmlwidgets`: used for saving HTML results.
+* `ape`: used for reading and writing FASTA files in `DNAbin` format.
+* `seqinr`: an `ape` alternative, reads and writes FASTA files in `char` format.
+* `kmer`: used to generate $k$-mer counts, works more efficiently with `DNAbin`.
+* `validate`: used for the `%vin%` membership operator.
+* `gsubfn`: used to destructure more than one return value.
+* `Rtsne`, `tsne`, `umap`: used for accessing dimensionality reduction algorithms.
+* `ggdendro`, `dendextend`: used to produce 
+* `devtools`: supports `install_github` for installing `ggbiplot`.
+* `microbenchmark`: for the benchmarking side objectives.
+* `highcharter`: used for some intermediate results such as the treemaps.
 
 ## B. Load Sources
 If this file is loaded in RStudio with the corresponding `.Rproject`, then the root is the directory where the `.Rproject` file can be found. Unfortunately, RMarkdown files do not respond to `.Rproject`, and hence still works on its own directory space, necessitating the use of  relative paths in the following sources.
