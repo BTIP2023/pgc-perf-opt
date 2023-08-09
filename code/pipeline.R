@@ -75,8 +75,6 @@ country_exposure <- "Philippines"
 # preprocess.R::auxiliary parameters
 interm_write_path <- "data/interm"
 compile_write_path <- "data/overview"
-treemaps_write_path <- "data/overview/treemaps"
-heatmaps_write_path <- "data/overview/heatmaps"
 
 # dim-reduce.R::dim_reduce() parameters
 kmers_data_path <- "data/kmers"
@@ -125,7 +123,7 @@ metadata_all <- compile_overview(metadata_all, compile_write_path, stamp)
 # Step 1.5D: make_treemaps()
 # NOTE: The treemap() function in helper.R
 # can generate any treemap you can think of, yeah!
-#make_treemaps(metadata_all, treemaps_write_path, stamp)
+#make_treemaps(metadata_all, compile_write_path, stamp)
 
 # Step 2: get_kmers()
 for (k in kmer_list) {
@@ -146,7 +144,7 @@ for (i in 1:length(kmer_list)) {
 # Step 2.5: generate_heatmap()
 # for (i in 1:length(kmer_list)) {
 #   k <- kmer_list[i]
-#   generate_heatmap(kmers[[i]], heatmaps_write_path, k)
+#   generate_heatmap(kmers[[i]], compile_write_path, k)
 # }
 
 # Step 3: dim_reduce()

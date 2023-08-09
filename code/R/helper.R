@@ -168,6 +168,7 @@ generate_heatmap <- function(kmers, results_path, k){
     scale_fill_gradient (low = "#00AFBB", high = "#FC4E07")
   
   # Saving heatmap as PNG, HTML, and RData
+  results_path <- paste0(results_path, "/heatmaps")
   save_plot("heatmap", results_path, k, p)
 }
 
