@@ -87,6 +87,8 @@ data/interm/*
 data/overview/*[0-9].txt
 data/overview/*[0-9].csv
 !data/overview/age_group.csv
+data/overview/treemaps/*[0-9].txt
+data/overview/treemaps/*[0-9].csv
 data/overview/treemaps/*[0-9].html
 data/kmers/kmer_*_*.csv
 !data/kmers/*_100.csv
