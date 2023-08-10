@@ -1,0 +1,926 @@
+---
+title: "Revised Dimensionality Reduction"
+output: html_document
+---
+
+
+## Load Required Packages
+```{r load-prereq, echo = TRUE}
+
+if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
+  install.packages("xml2", dependencies = TRUE, INSTALL_opts = c("--no-lock"))
+  pacman::p_load(xml2)
+}
+
+# Use pacman to load add-on packages as desired.
+# TODO: Remove redundancies in dependencies. E.g., dplyr and ggplot2
+# are already dependencies of tidyverse.
+pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
+               httr, lubridate, plotly, psych,
+               rio, markdown, rmarkdown, shiny,
+               stringr, tidyr, tidyverse,
+               ape, kmer, readr, validate, gsubfn, seqinr,
+               umap, htmlwidgets, factoextra, scales,
+               Rtsne, tsne, RColorBrewer, ggfortify, devtools,
+               ggdendro, dendextend, cluster, colorspace,
+               microbenchmark, data.table,
+               highcharter, glue)
+if (!require(ggbiplot))
+  install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
+pacman::p_load(ggbiplot)
+```
+
+## Load helper functions
+```{r include-functions, echo = TRUE}
+source("code/R/helper.R")
+
+# Function to extract the timestamp from the kmer files
+extract_time <- function(string) {
+  parts <- strsplit(string, "_")[[1]]
+  as.numeric(gsub(".csv", "", parts[3]))
+}
+
+# Function to search and read the CSV file
+read_kmer_csv <- function(data_path, k) {
+  print("Reading CSV file...")
+  # Get the list of files matching the pattern
+  file_pattern <- paste0("kmer_", k, "_", ".*\\.csv$")
+  file_list <- list.files(
+    path = data_path, pattern = file_pattern,
+    full.names = FALSE
+  )
+  
+  # Check if any files are found
+  if (length(file_list) == 0) {
+    message("No files found for k = ", k)
+    return(NULL)
+  }
+  
+  # Sort the strings based on the timestamp in descending order
+  sorted_strings <- file_list[order(sapply(file_list, extract_time),
+                                    decreasing = TRUE
+  )]
+  
+  df <- read.csv(paste(data_path, sorted_strings[1], sep = "/"))
+  return(df)
+}
+
+
+# Function for pre-processing and scaling of data
+pre_process <- function(df) {
+  print("Pre-processing and scaling data...")
+  # Extract year from date column
+  
+  # Determine the columns to use (drop metadata, retain k-mers)
+  slice_col <- which(colnames(df) == "strain")
+  x <- df[, 2:(slice_col - 1)]
+  # color <- df[[factor1]]
+  
+  # Check for columns that have zero variance for PCA
+  non_zero_var_cols <- apply(x, 2, var) > 0
+  x <- x[, non_zero_var_cols]
+  
+  if (ncol(x) < 2) {
+    stop("Insufficient columns with non-zero variance for PCA.")
+  }
+  
+  # Scale data
+  x <- scale(x)
+  
+  # (This is needed for labeling of points in 3D plots)
+  df$year <- format(as.Date(df$date), "%Y")
+  
+  return(x)
+}
+
+# Function to execute before main dim-reduce codes
+pre_reduce <- function(results_path, kmers, k, filter1_factor, 
+                       filter1_values, filter2_factor, filter2_values) {
+  # Check if the directory already exists
+  if (!dir.exists(results_path)) {
+    # Create the directory if it doesn't exist
+    dir.create(results_path, recursive = TRUE)
+  }
+  # Process kmers dataframe
+  df <- kmers
+  df$year <- format(as.Date(df$date), "%Y")
+  
+  # Making filter values optional
+  # if(missing(filter1_factor) && missing(filter1_values) &&
+  #    missing(filter2_factor) && missing(filter2_values)){
+  #   
+  # } else if(missing(filter2_factor) && missing(filter2_values)){
+  #   
+  #   df <- filter(df, df[[filter1_factor]] %in% filter1_values)
+  #   
+  # } else if(missing(filter1_factor) && missing(filter1_values)){
+  #   
+  #   df <- filter(df, df[[filter2_factor]] %in% filter2_values)
+  #   
+  # } else {
+  #   df <- filter(df, df[[filter1_factor]] %in% filter1_values)
+  #   df <- filter(df, df[[filter2_factor]] %in% filter2_values)
+  # }
+  
+  # Pre-process the data
+  x <- pre_process(df)
+  return(list(df = df, x = x))
+}
+```
+
+
+## Load Parameters
+These are the needed parameters for dim-reduce:
+```{r params}
+k <- 7
+seed <- 1234
+results_path <- "results/dim-reduce/R"
+include_plots <- TRUE
+```
+
+## Load k-mer Data
+```{r kmer}
+# GET KMERS FROM PRE-WRITTEN FILES (depends on strat_size)
+# LOAD SOURCES #############################################
+strat_size <- 100
+kmers_data_path <- "data/kmers"
+k_path <- sprintf("%s/kmer_%d_%d.csv", kmers_data_path, k, strat_size)
+message(sprintf("Reading %s for later... ", k_path), appendLF = FALSE)
+kmers <- utils::read.csv(k_path)
+message("DONE!")
+```
+
+
+# Dimensionality Reduction Methods
+
+## Principal Component Analysis (PCA)
+PCA is a popular method for dimensionality reduction that transforms high-dimensional data into a lower-dimensional space. It identifies the principal components, which are linear combinations of the original features that capture the most variance in the data. In this code, PCA is used to reduce the dimensionality of the scaled data (x). The results are plotted in 2D and 3D PCA plots, screeplot, factor loadings plot, and many other more.
+
+### PCA Time Complexity
+PCA (Principal Component Analysis) is a widely used technique for dimensionality reduction. The time complexity of PCA depends on the number of data-points *n* and the number of features *p*. In the worst-case scenario (based on the definition), the time complexity of PCA is O(*p*^2^*n* + *p*^3^), where *n* is the number of data-points and *p* is the number of features.
+
+The computation of the covariance matrix contributes O(*p*^2^*n*) to the overall complexity, while the eigen-value decomposition adds O(*p*^3^). In R, using the `prcomp` function with scaling to implement PCA as SVD (Singular Value Decomposition) of the Dataset matrix results in a time complexity of O(*n*^2^*p* + *p*^3^).
+
+For reference and more information:
+- [StackOverflow - Complexity of PCA](https://stackoverflow.com/questions/20507646/how-is-the-complexity-of-pca-ominp3-n3)
+- [Medium - Computational Complexity of PCA](https://alekhyo.medium.com/computational-complexity-of-pca-4cb61143b7e5)
+- [SVD Implementation to Speed up PCA](https://www.slideshare.net/YounesCharfaoui/principal-component-analysis-code-and-time-complexity-127431697)
+
+### Peform PCA
+```{r pca}
+### OPTIONAL ###
+# filter1_factor <- "variant"
+# filter1_values <- c("Omicron", "Omicron Sub")
+# filter2_factor <- "year"
+# filter2_values <- c("2023")
+pre_reduce_res <- pre_reduce(results_path, kmers, k, filter1_factor, 
+                               filter1_values, filter2_factor, filter2_values)
+
+df <- pre_reduce_res$df                # df is the original dataset
+x <- pre_reduce_res$x                  # x is the reduced data
+
+# Perform PCA
+# Do scaling here
+print("Performing PCA...")
+pca_df <- prcomp(x, center = TRUE, scale = TRUE)
+message("DONE!")
+```
+
+
+### Plot 2D PCA:
+
+- This plot represents the data points projected onto the first two principal components obtained from PCA.
+- It helps visualize the overall distribution of the data in a 2D space while retaining the most significant variability in the data.
+- The plot may reveal clusters or patterns in the data.
+
+```{r 2dpca}
+# Generate 2D PCA plot
+color <- "variant"
+shape <- "year"
+
+factor1 <- df[[color]]
+factor2 <- df[[shape]]
+  
+# Plot Principal Components
+x <- 1
+y <- 2
+
+gg <- autoplot(pca_df, data = df, x = x, y = y) +
+  geom_point(aes(color = factor1, shape = factor2, text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) +
+  scale_color_brewer(palette = "Set1")
+gg
+ggp <- ggplotly(gg)
+ggp
+```
+
+### 3D PCA plot (pca_3d):
+- Similar to the 2D PCA plot, but in a 3D space.
+- It provides additional depth to visualize the data points and explore the variation in the first three principal components.
+- It allows for the identification of clusters or patterns that might not be apparent in the 2D projection.
+
+```{r 3dpca}
+# Generate 3D PCA plot
+color <- "variant"
+shape <- "year"
+
+factor1 <- df[[color]]
+factor2 <- df[[shape]]
+
+# Plot Principal Components
+x <- ~PC1
+y <- ~PC2
+z <- ~PC3
+
+p <- plot_ly(as.data.frame(pca_df$x),
+             x = x, y = y, z = z, type = "scatter3d",
+             mode = "markers", color = factor1, symbol = factor2,
+             text = paste(
+               "Identifier: ", df$gisaid_epi_isl, "\n",
+               "Variant: ", df$variant, "\n",
+               "Sex: ", df$sex, "\n",
+               "Division Exposure: ", df$division_exposure, "\n",
+               "Year: ", format(as.Date(df$date), "%Y"), "\n",
+               "Strain: ", df$strain, "\n",
+               "Pangolin Lineage: ", df$pangolin_lineage)
+             )
+p
+```
+
+### PCA Screeplot:
+- A screeplot is a line plot that shows the variance explained by each principal component.
+- It helps identify the number of principal components that capture most of the variance in the data.
+- The "elbow point" in the plot is often used to determine the appropriate number of principal components to retain.
+
+```{r scree}
+# Generate screeplot
+gg <- fviz_eig(pca_df,
+              xlab = "Number of Principal Components",
+              choice = "variance",
+              ncp = 50)
+
+gg <- gg + geom_hline(yintercept=1, linetype="dashed", color = "red") + annotate("text", x=45, y=1, label="Kaiser criterion")
+gg
+ggp <- ggplotly(gg)
+ggp
+```
+
+
+### PCA Factor Loadings plot (factor_loadings)
+- This plot shows the loadings of variables on the first three principal components.
+- It helps in understanding which variables contribute most to the principal components.
+- Variables with high absolute loadings contribute significantly to the components' variation.
+
+
+
+#### Loadings for PC1
+```{r loadings1}
+# Extract factor loadings
+loadings <- pca_df$rotation
+
+PC <- 1
+loadings_df <- data.frame(variable = colnames(pre_reduce_res$x), loading = loadings[, PC])
+loadings_df <- filter(loadings_df, loadings_df$loading > +0.00 | loadings_df$loading < -0.01)
+gg1 <- ggplot(loadings_df, aes(x = variable, y = loading)) +
+    geom_bar(stat = "identity", fill = "blue") +
+    labs(
+      title = paste("Principal Component", PC),
+      x = "Variables", y = "+0.00 > Factor Loadings < -0.01"
+    )
+gg1
+```
+
+#### Loadings for PC2
+```{r loadings2}
+PC <- 2
+loadings_df <- data.frame(variable = colnames(pre_reduce_res$x), loading = loadings[, PC])
+gg2 <- ggplot(loadings_df, aes(x = variable, y = loading)) +
+    geom_bar(stat = "identity", fill = "blue") +
+    labs(
+      title = paste("Principal Component", PC),
+      x = "Variables", y = "Factor Loadings"
+    )
+gg2
+
+loadings_df <- filter(loadings_df, loadings_df$loading > +0.031 | loadings_df$loading < -0.031)
+gg2 <- ggplot(loadings_df, aes(x = variable, y = loading)) +
+    geom_bar(stat = "identity", fill = "blue") +
+    labs(
+      title = paste("Principal Component", PC),
+      x = "Variables", y = "+0.031 > Factor Loadings < -0.031"
+    )
+gg2
+ggp2 <- ggplotly(gg2)
+ggp2
+```
+
+#### Loadings for PC3
+```{r loadings3}
+PC <- 3
+loadings_df <- data.frame(variable = colnames(pre_reduce_res$x), loading = loadings[, PC])
+gg3 <- ggplot(loadings_df, aes(x = variable, y = loading)) +
+    geom_bar(stat = "identity", fill = "blue") +
+    labs(
+      title = paste("Principal Component", PC),
+      x = "Variables", y = "Factor Loadings"
+    )
+gg3
+
+loadings_df <- filter(loadings_df, loadings_df$loading > +0.02 | loadings_df$loading < -0.03)
+gg3 <- ggplot(loadings_df, aes(x = variable, y = loading)) +
+    geom_bar(stat = "identity", fill = "blue") +
+    labs(
+      title = paste("Principal Component", PC),
+      x = "Variables", y = "+0.02 > Factor Loadings < -0.03"
+    )
+gg3
+ggp3 <- ggplotly(gg3)
+ggp3
+```
+
+### Graph of Individuals:
+- Also known as a "score plot" or "individual plot," it displays the data points in the PCA space based on their scores on the principal components.
+- It helps to visualize how individual samples are distributed in the reduced PCA space.
+- Clusters of points close together may indicate similar samples in terms of the measured variables.
+
+```{r indiv}
+# Generate graph of individuals
+gg <-  fviz_pca_ind(pca_df,
+                  col.ind = "cos2", # Color by the quality of representation
+                  gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                  repel = TRUE, # Avoid text overlapping
+                  xlab = "PC1",
+                  ylab = "PC2") 
+gg
+
+ggp <- ggplotly(gg)
+bggly <- plotly_build(ggp)
+bggly$x$data[[1]]$text <- with(ggp$data, paste0(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage)
+    )
+
+bggly
+```
+
+### Graph of Variables (vars):
+- This plot shows the projection of the original variables onto the first two principal components.
+- It helps to understand how variables are related to each other and how they contribute to the PCA components.
+- Variables close to each other in the plot are positively correlated, while variables far apart are negatively correlated.
+
+```{r vars}
+# Generate graph of variables
+gg <- fviz_pca_var(pca_df,
+                  col.var = "contrib", # Color by contributions to the PC
+                  gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+                  repel = TRUE, # Avoid text overlapping
+                  xlab = "PC1",
+                  ylab = "PC2")
+gg
+ggp <- ggplotly(gg)
+ggp
+
+```
+
+### Biplot:
+- A biplot combines the individual and variable plots into a single plot.
+- It helps to visualize both the data points and the variables in the same reduced-dimensional space.
+- This enables understanding the relationships between variables and individuals.
+
+```{r biplot}
+# Generate biplot
+gg <- fviz_pca_biplot(pca_df,
+                     col.var = "#2E9FDF", # Variables color
+                     col.ind = "#696969", # Individuals color
+                     addEllipses = TRUE,
+                     xlab = "PC1",
+                     ylab = "PC2")
+gg
+
+ggp <- ggplotly(gg)
+ggp
+```
+
+```{r ggbiplot}
+# Generate biplot
+gg <- ggbiplot(pca_df, groups = df[[color]], obs.scale = 1, var.scale = 1, ellipse = TRUE, circle = TRUE) +    
+  ggtitle("Biplot") +
+  geom_point(aes(color = df[[color]], text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) +
+  scale_color_brewer(palette = "Set1")
+gg
+
+ggp <- ggplotly(gg)
+ggp
+```
+
+## t-Distributed Stochastic Neighbor Embedding (t-SNE)
+t-SNE is a nonlinear dimensionality reduction technique that is particularly useful for visualizing high-dimensional data in a lower-dimensional space while preserving local structures. In this code, t-SNE is performed using the tsne or Rtsne library (based on user selection) on the PCA results. The function generates 2D and 3D t-SNE plots, which represent the data points in a way that maintains the similarity between nearby points.
+
+### t-SNE Time Complexity
+t-SNE (t-distributed Stochastic Neighbor Embedding) is another dimensionality reduction technique. Its time complexity is O(*n*^2^), where *n* is the number of data-points.
+
+For reference and more information:
+- [t-SNE Paper (arXiv)](https://arxiv.org/pdf/1512.01655.pdf)
+
+```{r tsne, message = FALSE, results = FALSE}
+# t-SNE Parameters
+tsne_perplexity <- 40
+tsne_max_iter <- 1000
+tsne_initial_dims <- 50
+tsne_seed <- seed
+
+ecb <- function(tsne_df) {
+  epoc_df <- data.frame(tsne_df, Variant = df$variant)
+  
+  plt <- ggplot(epoc_df, aes(x = X1, y = X2, label = Variant, color = Variant)) + geom_point()
+  
+  print(plt)
+}
+
+print("Performing t-SNE...")
+set.seed(tsne_seed)
+tsne_df <- tsne(pca_df$x,
+                k = 3,
+                initial_dims = tsne_initial_dims,
+                perplexity = tsne_perplexity,
+                max_iter = tsne_max_iter,
+                #epoch_callback = ecb
+)
+print("DONE")
+```
+
+### 2D t-SNE plot (tsne_2d):
+- This plot represents the data points in a 2D space, using the t-distributed Stochastic Neighbor Embedding (t-SNE) algorithm.
+- t-SNE is useful for visualizing high-dimensional data and preserving local structures.
+- Clusters of points that appear close together in this plot are likely to be similar in the original high-dimensional space.
+
+#### Plot Variant then Year
+```{r 2dtsne-variant-year}
+color <- "variant"
+shape <- "year"
+
+factor1 <- df[[color]]
+factor2 <- df[[shape]]
+
+# Generate 2D t-SNE plot
+tsne_df_2d <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2],
+                      color = factor1, shape = factor2)
+gg <- ggplot(tsne_df_2d, aes(x = X1, y = X2, color = color, shape = shape)) +
+  geom_point(aes(text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) +
+  xlab("TSNE-2D-1") +
+  ylab("TSNE-2D-2") +
+  scale_color_brewer(palette = "Set1")
+gg
+ggp <- ggplotly(gg)
+ggp
+```
+
+#### Plot Year then Variant
+```{r 2dtsne-year-variant}
+color <- "year"
+shape <- "variant"
+
+factor1 <- df[[color]]
+factor2 <- df[[shape]]
+
+# Generate 2D t-SNE plot
+tsne_df_2d <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2],
+                      color = factor1, shape = factor2)
+gg <- ggplot(tsne_df_2d, aes(x = X1, y = X2, color = color, shape = shape)) +
+  geom_point(aes(text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) +
+  xlab("TSNE-2D-1") +
+  ylab("TSNE-2D-2") +
+  scale_color_brewer(palette = "Set1")
+gg
+ggp <- ggplotly(gg)
+ggp
+```
+
+#### Plot Pangolin Lineage then Variant
+```{r 2dtsne-pangolin_lineage-variant, fig.width=15,fig.height=9}
+color <- "pangolin_lineage"
+shape <- "variant"
+
+factor1 <- df[[color]]
+factor2 <- df[[shape]]
+
+# Generate 2D t-SNE plot
+tsne_df_2d <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2],
+                      color = factor1, shape = factor2)
+gg <- ggplot(tsne_df_2d, aes(x = X1, y = X2, color = color, shape = shape)) +
+  geom_point(aes(text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) + xlab("TSNE-2D-1") + ylab("TSNE-2D-2") 
+gg
+ggsave("2dtsne-pangolin_lineage-variant.pdf", width = 15, height = 9, units = "in", dpi = 1200)
+ggp <- ggplotly(gg)
+ggp
+```
+
+#### Plot Variant then Pangolin Lineage 
+```{r 2dtsne-variant-pangolin_lineage, fig.width=15,fig.height=9}
+color <- "variant"
+shape <- "pangolin_lineage"
+
+factor1 <- df[[color]]
+factor2 <- df[[shape]]
+
+good.shapes = c(1:25,33:127)
+
+# Generate 2D t-SNE plot
+tsne_df_2d <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2],
+                      color = factor1, shape = factor2)
+gg <- ggplot(tsne_df_2d, aes(x = X1, y = X2, color = color, shape = shape)) +
+  geom_point(aes(text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) +
+  xlab("TSNE-2D-1") +
+  ylab("TSNE-2D-2") + 
+  scale_shape_manual(values=good.shapes[1:(n_distinct(df[[shape]]))])
+ggsave("2dtsne-variant-pangolin_lineage.pdf", width = 15, height = 9, units = "in", dpi = 1200)
+gg
+ggp <- ggplotly(gg)
+ggp
+```
+
+### 3D t-SNE plot
+- Similar to the 2D t-SNE plot, but in a 3D space, providing additional perspectives on the data distribution.
+- It can help identify more complex and intricate structures within the data.
+
+#### Plot Variant then Year
+```{r 3dtsne-variant-year}
+color <- "variant"
+shape <- "year"
+
+factor1 <- df[[color]]
+factor2 <- df[[shape]]
+
+# Generate 3D t-SNE plot
+tsne_df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], X3 = tsne_df[, 3],
+                      color = factor1, shape = factor2)
+final <- cbind(data.frame(tsne_df), factor1, factor2)
+p <- plot_ly(final,
+             x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
+             color = df[[color]], symbol = df[[shape]],
+             text = paste(
+               "Identifier: ", df$gisaid_epi_isl, "<br>",
+               "Variant: ", df$variant, "<br>",
+               "Sex: ", df$sex, "<br>",
+               "Division Exposure: ", df$division_exposure, "<br>",
+               "Year: ", format(as.Date(df$date), "%Y"), "<br>",
+               "Strain: ", df$strain, "<br>",
+               "Pangolin Lineage: ", df$pangolin_lineage
+             )
+)
+
+p
+```
+
+#### Plot Year then Variant
+```{r 3dtsne-year-variant}
+color <- "year"
+shape <- "variant"
+
+factor1 <- df[[color]]
+factor2 <- df[[shape]]
+
+# Generate 3D t-SNE plot
+tsne_df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], X3 = tsne_df[, 3],
+                      color = factor1, shape = factor2)
+final <- cbind(data.frame(tsne_df), factor1, factor2)
+p <- plot_ly(final,
+             x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
+             color = df[[color]], symbol = df[[shape]],
+             text = paste(
+               "Identifier: ", df$gisaid_epi_isl, "<br>",
+               "Variant: ", df$variant, "<br>",
+               "Sex: ", df$sex, "<br>",
+               "Division Exposure: ", df$division_exposure, "<br>",
+               "Year: ", format(as.Date(df$date), "%Y"), "<br>",
+               "Strain: ", df$strain, "<br>",
+               "Pangolin Lineage: ", df$pangolin_lineage
+             )
+)
+p
+```
+
+#### Plot Pangolin Lineage then Variant
+```{r 3dtsne-pangolin_lineage-variant}
+color <- "pangolin_lineage"
+shape <- "variant"
+
+factor1 <- df[[color]]
+factor2 <- df[[shape]]
+
+# Generate 3D t-SNE plot
+tsne_df <- data.frame(X1 = tsne_df[, 1], X2 = tsne_df[, 2], X3 = tsne_df[, 3],
+                      color = factor1, shape = factor2)
+final <- cbind(data.frame(tsne_df), factor1, factor2)
+p <- plot_ly(final,
+             x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
+             color = df[[color]], symbol = df[[shape]],
+             text = paste(
+               "Identifier: ", df$gisaid_epi_isl, "<br>",
+               "Variant: ", df$variant, "<br>",
+               "Sex: ", df$sex, "<br>",
+               "Division Exposure: ", df$division_exposure, "<br>",
+               "Year: ", format(as.Date(df$date), "%Y"), "<br>",
+               "Strain: ", df$strain, "<br>",
+               "Pangolin Lineage: ", df$pangolin_lineage
+             )
+)
+#p <- p %>% add_markers(marker = list(color = colorRampPalette(brewer.pal(11,"Spectral"))(70)))
+p
+```
+
+
+## Uniform Manifold Approximation and Projection (UMAP)
+UMAP is another nonlinear dimensionality reduction method that seeks to preserve both local and global structures of the data. It is known for its ability to scale to large datasets. In this code, UMAP is used to project the scaled data (x) into a 3D space. The function generates 2D and 3D UMAP plots, which provide a reduced representation of the data while preserving the relationships between data points.
+
+### UMAP Time Complexity
+UMAP (Uniform Manifold Approximation and Projection) is a popular dimensionality reduction method. Its time complexity varies based on the dimension of the target reduced space *d* and the number of data-points *n*. In the average case, the complexity is O(*d* * *n*^1.14^), while in the worst-case scenario, it is O(*n*^2^).
+
+For reference and more information:
+- [UMAP GitHub Issue](https://github.com/lmcinnes/umap/issues/8)
+- [ResearchGate - UMAP Publication](https://www.researchgate.net/publication/323141395)
+
+### Perform UMAP
+```{r umap, message = FALSE, results = FALSE}
+# UMAP Parameters
+umap_n_neighbors <- 15
+umap_metric <- "euclidean"
+umap_min_dist <- 0.1
+umap_seed <- seed
+umap_alpha <- 1
+umap_gamma <- 1
+n_epochs <- 1000
+
+# Perform UMAP (in 3 dimensions)
+print("Performing UMAP...")
+umap_df <- umap(pca_df$x,
+                n_components = 3, 
+                n_neighbors = umap_n_neighbors,
+                n_epochs = n_epochs,
+                metric = umap_metric, min_dist = umap_min_dist,
+                random_state = umap_seed,
+                alpha = umap_alpha,
+                gamma = umap_gamma,
+                verbose=TRUE
+)
+print("DONE")
+```
+
+### 2D UMAP plot
+- This plot represents the data points in a 2D space using the Uniform Manifold Approximation and Projection (UMAP) algorithm.
+- UMAP is another dimensionality reduction technique similar to t-SNE, but often computationally more efficient.
+- It can reveal different structures or patterns in the data compared to t-SNE.
+
+### Plot by Variant then Year
+```{r 2dumap-variant-year}
+# Generate 2D UMAP plot
+color <- "variant"
+shape <- "year"
+
+emb <- umap_df$layout
+  
+x_o <- emb[, 1]
+y_o <- emb[, 2]
+
+gg <- ggplot(
+  data = as.data.frame(emb),
+  aes(x = x_o, y = y_o, color = df[[color]], shape = df[[shape]])
+) +
+  geom_point(aes(text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) +
+  xlab("UMAP_1") +
+  ylab("UMAP_2") +
+  labs(shape = "shape", color="color") +
+  scale_color_brewer(palette = "Set1")
+gg
+ggp <- ggplotly(gg)
+ggp
+```
+
+##### Plot by Year then Variant
+```{r 2dumap-year-variant}
+# Generate 2D UMAP plot
+color <- "year"
+shape <- "variant"
+
+emb <- umap_df$layout
+  
+x_o <- emb[, 1]
+y_o <- emb[, 2]
+
+gg <- ggplot(
+  data = as.data.frame(emb),
+  aes(x = x_o, y = y_o, color = df[[color]], shape = df[[shape]])
+) +
+  geom_point(aes(text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) +
+  xlab("UMAP_1") +
+  ylab("UMAP_2") +
+  labs(shape = "shape", color="color") +
+  scale_color_brewer(palette = "Set1")
+gg
+ggp <- ggplotly(gg)
+ggp
+```
+
+##### Plot by Pangolin Lineage then Variant
+```{r 2dumap-pangolin_lineage-variant}
+# Generate 2D UMAP plot
+color <- "pangolin_lineage"
+shape <- "variant"
+
+emb <- umap_df$layout
+  
+x_o <- emb[, 1]
+y_o <- emb[, 2]
+
+gg <- ggplot(
+  data = as.data.frame(emb),
+  aes(x = x_o, y = y_o, color = df[[color]], shape = df[[shape]])
+) +
+  geom_point(aes(text = paste(
+    "Identifier: ", df$gisaid_epi_isl, "\n",
+    "Variant: ", df$variant, "\n",
+    "Sex: ", df$sex, "\n",
+    "Division Exposure: ", df$division_exposure, "\n",
+    "Year: ", format(as.Date(df$date), "%Y"), "\n",
+    "Strain: ", df$strain, "\n",
+    "Pangolin Lineage: ", df$pangolin_lineage
+  ))) +
+  xlab("UMAP_1") +
+  ylab("UMAP_2") +
+  labs(shape = "shape", color="color") 
+gg
+ggsave("2dtsne-variant-pangolin_lineage.pdf", width = 15, height = 9, units = "in", dpi = 1200)
+ggp <- ggplotly(gg) 
+ggp
+```
+
+
+### 3D UMAP plot (umap_3d):
+- Similar to the 2D UMAP plot, but in a 3D space, providing additional perspectives on the data distribution.
+- It allows for exploring the data points' distribution and potential clusters in a more complex space.
+
+#### Plot by Variant then Year
+```{r 3dumap-variant-year}
+color <- "variant"
+shape <- "year"
+# Generate 3D UMAP plot
+final <- cbind(data.frame(umap_df[["layout"]]), color, shape)
+p <- plot_ly(final,
+             x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
+             color = df[[color]], symbol = df[[shape]],
+             text = paste(
+               "Identifier: ", df$gisaid_epi_isl, "<br>",
+               "Variant: ", df$variant, "<br>",
+               "Sex: ", df$sex, "<br>",
+               "Division Exposure: ", df$division_exposure, "<br>",
+               "Year: ", format(as.Date(df$date), "%Y"), "<br>",
+               "Strain: ", df$strain, "<br>",
+               "Pangolin Lineage: ", df$pangolin_lineage
+             )
+)
+
+p <- p %>% add_markers()
+p <- p %>% layout(scene = list(
+  xaxis = list(title = "0"),
+  yaxis = list(title = "1"),
+  zaxis = list(title = "2")
+))
+
+p
+```
+
+#### Plot by Year then Variant
+```{r 3dumap-year-variant}
+color <- "year"
+shape <- "variant"
+# Generate 3D UMAP plot
+final <- cbind(data.frame(umap_df[["layout"]]), color, shape)
+p <- plot_ly(final,
+             x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
+             color = df[[color]], symbol = df[[shape]],
+             text = paste(
+               "Identifier: ", df$gisaid_epi_isl, "<br>",
+               "Variant: ", df$variant, "<br>",
+               "Sex: ", df$sex, "<br>",
+               "Division Exposure: ", df$division_exposure, "<br>",
+               "Year: ", format(as.Date(df$date), "%Y"), "<br>",
+               "Strain: ", df$strain, "<br>",
+               "Pangolin Lineage: ", df$pangolin_lineage
+             )
+)
+
+p <- p %>% add_markers()
+p <- p %>% layout(scene = list(
+  xaxis = list(title = "0"),
+  yaxis = list(title = "1"),
+  zaxis = list(title = "2")
+))
+
+p
+```
+
+#### Plot by Pangolin Lineage then Variant
+```{r 3dumap-pangolin_lineage-variant}
+# Generate 3D UMAP plot
+color <- "pangolin_lineage"
+shape <- "variant"
+final <- cbind(data.frame(umap_df[["layout"]]), color, shape)
+p <- plot_ly(final,
+             x = ~X1, y = ~X2, z = ~X3, type = "scatter3d", mode = "markers",
+             color = df[[color]], symbol = df[[shape]],
+             text = paste(
+               "Identifier: ", df$gisaid_epi_isl, "<br>",
+               "Variant: ", df$variant, "<br>",
+               "Sex: ", df$sex, "<br>",
+               "Division Exposure: ", df$division_exposure, "<br>",
+               "Year: ", format(as.Date(df$date), "%Y"), "<br>",
+               "Strain: ", df$strain, "<br>",
+               "Pangolin Lineage: ", df$pangolin_lineage
+             )
+)
+vals <- schema(F)$traces$scatter$attributes$marker$symbol$values
+vals <- grep("-", vals, value = T)
+
+p <- p %>% add_markers(marker = list(color = colorRampPalette(brewer.pal(11,"Spectral"))(n_distinct(df[[shape]]))))
+p <- p %>% layout(scene = list(
+  xaxis = list(title = "0"),
+  yaxis = list(title = "1"),
+  zaxis = list(title = "2")
+))
+
+p
+```
+
+
+## R Session Info
+```{r r-sessioninfo}
+sessionInfo()
+```

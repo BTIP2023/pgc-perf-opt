@@ -10,9 +10,9 @@ output: html_document
 ## Time Complexity of PCA, t-SNE, and UMAP
 
 ### PCA
-PCA (Principal Component Analysis) is a widely used technique for dimensionality reduction. The time complexity of PCA depends on the number of data-points (n) and the number of features (p). In the worst-case scenario (based on the definition), the time complexity of PCA is O(p^2n + p^3), where n is the number of data-points and p is the number of features.
+PCA (Principal Component Analysis) is a widely used technique for dimensionality reduction. The time complexity of PCA depends on the number of data-points *n* and the number of features *p*. In the worst-case scenario (based on the definition), the time complexity of PCA is O(*p*^2^*n* + *p*^3^), where *n* is the number of data-points and *p* is the number of features.
 
-The computation of the covariance matrix contributes O(p^2n) to the overall complexity, while the eigen-value decomposition adds O(p^3). In R, using the `prcomp` function with scaling to implement PCA as SVD (Singular Value Decomposition) of the Dataset matrix results in a time complexity of O(n^2p + p^3).
+The computation of the covariance matrix contributes O(*p*^2^*n*) to the overall complexity, while the eigen-value decomposition adds O(*p*^3^). In R, using the `prcomp` function with scaling to implement PCA as SVD (Singular Value Decomposition) of the Dataset matrix results in a time complexity of O(*n*^2^*p* + *p*^3^).
 
 For reference and more information:
 - [StackOverflow - Complexity of PCA](https://stackoverflow.com/questions/20507646/how-is-the-complexity-of-pca-ominp3-n3)
@@ -20,13 +20,13 @@ For reference and more information:
 - [SVD Implementation to Speed up PCA](https://www.slideshare.net/YounesCharfaoui/principal-component-analysis-code-and-time-complexity-127431697)
 
 ### t-SNE
-t-SNE (t-distributed Stochastic Neighbor Embedding) is another dimensionality reduction technique. Its time complexity is O(n^2), where n is the number of data-points.
+t-SNE (t-distributed Stochastic Neighbor Embedding) is another dimensionality reduction technique. Its time complexity is O(*n*^2^), where *n* is the number of data-points.
 
 For reference and more information:
 - [t-SNE Paper (arXiv)](https://arxiv.org/pdf/1512.01655.pdf)
 
 ### UMAP
-UMAP (Uniform Manifold Approximation and Projection) is a popular dimensionality reduction method. Its time complexity varies based on the dimension of the target reduced space (d) and the number of data-points (n). In the average case, the complexity is O(d * n^1.14), while in the worst-case scenario, it is O(n^2).
+UMAP (Uniform Manifold Approximation and Projection) is a popular dimensionality reduction method. Its time complexity varies based on the dimension of the target reduced space *d* and the number of data-points *n*. In the average case, the complexity is O(*d* * *n*^1.14^), while in the worst-case scenario, it is O(*n*^2^).
 
 For reference and more information:
 - [UMAP GitHub Issue](https://github.com/lmcinnes/umap/issues/8)
@@ -40,8 +40,6 @@ if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
 }
 
 # Use pacman to load add-on packages as desired.
-# TODO: Remove redundancies in dependencies. E.g., dplyr and ggplot2
-# are already dependencies of tidyverse.
 pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                httr, lubridate, plotly, psych,
                rio, markdown, rmarkdown, shiny,
@@ -52,9 +50,6 @@ pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
                ggdendro, dendextend, cluster, colorspace,
                microbenchmark, data.table,
                highcharter, glue)
-if (!require(ggbiplot))
-  install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
-pacman::p_load(ggbiplot)
 ```
 
 ```{r include-functions, echo = FALSE}
@@ -601,4 +596,20 @@ p <- p %>% layout(scene = list(
 
 p <- ggplotly(p)
 p
+```
+
+```{r session-info, echo=FALSE}
+# Retrieve session information
+session_info <- capture.output(sessionInfo())
+
+# Print session information
+cat("R Session Info:\n")
+cat("```r\n")
+cat(session_info, sep = "\n")
+cat("\n```")
+
+# Save session information to a text file
+session_info_file <- "R_session_info.txt"
+writeLines(session_info, session_info_file)
+cat("Session information saved to:", session_info_file, "\n")
 ```
