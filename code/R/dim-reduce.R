@@ -143,34 +143,27 @@ pre_process <- function(df) {
 }
 
 # Function to execute before main dim-reduce codes
-pre_reduce <- function(results_path, kmers, k, filter1_factor, 
-                       filter1_values, filter2_factor, filter2_values) {
+pre_reduce <- function(results_path, kmers, k,
+                       filter1_factor = NULL, filter1_values = NULL,
+                       filter2_factor = NULL, filter2_values = NULL) {
   # Check if the directory already exists
   if (!dir.exists(results_path)) {
     # Create the directory if it doesn't exist
     dir.create(results_path, recursive = TRUE)
   }
-  # Process kmers dataframe
-  df <- kmers
-  df$year <- format(as.Date(df$date), "%Y")
   
-  # Making filter values optional
-  if(missing(filter1_factor) && missing(filter1_values) &&
-     missing(filter2_factor) && missing(filter2_values)){
-    
-  } else if(missing(filter2_factor) && missing(filter2_values)){
-    
-    df <- filter(df, df[[filter1_factor]] %in% filter1_values)
-    
-  } else if(missing(filter1_factor) && missing(filter1_values)){
-    
-    df <- filter(df, df[[filter2_factor]] %in% filter2_values)
-    
-  } else {
-    df <- filter(df, df[[filter1_factor]] %in% filter1_values)
-    df <- filter(df, df[[filter2_factor]] %in% filter2_values)
+  # Process kmers dataframe (add year column)
+  df <- kmers %>%
+    dplyr::mutate(year = lubridate::year(date), .after = date)
+  
+  # Addon: Filter according to optional filter1 and filter2
+  # Refactored conditionals from (missing -> NULL)
+  if (!(is.null(filter1_factor) & is.null(filter1_values) & 
+        is.null(filter2_factor) & is.null(filter2_values))) {
+    df <- dplyr::filter(df, df[[filter1_factor]] %vin% filter1_values)
+    df <- dplyr::filter(df, df[[filter2_factor]] %vin% filter2_values)
   }
-  
+
   # Pre-process the data
   x <- pre_process(df)
   return(list(df = df, x = x))
