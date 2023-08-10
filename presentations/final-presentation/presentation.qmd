@@ -25,6 +25,7 @@ format:
     slides:
       overflow: scroll !important;
       pointer-events: auto !important;
+    scrollable: true
 title-slide-attributes:
       data-background-image: presentation_files/img/PGCTitleSlideDark.svg
       data-background-size: cover
@@ -36,26 +37,37 @@ title-slide-attributes:
 
 # Background and Rationale {background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Contagious threats underscore our need for effective biosurveillance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+## Contagious threats underscore our need for effective biosurveillance {.scrollable .smaller}
 ::: {layout-ncol=2 layout-valign="center"}
+
 ![](presentation_files/img/pandemic-4.webp){fig-align="center"}
 
-![](presentation_files/img/pandemic-2.jpg){fig-align="left"}
+::: {layout-nrow=2 layout-valign="center"}
+
+![](presentation_files/img/pandemic-2.jpg){width=400}
+
+![](presentation_files/img/pandemic-3.webp){width=400}
+<!-- TODO: Remove figure number -->
 :::
-## A good understanding of the foe helps us mount an effective response {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-![](presentation_files/img/pandemic-3.webp){fig-align="center"}
+:::
+
+A good understanding of the foe helps us mount an effective response.
 
 ## Unsupervised machine learning can aid in identifying and understanding SARS-CoV-2 variants {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-::: {layout-ncol=2 layout-valign="center"}
+::: {layout-ncol=3 layout-valign="center"}
 ![](presentation_files/img/clusters.png)
 
 ![](presentation_files/img/variants.png)
-:::
 
-## Chandra et. al (2023) demonstrated the viability of UML in variant analysis {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 ![](presentation_files/img/journal.pone.0285719.png){fig-align="center"}
 
-[Chandra, R., Bansal, C., Kang, M., Blau, T., Agarwal, V., Singh, P., Wilson, L. O. W., & Vasan, S. (2023). Unsupervised machine learning framework for discriminating major variants of concern during COVID-19. PLOS ONE, 18(5), e0285719. https://doi.org/10.1371/journal.pone.0285719. Reference repository at https://github.com/ai-covariants/analysis-mutations.]{.aside style="color:gray;"}
+:::
+
+\vspace{0em}
+
+Chandra et. al (2023) demonstrated the viability of UML in variant analysis.
+
+[Chandra, R., Bansal, C., Kang, M., Blau, T., Agarwal, V., Singh, P., Wilson, L. O. W., & Vasan, S. (2023). Unsupervised machine learning framework for discriminating major variants of concern during COVID-19. PLOS ONE, 18(5), e0285719. [https://doi.org/10.1371/journal.pone.0285719](https://doi.org/10.1371/journal.pone.0285719).]{.aside style="color:gray;font-size:0.5em"}
 
 ## UML Techniques to explore are: {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
@@ -167,17 +179,15 @@ This helps ensure that the variant classifier performs well on larger and larger
 ::: {layout-ncol=2 layout-valign="bottom"}
 ![This design may significantly boost our workflows.](presentation_files/img/linalg-libs.png){fig-align="left"}
 
-![Sample benchmarking of linear algebra libraries.](presentation_files/img/linalg-comparisons.png){fig-align="left" width=150% height=150%}
+![Sample benchmarking of linear algebra libraries.](presentation_files/img/linalg-comparisons.png){fig-align="left" width=1000}
 
 :::
 
 ## *Rationale 3:* Patches for CPU vulnerabilities such as Meltdown and Spectre have been shown to negatively impact performance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-::: {layout="[[50],[25]]"}
-![](presentation_files/img/meltre.png){fig-align="center" height=60% width=40%}
 
-![](presentation_files/img/cpus-1.jpg){fig-align="center" height=60% width=40%}
+![](presentation_files/img/meltre.png){fig-align="center"}
 
-:::
+![](presentation_files/img/cpus-1.jpg){fig-align="center" width=600}
 
 
 # Objectives of the Study {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
