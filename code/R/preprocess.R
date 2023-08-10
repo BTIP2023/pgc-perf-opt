@@ -453,7 +453,7 @@ compile_overview <- function(metadata_all,
   }
   
   # Append /treemaps to write_path
-  write_path <- paste0(treemaps_write_path, "/treemaps")
+  write_path <- paste0(write_path, "/treemaps")
   # Create write_path if not exists
   if (!dir.exists(write_path)) {
     dir.create(write_path)
