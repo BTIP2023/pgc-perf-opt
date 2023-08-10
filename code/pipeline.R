@@ -66,6 +66,8 @@ kmer_list <- c(3, 5, 7)
 # Note that valid strat_size will only be those with corresponding
 # files in `data/interm` and `data/kmers`
 strat_size <- 100
+# include_plots: whether to include plots in execution
+include_plots <- TRUE
 
 # preprocess.R::get_sample() parameters
 gisaid_data_path <- "data/GISAID"
@@ -78,22 +80,26 @@ compile_write_path <- "data/overview"
 
 # dim-reduce.R::dim_reduce() parameters
 kmers_data_path <- "data/kmers"
-dimreduce_write_path <- "results/dim-reduce/R"
+dr_write_path <- "results/dim-reduce/R"
 tsne_perplexity <- 40
 tsne_max_iter <- 1000
 tsne_initial_dims <- 50
 umap_n_neighbors <- 15
 umap_metric <- "euclidean"
 umap_min_dist <- 0.1
-color <- "variant"
-shape <- "year"
-include_plots <- TRUE
+dr_color <- "variant"
+dr_shape <- "year"
 
-# dim-reduce.R::dim_reduce() filtering parameters - OPTIONAL
-# factor1 <- "variant"
-# values1 <- c("Omicron", "Omicron Sub")
-# factor2 <- "year"
-# values2 <- c("2023")
+# dim-reduce.R::dim_reduce() filters
+# Origs: (variant, c("Omicron", "Omicron Sub"), year, c(2023))
+# Other options for factors: date, year, region_exposure, country_exposure,
+# division_exposure, division_code, ph_region, age, age_group,
+# sex, pangolin_lineage, variant
+# Values for values can be scalar or vectors.
+dr_factor1 <- NULL
+dr_values1 <- NULL
+dr_factor2 <- NULL
+dr_values2 <- NULL
 
 # clustering-x.R::dendogram_create_x() parameters
 agnes_write_path <- "results/dendrogram"
@@ -150,13 +156,13 @@ for (i in 1:length(kmer_list)) {
 # Step 3: dim_reduce()
 for (i in 1:length(kmer_list)) {
   k <- kmer_list[i]
-  dim_reduce(k, kmers[[i]], dimreduce_write_path,
+  dim_reduce(k, kmers[[i]], dr_write_path,
              tsne_seed = seed, tsne_perplexity,
              tsne_max_iter, tsne_initial_dims,
              umap_seed = seed, umap_n_neighbors,
-             umap_metric, umap_min_dist, color = color, shape = shape,
-#             filter1_factor = factor1, filter1_values = values1, # OPTIONAL
-#             filter2_factor = factor2, filter2_values = values2, # OPTIONAL
+             umap_metric, umap_min_dist, color = dr_color, shape = dr_shape,
+             filter1_factor = dr_factor1, filter1_values = dr_values1,
+             filter2_factor = dr_factor2, filter2_values = dr_values2,
              include_plots = include_plots)
 }
 
