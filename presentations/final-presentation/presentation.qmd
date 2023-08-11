@@ -37,7 +37,8 @@ title-slide-attributes:
 
 # Background and Rationale {background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Contagious threats underscore our need for effective biosurveillance {.scrollable .smaller}
+## Contagious threats underscore our need for effective biosurveillance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow" .scrollable .smaller}
+
 ::: {layout-ncol=2 layout-valign="center"}
 
 ![](presentation_files/img/pandemic-4.webp){fig-align="center"}
@@ -47,7 +48,6 @@ title-slide-attributes:
 ![](presentation_files/img/pandemic-2.jpg){width=400}
 
 ![](presentation_files/img/pandemic-3.webp){width=400}
-<!-- TODO: Remove figure number -->
 :::
 :::
 
@@ -76,13 +76,16 @@ Chandra et. al (2023) demonstrated the viability of UML in variant analysis.
 3. Uniform Manifold Approximation (UMAP)
 4. Agglomerative Nesting (AGNES)
 
-### PCA performs Linear Dimensionality Reduction
+### PCA performs Linear Dimensionality Reduction {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
 ![PCA rotating line visualization.](presentation_files/img/pca-animated.gif){fig-align="center"}
 
 PCA collapses dimensions by building new components that effectively represents the original dataset with maximum variance and minimum error.
 
 ### t-SNE and UMAP performs Nonlinear Dimensionality Reduction {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
 ::: {layout-ncol=2 layout-valign="center"}
+
 ![t-SNE follows per-point nonlinear distance comparisons.](presentation_files/img/tsne-animated.gif)
 
 ![UMAP projects data from a multi-dimensional manifold to 2D space.](presentation_files/img/umap-animated.gif)
@@ -93,6 +96,7 @@ t-SNE and UMAP uses statistical and topological techniques to reveal hidden patt
 **Key idea: The clusters are already there. Dimensionality reduction merely allows us to see them.**
 
 ### AGNES performs hiearchical clustering {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
 ![](presentation_files/img/agnes-animated.gif)
 
 AGNES clusters samples into hierarchies or dendrograms, all towards creating visualizations and treatments that we humans can wrap our heads around.
@@ -148,9 +152,9 @@ for(k in kmer_list)
 
 E.g., hardcoded working directories and variant names (as shown in the Chandra et al. code snippet above) hinder reproducibility and the prospect of scaling up to more emerging variants. Efficiency also suffers from running `kmer_df` once for each variant name.
 
-## Among many other reasons, an in-house, inspired yet highly original UML variant classifier workflow is in order.
+## Among many other reasons, an in-house, inspired yet highly original UML variant classifier workflow is in order. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Performance Evaluation and Optimization
+## Performance Evaluation and Optimization {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::: {layout-ncol=2 layout-valign="center"}
 
@@ -172,11 +176,14 @@ A great hurdle to spreading bioinformatics knowledge is inadequate access to pow
 
 Hence, our team looked for — and found — tweaks that could boost our bioinformatics workflows regardless of hardware limitations.
 
-## We conduct our pilot benchmarks on the UML workflow that we developed.
+## We conduct our pilot benchmarks on the UML workflow that we developed. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
 This helps ensure that the variant classifier performs well on larger and larger datasets.
 
 ## *Rationale 2:* Optimized linear algebra libraries may offer improved bioinformatics performance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
 ::: {layout-ncol=2 layout-valign="bottom"}
+
 ![This design may significantly boost our workflows.](presentation_files/img/linalg-libs.png){fig-align="left"}
 
 ![Sample benchmarking of linear algebra libraries.](presentation_files/img/linalg-comparisons.png){fig-align="left" width=1000}
@@ -188,7 +195,6 @@ This helps ensure that the variant classifier performs well on larger and larger
 ![](presentation_files/img/meltre.png){fig-align="center"}
 
 ![](presentation_files/img/cpus-1.jpg){fig-align="center" width=600}
-
 
 # Objectives of the Study {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
@@ -203,8 +209,9 @@ This helps ensure that the variant classifier performs well on larger and larger
 
 # Improved unsupervised machine learning pipeline {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
-## Improved Workflow summary {data-="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
-![](presentation_files/img/pipeline-flowchart-2.png){.fragment fig-align="center" height=60% width=60%}
+## Improved Workflow summary {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+![](presentation_files/img/pipeline-flowchart-2.png){fig-align="center"}
 
 ## Data Extraction: FASTA and Metadata files were extracted and cleaned from .tar files obtained from the GISAID database. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
