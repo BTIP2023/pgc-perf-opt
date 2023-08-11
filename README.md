@@ -21,7 +21,9 @@ Please see `data/README.md` for further instructions.
 The accession numbers can be found in `data/overview/accession.all`.
 
 ## Code
-This section contains the code for the variant discriminator workflow.
+This section contains the code for the variant discriminator workflow as outlined by the following flowchart (best viewed in dark mode):
+
+![](presentations/pipeline-flowchart-2-gh-ver.png)
 
 Raw GISIAD data is placed in `data/GISAID`. The source `code` then does the following:
 - Data extraction, wrangling, sanitation, overview compilation, and augmentation of `data/GISAID`.
