@@ -89,7 +89,8 @@ get_sample <- function(gisaid_data_path = "data/GISAID",
       # Addon: If lineage is XBB.9, then force variant to "Omicron Sub"
       metaData <- metaData %>%
         dplyr::mutate(variant = case_match(pangolin_lineage,
-                                           "XBB.9" ~ "Omicron Sub"))
+                                           "XBB.9" ~ "Omicron Sub",
+                                           .default = variant))
       
       # Note: Cannot use tidyr::nest(fasta or tibble(fasta)), see reason below.
       
@@ -158,13 +159,15 @@ get_sample <- function(gisaid_data_path = "data/GISAID",
   # Drop explicit rowname column, already used to subset fasta_all.
   metadata_all <- metadata_all %>% select(!rowname)
   
-  # Drop rows with NA values and type mismatches.
+  # Drop rows with NA values, type mismatches, empty fastas,
+  # and unassigned lineages.
   # Get the idxs of the dropped metadata_all rows then drop them in fasta_all.
   drop_idxs1 <- which(is.na(metadata_all), arr.ind=TRUE)[,1]
   drop_idxs2 <- c(which(is.numeric(metadata_all$sex)),
                   which(!(metadata_all$sex %vin% list("Male", "Female"))))
   drop_idxs3 <- which(lengths(fasta_all) == 0)
-  drop_idxs <- unique(c(drop_idxs1, drop_idxs2, drop_idxs3))
+  drop_idxs4 <- which(metadata_all$pangolin_lineage == "Unassigned")
+  drop_idxs <- unique(c(drop_idxs1, drop_idxs2, drop_idxs3, drop_idxs4))
   
   # Dropping below is analogous to select inverse.
   # pmatch creates matches, val for match and NA for no match.
