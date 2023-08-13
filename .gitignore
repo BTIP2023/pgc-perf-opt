@@ -88,6 +88,7 @@ data/interm/*
 !data/interm/metadata_all.csv
 data/overview/*[0-9].txt
 data/overview/*[0-9].csv
+data/overview/*[0-9].html
 !data/overview/age_group.csv
 data/overview/treemaps/*[0-9].txt
 data/overview/treemaps/*[0-9].csv
