@@ -7,9 +7,8 @@ output: html_notebook
 ---
 
 ```{r setup, echo=FALSE, message=FALSE}
-# Executing this setup chunk will set the working directory to that of the
-# project repository root and will add "Copy to Clipboard" buttons in the code
-# chunks via `klippy`.
+# Executing this setup chunk will set the doc's working directory to that of the
+# project root and will add "Copy to Clipboard" buttons in the code chunks.
 knitr::opts_knit$set(root.dir = normalizePath("."))
 if (!require("klippy"))
   devtools::install_github("rlesur/klippy", upgrade = FALSE)
@@ -31,7 +30,7 @@ The **pgc-perf-opt pipeline** can produce rich and intuitive clusterings of SARS
 
 The runtime efficiency and overall quality of the clusterings are also assessed, particularly the insights that can be extracted from the resulting visualizations. The $k$-mer counts of each sample are also augmented with metadata, which while not used to *perform* the actual clusterings to preserve the UML approach, enhances the results with descriptive labels.
 
-The workflow is well-tested on odd $k$-mer count matrices where $k = \{3, 5, 7\}$ and with variant stratum sizes of $\textrm{strat_size}\in[1,1000]$ for the sampling. Higher values for these parameters would require larger processing power, and scaling up to the complete Philippine dataset (`country_exposure = "Philippines" && strat_size >= 25000`) is indeed an ongoing objective. Do note that [most parameters](#params) of the pipeline are highly customizable. Aside from a project-specific [Docker image](https://hub.docker.com/r/yshebron/pgc-perf-opt){target="_blank"}, the pipeline's reproducibility were also guaranteed by making the source code adapt to any R 4.3.1 environment. An `renv` setup is also under consideration.
+The workflow is well-tested on odd $k$-mer count matrices where $k = \{3, 5, 7\}$ and with variant stratum sizes of $\textrm{strat_size}\in[1,1000]$ for the sampling. Higher values for these parameters would require larger processing power, and scaling up to the complete Philippine dataset (`country_exposure = "Philippines" && strat_size >= 25000`) is indeed an ongoing objective. Do note that [most parameters](#params) of the pipeline are highly customizable. Aside from a project-specific [Docker image](https://hub.docker.com/r/yshebron/pgc-perf-opt){target="_blank"}, the pipeline's reproducibility were also guaranteed by making the source code adapt to any R 4.3.1 environment. A `renv` and `shiny` setup is also under consideration.
 
 All paths used and discussed are relative to the project root, which is given by the directory where the project is cloned into or where this document and `pgc-perf-opt.Rproj` resides (`getwd() = "`r getwd()`"`). For the codebase, see `code`. For the data sources, overviews, and artifacts, see `data`. For the outputs, see `results` and `presentations`.
 
@@ -39,7 +38,7 @@ All paths used and discussed are relative to the project root, which is given by
 
 # Primer on Data Formats {#dformat .tabset}
 
-Before discussing the actual pipeline, one must first be familiar with the data that will be processed. The data will undergo the following transformations within the simplified data pipeline below:
+Before discussing the actual pipeline, one must first be familiar with the data that will be processed. The data will undergo the following transformations within the simplified pipeline below:
 
 <center>
 
@@ -47,13 +46,25 @@ Before discussing the actual pipeline, one must first be familiar with the data 
 
 </center>
 
-We discuss the most relevant are 
+We shall now discuss the format in each stage of the data, ignoring the data overview and results.
 
-## GISAID Data
+## Stage 1: Raw GISAID Data
+The raw GISAID data can be obtained by manually scraping the GISAID database for SARS-CoV-2 genomes. As mentioned in this project's README, the terms of using GISAID data prohibits the
 
-## 
+## Stage 2A: FASTA data
+This data will be produced by, hence that section later on will refer to this section for the sample data.
 
-With these in mind, we may now proceed to the setup. Guide
+## Stage 2B: Metadata
+
+## Stage 3: $k$-mers
+
+#
+
+After Stages 1-3, which also produced data overviews and artifacts in  the data is now ready for 
+
+<iframe src="data/overview/treemaps/var_lin_age.html" title="W3Schools Free Online Web Tutorials"></iframe>
+
+With these in mind, we may now proceed to the setup.
 
 ***
 
@@ -460,10 +471,14 @@ if (write_fastacsv)
 # after compilation, hence the reassignment to metadata_all.
 metadata_all <- compile_overview(metadata_all, compile_write_path, stamp)
 
+<!-- Add some data overview tables here -->
+
 # Step 1.5D: make_treemaps()
 # NOTE: The treemap() function in helper.R
 # can generate any treemap you can think of, yeah!
 #make_treemaps(metadata_all, treemaps_write_path, stamp)
+
+<!-- Add select treemaps here -->
 
 # Step 2: get_kmers()
 # get_kmers() prefers fasta_all in the DNAbin format
@@ -481,6 +496,8 @@ for (i in 1:length(kmer_list)) {
   kmers[[i]] <- utils::read.csv(k_path)
   message("DONE!")
 }
+
+<!-- Add select kmer matrices here (with metadata) -->
  
 ## Insert remark on kmers data format (table)
 
@@ -489,6 +506,10 @@ for (i in 1:length(kmer_list)) {
 #   k <- kmer_list[i]
 #   generate_heatmap(kmers[[i]], heatmaps_write_path, k)
 # }
+
+<!-- Add select heatmaps -->
+
+<!-- Add select wordclouds here -->
 
 # Step 3: dim_reduce()
 The idea is that the clusters are already there. Dimensionality reduction merely allows us to see them.
