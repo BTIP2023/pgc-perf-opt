@@ -52,7 +52,7 @@ This section will contain directories for the research proposal presentations, r
 ## Acknowledgements
 We gratefully acknowledge all data contributors, i.e., the Authors and their Originating laboratories responsible for obtaining the specimens, and their Submitting laboratories for generating the genetic sequence and metadata and sharing via the **GISAID Initiative**, on which this research is based.
 
-Sanitized author and submitting laboratories metadata may be found in [`data/overview/authors.csv`](`data/overview/authors.csv`) and [`data/overview/labs.csv`](`data/overview/labs.csv`) respectively.
+Sanitized author and submitting laboratories metadata, with some variant related parameters, may also be found in [`data/overview/authors.csv`](`data/overview/authors.csv`) and [`data/overview/labs.csv`](`data/overview/labs.csv`) respectively.
 
 ## GISAID Initiative Data
 The EPI_SET ID hyperlink below only works for those with GISAID credentials. Those without GISAID Access Credentials may retrieve information about all contributors of data on which the analysis is based by either clicking on the DOI, or pasting the EPI_SET ID in the "Data Acknowledgement Locator" on the GISAID homepage.
