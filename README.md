@@ -48,24 +48,6 @@ Relevant hardware, software, and data configurations must be explicitly noted fo
 ## Presentations
 This section will contain directories for the research proposal presentations, research updates and the final research presentation.
 
-## Custom Plotting
-Factor1 = variant
-Factor2 = div
-filterf1 <- (“omicron” “omicron_sub”)
-Filterf2 <- (“all regions from luzon”)
-
-Filter_pca <- (pca_df, data, k, filterf1, filterf2),
-
- pca_plot <- function(pca_df, data, k, color=factor1, filterf1, shape=factor2, filterf2)
-
-Filtertsne
-tsneplot
-
-Filterumap
-Umap plot
-
-
-
 ---
 ## Acknowledgements
 We gratefully acknowledge all data contributors, i.e., the Authors and their Originating laboratories responsible for obtaining the specimens, and their Submitting laboratories for generating the genetic sequence and metadata and sharing via the **GISAID Initiative**, on which this research is based.
