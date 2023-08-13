@@ -10,7 +10,7 @@ output: html_notebook
 # Executing this setup chunk will set the working directory to that of the
 # project repository root and will add "Copy to Clipboard" buttons in the code
 # chunks via `klippy`.
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath("."))
 if (!require("klippy"))
   devtools::install_github("rlesur/klippy", upgrade = FALSE)
 library(klippy)
@@ -31,9 +31,9 @@ The **pgc-perf-opt pipeline** can produce rich and intuitive clusterings of SARS
 
 The runtime efficiency and overall quality of the clusterings are also assessed, particularly the insights that can be extracted from the resulting visualizations. The $k$-mer counts of each sample are also augmented with metadata, which while not used to *perform* the actual clusterings to preserve the UML approach, enhances the results with descriptive labels.
 
-The workflow is well-tested on odd $k$-mer count matrices where $k = \{3, 5, 7\}$ and with variant stratum sizes of $\textrm{strat_size}\in[1,1000]$ for the sampling. Higher values for these parameters would require larger processing power, and scaling up to the complete Philippine dataset (`country_exposure = "Philippines" && strat_size >= 25000`) is indeed an ongoing objective. Do note that [most parameters](#params) of the pipeline are highly customizable. Aside from a project-specific [Docker image](https://hub.docker.com/r/yshebron/pgc-perf-opt){target="_blank"}, the pipeline's reproducibility were also guaranteed by making the source code adapt to any R 4.3.1 environment.
+The workflow is well-tested on odd $k$-mer count matrices where $k = \{3, 5, 7\}$ and with variant stratum sizes of $\textrm{strat_size}\in[1,1000]$ for the sampling. Higher values for these parameters would require larger processing power, and scaling up to the complete Philippine dataset (`country_exposure = "Philippines" && strat_size >= 25000`) is indeed an ongoing objective. Do note that [most parameters](#params) of the pipeline are highly customizable. Aside from a project-specific [Docker image](https://hub.docker.com/r/yshebron/pgc-perf-opt){target="_blank"}, the pipeline's reproducibility were also guaranteed by making the source code adapt to any R 4.3.1 environment. An `renv` setup is also under consideration.
 
-All paths used and discussed are relative to the project root, which is given by the directory where the project is cloned into or where `pgc-perf-opt.Rproj` resides (`getwd()="`r getwd()`"`). For the codebase, see `code`. For the data sources, overviews, and artifacts, see `data`. For the outputs, see `results` and `presentations`.
+All paths used and discussed are relative to the project root, which is given by the directory where the project is cloned into or where this document and `pgc-perf-opt.Rproj` resides (`getwd() = "`r getwd()`"`). For the codebase, see `code`. For the data sources, overviews, and artifacts, see `data`. For the outputs, see `results` and `presentations`.
 
 ***
 
@@ -43,7 +43,7 @@ Before discussing the actual pipeline, one must first be familiar with the data 
 
 <center>
 
-![](../presentations/data-pipe.png){width=70%}
+![](presentations/data-pipe.png){width=70%}
 
 </center>
 

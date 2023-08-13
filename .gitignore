@@ -51,7 +51,7 @@ rsconnect/
 
 # README and RMarkdown previews
 **/README.html
-code/pipeline.nb.html
+**/*.nb.html
 
 # GISAID Data
 data/GISAID/*
