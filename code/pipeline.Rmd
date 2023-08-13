@@ -6,30 +6,7 @@ institution: "Philippine Genome Center - Core Facility for Bioinformatics"
 output: html_notebook
 ---
 
-***
-
-This notebook tackles the main code in `code/pipeline.R`, guiding us through the workflow's setup and execution, along with a brief exploration of the results. Code chunks that are not present or referred to in the main code, such as the setup chunk, are excluded from previews and knits.
-
-This workflow can produce rich and intuitive clusterings of SARS-CoV-2 genome samples by treating $k$-mer count data with the following dimensionality reduction and clustering techniques:
-
-* Principal components analysis (PCA)
-* t-distributed stochastic neighbor embedding (t-SNE)
-* Uniform manifold approximation (UMAP), and
-* Agglomerative clustering (AGNES).
-
-The efficiency and quality of the clusterings are also assessed, particularly the insights that can be extracted from the resulting visualizations. The $k$-mer counts of each sample are also augmented with metadata, which while not used to *perform* the clusterings to preserve the UML approach, enhances the results with descriptive labels.
-
-The workflow is well-tested on odd $k$-mer count matrices where $k = \{3, 5, 7\}$. It is currently set to only use Philippine SARS-CoV-2 data (see `data/GISAID`), filtering out samples not collected in the Philippines (see `country_exposure` parameter), but it can be set to use other countries in the parameters section of the Setup.
-
-***
-
-# Primer: Data Discussion
-
-***
-
-# 1. Pipeline Setup
-
-```{r setup, echo=FALSE}
+```{r setup, echo=FALSE, message=FALSE}
 # Executing this setup chunk will set the working directory to that of the
 # project repository root and will add "Copy to Clipboard" buttons in the code
 # chunks via `klippy`.
@@ -37,7 +14,50 @@ knitr::opts_knit$set(root.dir = normalizePath(".."))
 if (!require("klippy"))
   devtools::install_github("rlesur/klippy", upgrade = FALSE)
 library(klippy)
+# add "Copy to Clipboard" in previews
+klippy::klippy()
 ```
+
+***
+
+This document provides additional information on the setup and execution of [`code/pipeline.R`](code/pipeline.R){target="_blank"}. The results are also briefly explored. Code chunks that are not present or referred to in the main code, such as the setup chunk, are excluded from previews and knits.
+
+The **pgc-perf-opt pipeline** can produce rich and intuitive clusterings of SARS-CoV-2 genome samples by treating $k$-mer count data with the following dimensionality reduction and clustering techniques:
+
+* Principal components analysis (PCA)
+* t-distributed stochastic neighbor embedding (t-SNE)
+* Uniform manifold approximation (UMAP), and
+* Agglomerative clustering (AGNES).
+
+The runtime efficiency and overall quality of the clusterings are also assessed, particularly the insights that can be extracted from the resulting visualizations. The $k$-mer counts of each sample are also augmented with metadata, which while not used to *perform* the actual clusterings to preserve the UML approach, enhances the results with descriptive labels.
+
+The workflow is well-tested on odd $k$-mer count matrices where $k = \{3, 5, 7\}$ and with variant stratum sizes of $\textrm{strat_size}\in[1,1000]$ for the sampling. Higher values for these parameters would require larger processing power, and scaling up to the complete Philippine dataset (`country_exposure = "Philippines" && strat_size >= 25000`) is indeed an ongoing objective. Do note that [most parameters](#params) of the pipeline are highly customizable. Aside from a project-specific [Docker image](https://hub.docker.com/r/yshebron/pgc-perf-opt){target="_blank"}, the pipeline's reproducibility were also guaranteed by making the source code adapt to any R 4.3.1 environment.
+
+All paths used and discussed are relative to the project root, which is given by the directory where the project is cloned into or where `pgc-perf-opt.Rproj` resides (`getwd()="`r getwd()`"`). For the codebase, see `code`. For the data sources, overviews, and artifacts, see `data`. For the outputs, see `results` and `presentations`.
+
+***
+
+# Primer on Data Formats {#dformat .tabset}
+
+Before discussing the actual pipeline, one must first be familiar with the data that will be processed. The data will undergo the following transformations within the simplified data pipeline below:
+
+<center>
+
+![](../presentations/data-pipe.png){width=70%}
+
+</center>
+
+We discuss the most relevant are 
+
+## GISAID Data
+
+## 
+
+With these in mind, we may now proceed to the setup. Guide
+
+***
+
+# 1. Pipeline Setup
 
 ## A. Load Packages
 
@@ -105,9 +125,11 @@ source("code/R/dim-reduce.R")
 source("code/R/clustering.R")
 ```
 
-## C. Set Parameters
+## C. Set Parameters {#params}
 
-Here, one may set parameters that will control the flow and behavior of the pipeline.
+Adjust the parameters that will control the flow and behavior of the pipeline. Pay attention to the parameter defaults in both function definitions and in the global environment. Parameter hypertuning may also be needed for the dimensionality reduction and clustering techniques. Currently set to only use Philippine SARS-CoV-2 data (see `data/GISAID`), the workflow filters out samples collected outside the country (see `country_exposure` parameter), but it can be set to use other countries --- among many other variable options --- in the parameters section of the Setup.
+
+*NOTE:* This section may also guide the construction of a pgc-perf-opt dashboard.
 
 ### Pipeline General Parameters {.tabset}
 
@@ -517,10 +539,3 @@ while (!is.null(dev.list())) dev.off()
 ```
 
 ***
-
-### Auxiliary Code {#aux}
-Code with outputs that cannot be hidden but necessary for rendering the document is added here.
-```{r klippy, echo=FALSE, include=TRUE}
-# add "Copy to Clipboard" in previews
-klippy::klippy()
-```
