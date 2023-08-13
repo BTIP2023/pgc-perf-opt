@@ -86,6 +86,11 @@ get_sample <- function(gisaid_data_path = "data/GISAID",
       metaData <- metaData %>%
         dplyr::mutate(variant = as.character(variant))
       
+      # Addon: If lineage is XBB.9, then force variant to "Omicron Sub"
+      metaData <- metaData %>%
+        dplyr::mutate(variant = case_match(pangolin_lineage,
+                                           "XBB.9" ~ "Omicron Sub"))
+      
       # Note: Cannot use tidyr::nest(fasta or tibble(fasta)), see reason below.
       
       # Coerce guessed column types to correct types (also for bind_rows).
