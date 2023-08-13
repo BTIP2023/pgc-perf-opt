@@ -1,6 +1,7 @@
 # Data
 `data/GISAID` contains the raw GISAID data to be fed to the pipeline's entry point, `code/R/preprocess.R`.
 If `write_fastacsv <- TRUE` in the `code/pipeline-X.R` files, `data/interm` will additionally contain intermediate but thoroughly sanitized FASTA and metadata files of the entire[^1] and the subsampled dataset.
+
 As such, `data/interm` can be used to fix value issues in the raw GISAID datasets.
 See `get_sample` and `sanitize_sample` in code/R/preprocess.R for all the relevant issues and fixes.
 Moreover, `data/overview` contains overviews (in .txt, .csv, and plots) of the entire[^1] and the subsampled dataset.
@@ -15,7 +16,7 @@ and selecting the most recent one (cc: @d1w1rm4 and @JohnFelices528).
 [^1]: Untimestamped files in `data/interm`, `data/overview`, and `data/kmers` are
 files that contain generated data pertaining to the ENTIRE dataset (all samples in GISAID included).
 
-## On GISAID Data
+## On Sharing and Using GISAID Data
 For data obtained from GISAID, only **accession numbers** will be included in this and the root README files' references. GISAID (2012) gives the following reason:
 
 > GISAID does not promote the release of data to databases where access to data is anonymous and the rights of the submitter are relinquished.  GISAID already provides the public with open access to data in a transparent way.
@@ -23,7 +24,9 @@ For data obtained from GISAID, only **accession numbers** will be included in th
 All GISAID data are stored in `data/GISAID`, but the contents won't be committed (via `.gitignore`).
 
 ### GISAID Directory Usage
-To devs: To use the GISAID directory, open the Google Drive folder shared by the mentor, and then navigate to `data/GISAID`. Copy the contents of that (`.tar` files) into your local repo's `data/GISAID`. The aforementioned directory has to be updated every time there's a change in the data.
+To main devs: To use the GISAID directory, open the Google Drive folder shared by the mentor, and then navigate to `data/GISAID`. Copy the contents of that (`.tar` files) into your local repo's `data/GISAID`. The aforementioned directory has to be updated every time there's a change in the data.
+
+To future researchers: With the complete list of Accession Numbers at hand (see [`data/overview/accession.txt`](`data/overview/accession.txt`)), and with your own GISAID Access Credentials, you may be able to re-download the GISAID data used for our analysis from [gisaid.org](https://gisaid.org/).
 
 ---
 ## References
