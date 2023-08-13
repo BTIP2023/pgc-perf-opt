@@ -213,6 +213,12 @@ This helps ensure that the variant classifier performs well on larger and larger
 
 ![](presentation_files/img/pipeline-flowchart-2.png){fig-align="center"}
 
+## The Necessary Sequence Data were procured from the GISAID Initiative's Database {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+The findings of this study are based on FASTA data and metadata associated with **24,004 sequences** sampled over **January 3, 2021 to May 30, 2023**. Current parameters select for the major variants Alpha, Beta, Delta, Gamma,  Omicron (BA.\*, XBC.\*, CM.\*), and Omicron Subvariants (XBB.\*, BL.\*, BN.\*, FL.\*). The variant attribute is assigned via the file names produced by the GISAID database's filters. Similarly, the distinction between the main Omicron variant lineages and the Omicron Subvariants' lineages were derived from how GISAID labelled the samples and their files. Ambiguous variant assignments were also sanitized. For instance, the XBB.9 lineage were lumped under both Omicron and Omicron Subvariant. Because most of the XBB.9 samples were already under Omicron Subvariant, all Omicron XBB.9 samples were transferred to Omicron Subvariant. Unassigned samples were also pruned, among many other data sanitation steps.
+
+The data is available on GISAID up to June 30, 2023, via the EPI_SET identifier [gisaid.org/EPI_SET_230813qo](https://gisaid.org/EPI_SET_230813qo){target="_blank"} and also accessible at [doi.org/10.55876/gis8.230813qo](https://doi.org/10.55876/gis8.230813qo){target="_blank"}.
+
 ## Data Extraction: FASTA and Metadata files were extracted and cleaned from .tar files obtained from the GISAID database. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::::: {.columns}
@@ -579,7 +585,9 @@ ggp
 
 ## Acknowledgements {data-background="presentation_files/img/PGCSlideLight.svg" transition="slide-in"}
 
-The group would like to acknowledge the 281 different authors of the SARS-CoV-2 sequences from the Philippines submitted to GISAID. Some of which are from PGC and are in the audience today. 
+We gratefully acknowledge all data contributors, i.e., the Authors and their Originating laboratories responsible for obtaining the specimens, and their Submitting laboratories for generating the genetic sequence and metadata and sharing via the **GISAID Initiative**, on which this research is based.
+
+We especially thank the **280 different authors** of the SARS-CoV-2 sequences from the Philippines submitted to GISAID, some of which are from the PGC and are in the audience today.
 
 ```{r out.width="900px", out.height="900px"}
 
@@ -587,12 +595,11 @@ p <- readLines("presentation_files/img/authors.txt")
 p
 ```
 
-
 # Documentation {background-color="#447099" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="slide-in"}
 
 ## CRediT (Contribution Roles Taxonomy) {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
   - Mark Joseph Garrovillas: Conceptualization, Supervision, Project Administration, Resources, Data Curation, Methodology (lead)
-  - Brylle Joshua Logroño: Data Curation, Formal Analysis (equal), Investigation (equal), Methodology, Software (lead), Validation (equal), Visualization
+  - Brylle Joshua Logroño: Data Curation, Formal Analysis (equal), Investigation (equal), Methodology, Software (lead), Validation (equal), Visualizati
   - John Matthew Felices: Data Curation, Formal Analysis (equal), Investigation (equal), Methodology, Software, Validation (equal), Visualization (lead)
   - Yenzy Urson Hebron: Data Curation (lead), Formal Analysis (equal), Investigation (equal), Methodology, Software (lead), Validation (equal), Visualization
 
@@ -608,22 +615,29 @@ p
 
 ## References {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
+- GISAID Initiative Data:
+  
+  - EPI_SET ID: EPI_SET_230813qo (<https://gisaid.org/EPI_SET_230813qo>)
+  - DOI: <https://doi.org/10.55876/gis8.230813qo>
+  
+Those without GISAID Access Credentials may retrieve information about all contributors of data on which the analysis is based by either clicking on the DOI, or pasting the EPI_SET ID in the "Data Acknowledgement Locator" on the GISAID homepage.
+
 - Research Articles:
 
   - <https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0285719>
   - <https://www.frontiersin.org/articles/10.3389/fbioe.2015.00035/full>
   
-- Repositories
+- Repositories:
   - <https://github.com/ai-covariants/analysis-mutations>
-  
-- Web Articles
+
+## References {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
+
+- Web Articles:
   - <https://meltdownattack.com/>
   - <https://www.microsoft.com/en-us/security/blog/2018/01/09/understanding-the-performance-impact-of-spectre-and-meltdown-mitigations-on-windows-systems/>
   - <https://blog.bioturing.com/2022/01/14/umap-vs-t-sne-single-cell-rna-seq-data-visualization/>
   - <https://blog.bioturing.com/2018/06/14/principal-component-analysis-explained-simply/>
   - <https://plotly.com/r/t-sne-and-umap-projections/>
-
-## References {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 - Image Sources:
   - <https://i.ytimg.com/vi/0WDhKCPtbng/maxresdefault.jpg>
