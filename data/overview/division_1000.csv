@@ -1,0 +1,18 @@
+division_exposure,division_code,ph_region,alpha,beta,delta,gamma,omicron,omicron_sub,n
+Bangsamoro Autonomous Region in Muslim Mindanao,BARMM,Bangsamoro Autonomous Region in Muslim Mindanao (BARMM),8,22,2,0,1,2,35
+Bicol Region,V,Bicol Region (Region V),18,26,32,0,35,8,119
+CALABARZON,IV-A,CALABARZON (Region IV-A),135,159,153,0,89,12,548
+Cagayan Valley,II,Cagayan Valley (Region II),108,14,49,0,45,0,216
+Caraga,XIII,Caraga (Region XIII),11,25,24,0,15,8,83
+Central Luzon,III,Central Luzon (Region III),115,54,113,1,51,5,339
+Central Visayas,VII,Central Visayas (Region VII),12,19,52,0,35,5,123
+Cordillera Administrative Region,CAR,Cordillera Administrative Region (CAR),93,25,20,0,38,2,178
+Davao Region,XI,Davao Region (Region XI),48,100,57,0,161,266,632
+Eastern Visayas,VIII,Eastern Visayas (Region VIII),11,12,11,0,8,1,43
+Ilocos Region,I,Ilocos Region (Region I),30,14,38,0,31,0,113
+MIMAROPA,IV-B,MIMAROPA (Region IV-B),34,37,23,0,14,2,110
+National Capital Region,NCR,National Capital Region (NCR),265,353,296,2,117,7,1040
+Northern Mindanao,X,Northern Mindanao (Region X),10,24,42,0,15,0,91
+SOCCSKSARGEN,XII,SOCCSKSARGEN (Region XII),26,10,5,0,50,20,111
+Western Visayas,VI,Western Visayas (Region VI),36,31,59,0,267,556,949
+Zamboanga Peninsula,IX,Zamboanga Peninsula (Region IX),33,63,23,0,27,0,146

@@ -55,17 +55,17 @@ source("code/R/clustering.R")
 
 # SET PARAMETERS ###########################################
 # pipeline.R general parameters
-# stamp <- [get_time():str|NULL]
+# stamp <- [get_time()|str(strat_size)|NULL]
 # if stamp = NULL, then generated files won't be timestamped
 seed <- 1234
-stamp <- NULL
+stamp <- get_time()
 write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
 # strat_size: no. of samples per stratum. Current nrow(data) = 24671.
 # Also consider using sample_frac for proportionate allocation.
 # Note that valid strat_size will only be those with corresponding
 # files in `data/interm` and `data/kmers`
-strat_size <- 25000
+strat_size <- 100
 # include_plots: whether to include plots in execution
 include_plots <- TRUE
 
