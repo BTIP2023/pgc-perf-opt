@@ -177,3 +177,15 @@ saveWidget2 <- function(widget, file) {
   htmlwidgets::saveWidget(widget, file = "tmp.html", selfcontained = TRUE)
   file.rename("tmp.html", file)
 }
+
+# Confirm duplicates in genome samples
+confirm_fasta_dupes <- function(fasta_all) {
+  for (i in which(duplicated(fasta_all))) {
+    test <- fasta_all[i]
+    for (j in which(duplicated(fasta_all))) {
+      if (i == j) next
+      else if (isTRUE(ape::all.equal.DNAbin(fasta_all[[i]], fasta_all[[j]])))
+        print(sprintf("FOUND! fasta_all[%d] (%s) matches fasta_all[%d] (%s)", i, names(fasta_all[i]), j, names(fasta_all[j])))
+    }
+  }
+}

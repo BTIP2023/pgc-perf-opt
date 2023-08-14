@@ -51,8 +51,12 @@ We shall now discuss the format in each stage of the data, ignoring the data ove
 ## Stage 1: Raw GISAID Data
 The raw GISAID data can be obtained by manually scraping the GISAID database for SARS-CoV-2 genomes. As mentioned in this project's README, the terms of using GISAID data prohibits the
 
+Inspection of the metadata has also shown that, against all odds, some genetic sequence were thoroughly the same.
+
+https://docs.nextstrain.org/projects/ncov/en/latest/reference/metadata-fields.html#column-3-gisaid-epi-isl
+
 ## Stage 2A: FASTA data
-This data will be produced by, hence that section later on will refer to this section for the sample data.
+This data will be produced by, hence that section later on will refer to this section for the sample data. For some reason, exact same genomes from 2 different samples have been uncovered.
 
 ## Stage 2B: Metadata
 

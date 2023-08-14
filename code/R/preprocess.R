@@ -117,6 +117,11 @@ get_sample <- function(gisaid_data_path = "data/GISAID",
     dplyr::count() %>% print()
 
   # Addon: Filter by country_exposure, ex. "Philippines" or c("Philippines",...)
+  # Note that we filter country_exposure preemptively (in preprocess.R) instead
+  # of waiting until dim-reduce.R to lessen overhead for kcount.
+  # Do note that we defer dim-reduce factor filters to pre_reduce because we
+  # want the data to be more manageable as kmer matrices with metadata instead
+  # of separate FASTA and metadata which requires maintenance of drop indexes.
   drop_idxs <- which(!(metadata_all$country_exposure %vin% country_exposure))
   fasta_all <- fasta_all[is.na(pmatch(1:length(fasta_all), drop_idxs))]
   metadata_all <- metadata_all[is.na(pmatch(1:nrow(metadata_all), drop_idxs)),]
@@ -160,14 +165,16 @@ get_sample <- function(gisaid_data_path = "data/GISAID",
   metadata_all <- metadata_all %>% select(!rowname)
   
   # Drop rows with NA values, type mismatches, empty fastas,
-  # and unassigned lineages.
+  # unassigned lineages, and duplicated strains (gisaid_epi_isl) possibly
+  # caused by improper data scraping or errors in GISAID itself.
   # Get the idxs of the dropped metadata_all rows then drop them in fasta_all.
   drop_idxs1 <- which(is.na(metadata_all), arr.ind=TRUE)[,1]
   drop_idxs2 <- c(which(is.numeric(metadata_all$sex)),
                   which(!(metadata_all$sex %vin% list("Male", "Female"))))
   drop_idxs3 <- which(lengths(fasta_all) == 0)
   drop_idxs4 <- which(metadata_all$pangolin_lineage == "Unassigned")
-  drop_idxs <- unique(c(drop_idxs1, drop_idxs2, drop_idxs3, drop_idxs4))
+  drop_idxs5 <- which(duplicated(metadata_all$gisaid_epi_isl))
+  drop_idxs <- unique(c(drop_idxs1, drop_idxs2, drop_idxs3, drop_idxs4, drop_idxs5))
   
   # Dropping below is analogous to select inverse.
   # pmatch creates matches: val for match and NA for no match.
