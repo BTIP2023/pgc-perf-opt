@@ -422,7 +422,8 @@ compile_overview <- function(metadata_all,
     dplyr::mutate(n = rowSums(across(where(is.numeric))))
   }
   
-  message("Compiling overview on dataset subsample... ", appendLF = FALSE)
+  message(sprintf("Compiling overview on dataset subsample in %s... ",
+                  write_path), appendLF = FALSE)
   
   # Get accession numbers and compile to a list
   gisaid_esp_isl <- sort(metadata_all$gisaid_epi_isl)
@@ -467,8 +468,6 @@ compile_overview <- function(metadata_all,
     }
   }
   
-  # Append /treemaps to write_path
-  write_path <- paste0(write_path, "/treemaps")
   # Create write_path if not exists
   if (!dir.exists(write_path)) {
     dir.create(write_path)
@@ -498,6 +497,9 @@ compile_overview <- function(metadata_all,
 # Plot treemaps with appropriate drilldowns using highcharter.
 # Note that highcharter (compared to JS highcharts) has a lot of limitations.
 make_treemaps <- function(metadata_all, write_path, stamp) {
+  # Append /treemaps to write_path
+  write_path <- paste0(write_path, "/treemaps")
+  
   message(sprintf("Generating treemaps in %s... ", write_path), appendLF = FALSE)
   # For ease of viewing, convert Bicol Region (Region V) to
   # simple Bicol Region (V)
