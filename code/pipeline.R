@@ -58,7 +58,7 @@ source("code/R/clustering.R")
 # stamp <- [get_time():str|NULL]
 # if stamp = NULL, then generated files won't be timestamped
 seed <- 1234
-stamp <- get_time()
+stamp <- NULL
 write_fastacsv <- TRUE
 kmer_list <- c(3, 5, 7)
 # strat_size: no. of samples per stratum. Current nrow(data) = 24671.

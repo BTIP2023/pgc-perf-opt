@@ -1,18 +1,18 @@
 division_exposure,division_code,ph_region,alpha,beta,delta,gamma,omicron,omicron_sub,n
 Bangsamoro Autonomous Region in Muslim Mindanao,BARMM,Bangsamoro Autonomous Region in Muslim Mindanao (BARMM),16,60,9,0,32,2,119
-Bicol Region,V,Bicol Region (Region V),44,98,91,0,468,11,712
-CALABARZON,IV-A,CALABARZON (Region IV-A),389,454,524,0,1214,24,2605
-Cagayan Valley,II,Cagayan Valley (Region II),345,47,171,0,558,0,1121
-Caraga,XIII,Caraga (Region XIII),38,76,68,0,296,11,489
+Bicol Region,V,Bicol Region (Region V),44,98,91,0,468,10,711
+CALABARZON,IV-A,CALABARZON (Region IV-A),389,454,524,0,1210,24,2601
+Cagayan Valley,II,Cagayan Valley (Region II),345,47,171,0,556,0,1119
+Caraga,XIII,Caraga (Region XIII),38,76,68,0,295,11,488
 Central Luzon,III,Central Luzon (Region III),291,160,393,1,701,6,1552
-Central Visayas,VII,Central Visayas (Region VII),37,60,179,0,555,11,842
-Cordillera Administrative Region,CAR,Cordillera Administrative Region (CAR),243,75,88,0,503,2,911
-Davao Region,XI,Davao Region (Region XI),141,335,205,0,2056,470,3207
+Central Visayas,VII,Central Visayas (Region VII),37,60,179,0,554,11,841
+Cordillera Administrative Region,CAR,Cordillera Administrative Region (CAR),243,75,88,0,502,2,910
+Davao Region,XI,Davao Region (Region XI),141,335,205,0,2037,469,3187
 Eastern Visayas,VIII,Eastern Visayas (Region VIII),27,26,61,0,95,1,210
 Ilocos Region,I,Ilocos Region (Region I),80,64,128,0,382,0,654
-MIMAROPA,IV-B,MIMAROPA (Region IV-B),101,102,100,0,251,4,558
-National Capital Region,NCR,National Capital Region (NCR),688,1222,1004,2,1607,8,4531
+MIMAROPA,IV-B,MIMAROPA (Region IV-B),101,102,100,0,250,4,557
+National Capital Region,NCR,National Capital Region (NCR),688,1222,1004,2,1602,8,4526
 Northern Mindanao,X,Northern Mindanao (Region X),45,79,154,0,176,0,454
 SOCCSKSARGEN,XII,SOCCSKSARGEN (Region XII),74,49,19,0,667,33,842
-Western Visayas,VI,Western Visayas (Region VI),93,94,200,0,3574,875,4836
+Western Visayas,VI,Western Visayas (Region VI),93,94,200,0,3240,857,4484
 Zamboanga Peninsula,IX,Zamboanga Peninsula (Region IX),101,217,81,0,330,1,730
