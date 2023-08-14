@@ -156,7 +156,8 @@ pre_reduce <- function(results_path, kmers, k,
   df <- kmers %>%
     dplyr::mutate(year = lubridate::year(date), .after = date)
   
-  # Addon: Filter according to optional filter1 and filter2
+  # Addon: Two-level filtering using fixed metadata attributes
+  # Filter according to optional filter1 and filter2
   # Refactored conditionals from (missing -> NULL)
   if (!(is.null(filter1_factor) & is.null(filter1_values) & 
         is.null(filter2_factor) & is.null(filter2_values))) {

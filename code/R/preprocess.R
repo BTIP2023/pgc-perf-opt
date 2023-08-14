@@ -116,8 +116,8 @@ get_sample <- function(gisaid_data_path = "data/GISAID",
     dplyr::group_by(variant) %>%
     dplyr::count() %>% print()
 
-  # Addon: Filter by country_exposure.
-  drop_idxs <- which(metadata_all$country_exposure != country_exposure)
+  # Addon: Filter by country_exposure, ex. "Philippines" or c("Philippines",...)
+  drop_idxs <- which(!(metadata_all$country_exposure %vin% country_exposure))
   fasta_all <- fasta_all[is.na(pmatch(1:length(fasta_all), drop_idxs))]
   metadata_all <- metadata_all[is.na(pmatch(1:nrow(metadata_all), drop_idxs)),]
   
@@ -170,7 +170,7 @@ get_sample <- function(gisaid_data_path = "data/GISAID",
   drop_idxs <- unique(c(drop_idxs1, drop_idxs2, drop_idxs3, drop_idxs4))
   
   # Dropping below is analogous to select inverse.
-  # pmatch creates matches, val for match and NA for no match.
+  # pmatch creates matches: val for match and NA for no match.
   # We only take those without matches, i.e. those that won't be dropped.
   fasta_all <- fasta_all[is.na(pmatch(1:length(fasta_all), drop_idxs))]
   metadata_all <- metadata_all[is.na(pmatch(1:nrow(metadata_all), drop_idxs)),]
@@ -274,7 +274,7 @@ sanitize_sample <- function(metadata_all) {
   # ",(?![A-Z]+)"
   message("Cleaning authors... ", appendLF = FALSE)
   metadata_all <- metadata_all %>%
-    tidyr::separate_rows(authors, sep = ",| and |nE|. Chel") %>%
+    tidyr::separate_longer_delim(authors, delim = regex(",| and |nE|. Chel")) %>%
     dplyr::mutate(authors =
                     str_replace(authors, "Dr.|PhD|MSc|MD|RMT|FPSP", "")) %>%
     dplyr::mutate(authors = stringr::str_replace(authors, "√±", "ñ")) %>%
@@ -349,10 +349,10 @@ sanitize_sample <- function(metadata_all) {
   # for compile_overview, so think of workaround.
   # Bug with .by in mutate, so use group_by before mutate.
   metadata_all <- metadata_all %>%
-    dplyr::group_by(strain) %>%
+    dplyr::group_by(gisaid_epi_isl) %>%
     dplyr::arrange(authors) %>%
     dplyr::mutate(authors = paste(authors, collapse = ", ")) %>%
-    dplyr::distinct(strain, variant, .keep_all = TRUE) %>%
+    dplyr::distinct(.keep_all = TRUE) %>%
     dplyr::ungroup()
   message("DONE.")
   

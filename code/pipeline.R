@@ -56,7 +56,7 @@ source("code/R/clustering.R")
 # SET PARAMETERS ###########################################
 # pipeline.R general parameters
 # stamp <- [get_time():str|NULL]
-# if stamp = "", then generated files won't be timestamped
+# if stamp = NULL, then generated files won't be timestamped
 seed <- 1234
 stamp <- get_time()
 write_fastacsv <- TRUE
@@ -65,7 +65,7 @@ kmer_list <- c(3, 5, 7)
 # Also consider using sample_frac for proportionate allocation.
 # Note that valid strat_size will only be those with corresponding
 # files in `data/interm` and `data/kmers`
-strat_size <- 100
+strat_size <- 25000
 # include_plots: whether to include plots in execution
 include_plots <- TRUE
 
@@ -129,7 +129,7 @@ metadata_all <- compile_overview(metadata_all, compile_write_path, stamp)
 # Step 1.5D: make_treemaps()
 # NOTE: The treemap() function in helper.R
 # can generate any treemap you can think of, yeah!
-#make_treemaps(metadata_all, compile_write_path, stamp)
+make_treemaps(metadata_all, compile_write_path, stamp)
 
 # Step 2: get_kmers()
 for (k in kmer_list) {
