@@ -49,9 +49,10 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-# README and RMarkdown previews
+# README and RMarkdown Notebook previews
 **/README.html
 **/*.nb.html
+!/pipeline.nb.html
 
 # GISAID Data
 data/GISAID/*
