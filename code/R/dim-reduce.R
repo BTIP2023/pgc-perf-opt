@@ -82,7 +82,7 @@ read_kmer_csv <- function(data_path, k) {
   return(df)
 }
 
-# Function for saving 2D plots as PNG and HTML
+# Function for saving 2D plots as PNG and HTML (with RData)
 save_plot <- function(method, results_path, k, p, is_3d = FALSE) {
   print("Saving plot...")
   # File name for saving
