@@ -53,6 +53,6 @@ generate_kmer_heatmap <- function(kmers, results_path, k) {
   save_plot("heatmap", results_path, k, p)
 }
 
-generate_kmer_wordcloud <- function(kmers, results_path, k) {
+generate_kmer_wordcloud <- function(kmer_df, results_path, k) {
   
 }

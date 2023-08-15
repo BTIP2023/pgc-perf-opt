@@ -181,3 +181,26 @@ get_var_lin <- function(metadata_all, write_path = "data/overview") {
                           stringr::str_replace_all(var, " ", "")))))
   }
 }
+
+# experimental plotly treemap
+treemap2 <- function(metadata_all) {
+  df <- metadata_all %>%
+    dplyr::mutate(dplyr::across(c(variant, division_code, pangolin_lineage, strain), as.character), .keep="used")
+  
+  data <- df %>%
+    dplyr::mutate(root = "Region") %>%
+    dplyr::select(labels = division_code, parents = root) %>%
+    dplyr::add_row(labels = df$variant, parents = df$division_code) %>%
+    dplyr::add_row(labels = df$pangolin_lineage, parents = df$variant) %>%
+    dplyr::add_row(labels = df$strain, parents = df$pangolin_lineage) %>%
+    dplyr::distinct()
+  
+  fig <- plot_ly(
+    type="treemap",
+    labels=data$labels,
+    parents=data$parents,
+    values=rep(1,times=nrow(df))
+  )
+  fig
+  
+}
