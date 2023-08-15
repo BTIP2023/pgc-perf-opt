@@ -159,3 +159,25 @@ confirm_fasta_dupes <- function(fasta_all) {
     }
   }
 }
+
+# Get the lineages in a variant
+get_var_lin <- function(metadata_all, write_path = "data/overview") {
+  df <- metadata_all %>%
+    dplyr::select(pangolin_lineage, variant) %>%
+    dplyr::distinct(.keep_all = TRUE) %>%
+    dplyr::arrange(pangolin_lineage)
+  write_path <- paste0(write_path, "/vars")
+  if (!dir.exists(write_path))
+    dir.create(write_path)
+  write_csv(df, paste0(write_path, "/var_lin.csv"))
+  for (var in unique(metadata_all$variant)) {
+    output <- df %>%
+      dplyr::filter(variant == var) %>%
+      dplyr::select(pangolin_lineage) %>%
+      dplyr::arrange()
+    write_lines(unlist(output),
+                paste0(write_path, sprintf("/%s_lineages.txt",
+                        stringr::str_to_lower(
+                          stringr::str_replace_all(var, " ", "")))))
+  }
+}

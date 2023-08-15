@@ -147,10 +147,10 @@ for (i in 1:length(kmer_list)) {
   message("DONE!")
 }
 
-# Step 2.5: generate_heatmap()
+# Step 2.5: generate_kmer_heatmap()
 # for (i in 1:length(kmer_list)) {
 #   k <- kmer_list[i]
-#   generate_heatmap(kmers[[i]], compile_write_path, k)
+#   generate_kmer_heatmap(kmers[[i]], compile_write_path, k)
 # }
 
 # Step 3: dim_reduce()

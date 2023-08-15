@@ -23,7 +23,7 @@ get_kmers <- function(fasta, metaData, k, stamp) {
   message(paste0("Writing kmer data to ", output_dir, "... DONE."))
 }
 
-generate_heatmap <- function(kmers, results_path, k) {
+generate_kmer_heatmap <- function(kmers, results_path, k) {
   # Process kmers dataframe
   df <- kmers
   
@@ -53,6 +53,6 @@ generate_heatmap <- function(kmers, results_path, k) {
   save_plot("heatmap", results_path, k, p)
 }
 
-make_wordcloud <- function(kmers, results_path, k) {
+generate_kmer_wordcloud <- function(kmers, results_path, k) {
   
 }
