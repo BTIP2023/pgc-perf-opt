@@ -25,18 +25,13 @@ if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
 }
 
 # Use pacman to load add-on packages as desired.
-# TODO: Remove redundancies in dependencies. E.g., dplyr and ggplot2
-# are already dependencies of tidyverse.
-pacman::p_load(plyr, dplyr, GGally, ggplot2, ggthemes, ggvis,
-               httr, lubridate, plotly, psych,
-               rio, markdown, rmarkdown, shiny,
-               stringr, tidyr, tidyverse,
-               ape, kmer, readr, validate, gsubfn, seqinr,
-               umap, htmlwidgets, factoextra, scales,
-               Rtsne, tsne, RColorBrewer, ggfortify, devtools,
+pacman::p_load(plyr, GGally, ggthemes, ggvis, plotly, psych,
+               htmlwidgets, rio, markdown, shiny, tidyverse,
+               ape, seqinr, kmer, validate, gsubfn,
+               Rtsne, tsne, umap, factoextra, scales,
+               RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
-               microbenchmark, data.table,
-               highcharter, glue)
+               microbenchmark, data.table, highcharter)
 if (!require(ggbiplot))
   install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
 pacman::p_load(ggbiplot)
