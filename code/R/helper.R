@@ -182,24 +182,24 @@ get_var_lin <- function(metadata_all, write_path = "data/overview") {
   }
 }
 
-# experimental plotly treemap
+# experimental plotly treemap (TODO: Generalize, add sunburst option)
 treemap2 <- function(metadata_all) {
   df <- metadata_all %>%
     dplyr::mutate(dplyr::across(c(variant, division_code, pangolin_lineage, strain), as.character), .keep="used")
   
   data <- df %>%
-    dplyr::mutate(root = "Region") %>%
-    dplyr::select(labels = division_code, parents = root) %>%
-    dplyr::add_row(labels = df$variant, parents = df$division_code) %>%
-    dplyr::add_row(labels = df$pangolin_lineage, parents = df$variant) %>%
-    dplyr::add_row(labels = df$strain, parents = df$pangolin_lineage) %>%
+    dplyr::mutate(root = "Philippine Regions") %>%
+    dplyr::select(ids = division_code, labels = division_code, parents = root) %>%
+    dplyr::add_row(ids = paste(df$division_code,df$variant,sep="-"), labels = df$variant, parents = df$division_code) %>%
+    dplyr::add_row(ids = paste(df$division_code,df$variant,df$pangolin_lineage,sep="-"), labels = df$pangolin_lineage, parents = paste(df$division_code,df$variant,sep="-")) %>%
+    dplyr::add_row(ids = paste(df$division_code,df$variant,df$pangolin_lineage,df$strain,sep="-"), labels = df$strain, parents = paste(df$division_code,df$variant,df$pangolin_lineage,sep="-")) %>%
     dplyr::distinct()
   
   fig <- plot_ly(
     type="treemap",
+    ids=data$ids,
     labels=data$labels,
-    parents=data$parents,
-    values=rep(1,times=nrow(df))
+    parents=data$parents
   )
   fig
   
