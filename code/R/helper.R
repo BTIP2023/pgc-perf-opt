@@ -185,21 +185,38 @@ get_var_lin <- function(metadata_all, write_path = "data/overview") {
 # experimental plotly treemap (TODO: Generalize, add sunburst option)
 treemap2 <- function(metadata_all) {
   df <- metadata_all %>%
-    dplyr::mutate(dplyr::across(c(variant, division_code, pangolin_lineage, strain), as.character), .keep="used")
+    dplyr::mutate(dplyr::across(c(variant, ph_region, pangolin_lineage, strain), as.character), .keep="used")
+  
+  summ1 <- df %>% dplyr::count(ph_region) %>%
+    tibble::column_to_rownames(var = "ph_region")
+  summ2 <- df %>% dplyr::count(ph_region, variant) %>%
+    tidyr::unite(col=labels, 1:2, sep="-") %>%
+    tibble::column_to_rownames(var = "labels")
+  summ3 <- df %>% dplyr::count(ph_region, variant, pangolin_lineage) %>%
+    tidyr::unite(col=labels, 1:3, sep="-") %>%
+    tibble::column_to_rownames(var = "labels")
   
   data <- df %>%
-    dplyr::mutate(root = "Philippine Regions") %>%
-    dplyr::select(ids = division_code, labels = division_code, parents = root) %>%
-    dplyr::add_row(ids = paste(df$division_code,df$variant,sep="-"), labels = df$variant, parents = df$division_code) %>%
-    dplyr::add_row(ids = paste(df$division_code,df$variant,df$pangolin_lineage,sep="-"), labels = df$pangolin_lineage, parents = paste(df$division_code,df$variant,sep="-")) %>%
-    dplyr::add_row(ids = paste(df$division_code,df$variant,df$pangolin_lineage,df$strain,sep="-"), labels = df$strain, parents = paste(df$division_code,df$variant,df$pangolin_lineage,sep="-")) %>%
+    dplyr::mutate(root = "Regions") %>%
+    dplyr::select(ids = ph_region, labels = ph_region, parents = root) %>%
+    dplyr::mutate(values = summ1[df$ph_region,]) %>%
+    dplyr::add_row(ids = paste(df$ph_region,df$variant,sep="-"), labels = df$variant, parents = df$ph_region, values = summ2[paste(df$ph_region,df$variant,sep="-"),]) %>%
+    dplyr::add_row(ids = paste(df$ph_region,df$variant,df$pangolin_lineage,sep="-"), labels = df$pangolin_lineage, parents = paste(df$ph_region,df$variant,sep="-"), values = summ3[paste(df$ph_region,df$variant,df$pangolin_lineage,sep="-"),]) %>%
+    dplyr::add_row(ids = paste(df$ph_region,df$variant,df$pangolin_lineage,df$strain,sep="-"), labels = df$strain, parents = paste(df$ph_region,df$variant,df$pangolin_lineage,sep="-"), values = rep(1,nrow(df))) %>%
     dplyr::distinct()
   
+  # Colors: Blackbody,Bluered,Blues,Cividis,Earth,Electric,Greens,Greys,Hot,Jet,Picnic,Portland,Rainbow,RdBu,Reds,Viridis,YlGnBu,YlOrRd
   fig <- plot_ly(
-    type="treemap",
+    type="sunburst",
+    branchvalues="total",
     ids=data$ids,
     labels=data$labels,
-    parents=data$parents
+    parents=data$parents,
+    values=data$values,
+    textinfo="label+value+percent parent+percent root",
+    outsidetextfont=list(size=20, color= ""),
+    marker=list(colorscale="", line=list(color="")),
+    maxdepth=3
   )
   fig
   
