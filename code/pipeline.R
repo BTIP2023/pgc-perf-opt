@@ -147,11 +147,17 @@ for (i in 1:length(kmer_list)) {
   message("DONE!")
 }
 
-# Step 2.5: generate_kmer_heatmap()
+# Step 2.5: generate_kmer_heatmap and generate_kmer_wordcloud
 # for (i in 1:length(kmer_list)) {
 #   k <- kmer_list[i]
-#   generate_kmer_heatmap(kmers[[i]], compile_write_path, k)
+#   generate_kmer_heatmap(kmers[[i]], kmers_data_path, k)
+#   generate_kmer_wordcloud(kmers[[i]], kmers_data_path, k)
 # }
+
+for (i in 1:length(kmer_list)) {
+  k <- kmer_list[i]
+  generate_kmer_wordcloud(kmers[[i]], kmers_data_path, k)
+}
 
 # Step 3: dim_reduce()
 for (i in 1:length(kmer_list)) {

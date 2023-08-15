@@ -160,7 +160,7 @@ confirm_fasta_dupes <- function(fasta_all) {
   }
 }
 
-# Get the lineages in a variant
+# Get the lineages in each variant and write to a csv file and txt files
 get_var_lin <- function(metadata_all, write_path = "data/overview") {
   df <- metadata_all %>%
     dplyr::select(pangolin_lineage, variant) %>%
