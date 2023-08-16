@@ -45,8 +45,9 @@ ui <- fluidPage(
     # Sidebar panel for inputs
     sidebarPanel(
       # Select strat_size, hardcoded available strat_sizes only
+      p("Note: ", strong("data/kmers/"), "must be populated with the prescribed, pre-generated kmer files."),
       selectInput(inputId = "strat_size",
-                  label = "Select strat_size",
+                  label = "Select stratum size",
                   choices = list(100,250,500,750,1000,2000)),
       textOutput(outputId = "numsamples"),
       hr(),
@@ -78,14 +79,13 @@ server <- function(input, output, session) {
   data <- reactive({
     path <- sprintf("../../data/kmers/kmer_%s_%s.csv", input$k, input$strat_size)
     kmer_df(readr::read_csv(path))
+    strains <- lapply(as.list(select(kmer_df(), strain)), sort)
+    updateSelectizeInput(session, "sample_name", choices = strains, server = TRUE)
   })
   
   figure <- reactive({
     data()
     df <- kmer_df()
-    strains <- lapply(as.list(select(df, strain)), sort)
-    if (input$sample_name == "")
-      updateSelectizeInput(session, "sample_name", choices = strains, server = TRUE)
     output$numsamples <- renderText(sprintf("This stratum size yields %s samples.", nrow(df)))
     if(!is.null(input$sample_name)) {
       sample <- df %>%
