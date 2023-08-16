@@ -31,7 +31,8 @@ pacman::p_load(plyr, GGally, ggthemes, ggvis, plotly, psych,
                Rtsne, tsne, umap, factoextra, scales,
                RColorBrewer, ggfortify, devtools,
                ggdendro, dendextend, cluster, colorspace,
-               microbenchmark, data.table, highcharter)
+               microbenchmark, data.table, highcharter,
+               wordcloud, tm)
 if (!require(ggbiplot))
   install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
 pacman::p_load(ggbiplot)

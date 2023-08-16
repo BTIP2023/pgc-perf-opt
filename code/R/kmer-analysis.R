@@ -53,6 +53,9 @@ generate_kmer_heatmap <- function(kmers, results_path, k) {
   save_plot("heatmap", results_path, k, p)
 }
 
-generate_kmer_wordcloud <- function(kmer_df, results_path, k) {
+generate_kmer_wordcloud <- function(kmer_df, write_path = "data/kmers", k) {
+  write_path <- paste0(write_path, "/wordclouds")
+  if(!dir.exists(write_path))
+    dir.create(write_path)
   
 }
