@@ -221,3 +221,10 @@ treemap2 <- function(metadata_all) {
   fig
   
 }
+
+# fasta_all summarizer
+summarize_fasta <- function(fasta_all) {
+  summ <- NULL
+  for (i in 1:length(fasta_all)) summ <- c(summ, length(fasta_all[[i]]))
+  c(n = length(fasta_all), summary(summ))
+}
