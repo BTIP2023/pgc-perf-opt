@@ -1,5 +1,38 @@
-library(shiny)
+# File: wordcloud_app.R
 
+# INSTALL AND LOAD PACKAGES ################################
+options(repos = "https://cloud.r-project.org/")
+
+# Installs pacman ("package manager") if needed
+if (!require("pacman"))
+  install.packages("pacman")
+library(pacman)
+
+### ATTN: IN LINUX SYSTEMS, CONSULT README FOR ADDITIONAL PREREQUISITES
+### BEFORE RUNNING ANY SCRIPT. ISSUE: tidyverse installation.
+### This is a non-issue if code is ran within cpu.Dockerfile.
+### This cannot be scripted because this requires sudo priveleges.
+
+# Install xml2 in advance to prep for tidyverse installation in Linux.
+# Note that in Windows RStudio, this is installed by default.
+# If you're getting xml2 errors on Windows, you broke something lol.
+if (pacman::p_detectOS() == "Linux" && !pacman::p_exists(xml2, local = TRUE)) {
+  install.packages("xml2", dependencies = TRUE, INSTALL_opts = c("--no-lock"))
+  pacman::p_load(xml2)
+}
+
+# Use pacman to load add-on packages as desired.
+pacman::p_load(plyr, GGally, ggthemes, ggvis, plotly, psych,
+               htmlwidgets, rio, markdown, shiny, tidyverse,
+               ape, seqinr, kmer, validate, gsubfn,
+               Rtsne, tsne, umap, factoextra, scales,
+               RColorBrewer, ggfortify, devtools,
+               ggdendro, dendextend, cluster, colorspace,
+               microbenchmark, data.table, highcharter,
+               wordcloud, tm)
+if (!require(ggbiplot))
+  install_github("vqv/ggbiplot", upgrade = FALSE, quiet = TRUE)
+pacman::p_load(ggbiplot)
 # NOTE: This app currently only works when launched from pgc-perf-opt.Rproject.
 # TODO: Publish to shinyapps.io with data loaded from somewhere else.
 
