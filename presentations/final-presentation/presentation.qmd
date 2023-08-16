@@ -37,7 +37,7 @@ title-slide-attributes:
 
 # Background and Rationale {background-color="#5E205E" data-background="presentation_files/img/PGCTitleSlideDark.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-## Contagious threats underscore our need for effective biosurveillance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow" .scrollable .smaller}
+## Contagious threats underscore our need for effective biosurveillance {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::: {layout-ncol=2 layout-valign="center"}
 
@@ -105,7 +105,7 @@ AGNES clusters samples into hierarchies or dendrograms, all towards creating vis
 
 ![](presentation_files/img/lab-full-suit.jpg){fig-align="center"}
 
-## *Rationale 1:* Treating Philippine Data with an enhanced UML workflow may uncover new insights about COVID-19 in the country. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow" .scrollable}
+## *Rationale 1:* Treating Philippine Data with an enhanced UML workflow may uncover new insights about COVID-19 in the country. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
 ::: {layout-ncol=2 layout-valign="center"}
 ![](presentation_files/img/gear-optimize.png){fig-align="center"}
@@ -215,9 +215,41 @@ This helps ensure that the variant classifier performs well on larger and larger
 
 ## The Necessary Sequence Data were procured from the GISAID Initiative's Database {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
-The findings of this study are based on FASTA data and metadata associated with **24,004 sequences** sampled over **January 3, 2021 to May 30, 2023**. Current parameters select for the major variants Alpha, Beta, Delta, Gamma,  Omicron (BA.\*, XBC.\*, CM.\*), and Omicron Subvariants (XBB.\*, BL.\*, BN.\*, FL.\*). The variant attribute is assigned via the file names produced by the GISAID database's filters. Similarly, the distinction between the main Omicron variant lineages and the Omicron Subvariants' lineages were derived from how GISAID labelled the samples and their files. Ambiguous variant assignments were also sanitized. For instance, the XBB.9 lineage were lumped under both Omicron and Omicron Subvariant. Because most of the XBB.9 samples were already under Omicron Subvariant, all Omicron XBB.9 samples were transferred to Omicron Subvariant. Unassigned samples were also pruned, among many other data sanitation steps.
+The findings of this study are based on FASTA data and metadata associated with **23,985 sequences** sampled over **January 3, 2021 to May 30, 2023**. Current parameters select for the major variants Alpha, Beta, Delta, Gamma,  Omicron, and Omicron Subvariants, with the following lineage mapping:
+```{css, echo=FALSE}
+.scrollable {
+  overflow-y: auto;
+  height: 30vh;
+}
+```
 
-The data is available on GISAID up to June 30, 2023, via the EPI_SET identifier [gisaid.org/EPI_SET_230813qo](https://gisaid.org/EPI_SET_230813qo){target="_blank"} and also accessible at [doi.org/10.55876/gis8.230813qo](https://doi.org/10.55876/gis8.230813qo){target="_blank"}.
+:::{layout-ncol=3}
+
+:::{.scrollable}
+```{r, echo=FALSE, message=FALSE}
+data <- readr::read_csv("presentation_files/img/var_lin.csv")
+val <- round(nrow(data)/3)
+flextable::flextable(data[1:val,])
+```
+:::
+
+:::{.scrollable}
+```{r, echo=FALSE, message=FALSE}
+flextable::flextable(data[(val+1):(val*2),])
+```
+:::
+
+:::{.scrollable}
+```{r, echo=FALSE, message=FALSE}
+flextable::flextable(data[(val*2+1):(val*3+1),])
+```
+:::
+
+:::
+
+Ambiguous variant assignments were also dealt with, e.g. *XBB.9* samples were recorded as either Omicron or Omicron Subvariant, but because most *XBB.9* samples were under Omicron Subvariant, all *XBB.9* were transferred to `Omicron Sub`. Unassigned samples were also pruned, among many other data sanitation steps.
+
+The data is available on GISAID up to June 30, 2023, via the EPI_SET identifier [**EPI_SET_230814qb**](https://gisaid.org/EPI_SET_230814qb){target="_blank"} and also accessible at [**doi.org/10.55876/gis8.230814qb**](https://doi.org/10.55876/gis8.230814qb){target="_blank"}.
 
 ## Data Extraction: FASTA and Metadata files were extracted and cleaned from .tar files obtained from the GISAID database. {data-background="presentation_files/img/PGCSlideLight.svg" transition="fade-in slide-out" transition-speed="slow"}
 
@@ -617,8 +649,8 @@ p
 
 - GISAID Initiative Data:
   
-  - EPI_SET ID: EPI_SET_230813qo (<https://gisaid.org/EPI_SET_230813qo>)
-  - DOI: <https://doi.org/10.55876/gis8.230813qo>
+  - EPI_SET ID: [**EPI_SET_230814qb**](https://gisaid.org/EPI_SET_230813qo)
+  - DOI: [**10.55876/gis8.230814qb**](https://doi.org/10.55876/gis8.230814qb)
   
 Those without GISAID Access Credentials may retrieve information about all contributors of data on which the analysis is based by either clicking on the DOI, or pasting the EPI_SET ID in the "Data Acknowledgement Locator" on the GISAID homepage.
 
