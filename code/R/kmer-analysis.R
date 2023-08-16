@@ -66,7 +66,6 @@ generate_kmer_wordcloud <- function(kmer_df, write_path = "data/kmers", k, seed 
     dplyr::filter(strain == "hCoV-19/Philippines/PH-PGCMIN49/2021") %>%
     dplyr::select(!(strain:length(kmer_df)))
   sample <- t(sample)
-  sample <- sample[order(sample,decreasing=TRUE),]
   set.seed(777)
   wordcloud(words = rownames(sample), freq = sample[,1], min.freq = 1,
             max.words=200, random.order=FALSE, rot.per=0.35,
