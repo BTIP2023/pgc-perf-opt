@@ -61,5 +61,12 @@ generate_kmer_wordcloud <- function(kmer_df, write_path = "data/kmers", k) {
   write_path <- paste0(write_path, "/wordclouds")
   if(!dir.exists(write_path))
     dir.create(write_path)
-  
+  # remove metadata columns
+  df <- kmer_df %>% dplyr::select(!(strain:ncol(kmer_df)))
+  test <- t(df[1,])
+  test2 <- test[order(test[,1],decreasing=TRUE),]
+  wordcloud(words = names(test2), freq = test2, min.freq = 1,
+            max.words=200, random.order=FALSE, rot.per=0.35,
+            colors=brewer.pal(8, "Dark2"))
 }
+
