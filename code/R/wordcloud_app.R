@@ -86,12 +86,14 @@ server <- function(input, output) {
         dplyr::select(!(strain:length(kmer_df)))
       sample <- t(sample)
       sample <- sample[order(sample,decreasing=TRUE),]
-      set.seed(seed)
-      fig <- wordcloud(words=names(sample), freq=sample, min.freq=1,
-                       max.words=200, random.order=FALSE, rot.per=0.35,
-                       colors=brewer.pal(8, "Dark2"))
-      set.seed(NULL)
-      fig
+      if(length(sample)>0) {
+        set.seed(seed)
+        fig <- wordcloud(words=names(sample), freq=sample, min.freq=1,
+                         max.words=200, random.order=FALSE, rot.per=0.35,
+                         colors=brewer.pal(8, "Dark2"))
+        set.seed(NULL)
+        fig
+      }
     }
   })
   
