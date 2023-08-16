@@ -80,16 +80,19 @@ server <- function(input, output) {
     kmer_df <- readr::read_csv(path)
     strains(lapply(as.list(select(kmer_df, strain)), sort))
     output$numsamples <- renderText(sprintf("This stratum size yields %s samples.", nrow(kmer_df)))
-    sample <- kmer_df %>%
-      dplyr::filter(strain == input$strain) %>%
-      dplyr::select(!(strain:length(kmer_df)))
-    sample <- t(sample)
-    set.seed(seed)
-    fig <- wordcloud(words=rownames(sample), freq=sample[,1], min.freq=1,
-                     max.words=50, random.order=FALSE, rot.per=0.35,
-                     colors=brewer.pal(8, "Dark2"))
-    set.seed(NULL)
-    fig
+    if(!is.null(input$strain)) {
+      sample <- kmer_df %>%
+        dplyr::filter(strain == input$strain) %>%
+        dplyr::select(!(strain:length(kmer_df)))
+      sample <- t(sample)
+      sample <- sample[order(sample,decreasing=TRUE),]
+      set.seed(seed)
+      fig <- wordcloud(words=names(sample), freq=sample, min.freq=1,
+                       max.words=50, random.order=FALSE, rot.per=0.35,
+                       colors=brewer.pal(8, "Dark2"))
+      set.seed(NULL)
+      fig
+    }
   })
   
   output$selector_ui <- renderUI({
@@ -98,9 +101,7 @@ server <- function(input, output) {
     selectInput(
       "strain",
       "Select name of sample",
-      choices = strains(),
-      selected = NULL,
-      multiple = FALSE
+      choices = strains()
     )
   })
   
