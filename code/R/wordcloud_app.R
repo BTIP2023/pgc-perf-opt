@@ -14,54 +14,64 @@ ui <- fluidPage(
       # Select strat_size, hardcoded available strat_sizes only
       selectInput(inputId = "strat_size",
                   label = "Select strat_size",
-                  choices = list("100 = 500 samples"=100,
-                                 "250 = 1239 samples"=250,
-                                 "500 = 2458 samples"=500,
-                                 "750 = 3687 samples"=750,
-                                 "1000 = 4877 samples"=1000,
-                                 "1500 = 7224 samples"=1500,
-                                 "2000 = 9408 samples"=2000)),
-      radioButtons(inputId = "k_value",
+                  choices = list(100,250,500,750,1000,2000)),
+      textOutput(outputId = "numsamples"),
+      hr(),
+      radioButtons(inputId = "k",
                    label = "Select k-mer size",
                    choices = list(3,5,7),
                    inline = TRUE),
+      uiOutput("selector_ui"),
       checkboxInput(inputId = "show_all",
-                    label = "Show word cloud for full dataset",
-                    value = FALSE),
-      checkboxInput(inputId = "strain",
-                    label = "Select")
-      
+                    label = "Show word cloud for full dataset (WIP)",
+                    value = FALSE)
     ),
     
     # Main panel for displaying outputs ----
     mainPanel(
       
-      # Output: Histogram ----
-      plotOutput(outputId = "distPlot")
-      
+      plotOutput(outputId = "wordcloud")
+
     )
-  ),
-  hr(),
-  fluidRow(column(3, verbatimTextOutput("value"))),
+  )
 )
+
+seed <- 777
 
 # Define server logic required to compute and render wordcloud ----
 server <- function(input, output) {
-  
-  df <- kmer_df %>% dplyr::select(!(strain:ncol(kmer_df)))
+  strains <- reactiveVal()
 
-  output$distPlot <- renderPlot({
-    
-    # remove metadata columns
-    test <- t(df[1,])
-    test2 <- test[order(test[,1],decreasing=TRUE),]
-    wordcloud(words = names(test2), freq = test2, min.freq = 1,
-              max.words=200, random.order=FALSE, rot.per=0.35,
-              colors=brewer.pal(8, "Dark2"))
+  figure <- reactive({
+    path <- sprintf("../../data/kmers/kmer_%s_%s.csv", input$k, input$strat_size)
+    kmer_df <- readr::read_csv(path)
+    strains(lapply(as.list(select(kmer_df, strain)), sort))
+    output$numsamples <- renderText(sprintf("This stratum size yields %s samples.", nrow(kmer_df)))
+    sample <- kmer_df %>%
+      dplyr::filter(strain == input$strain) %>%
+      dplyr::select(!(strain:length(kmer_df)))
+    sample <- t(sample)
+    set.seed(seed)
+    fig <- wordcloud(words=rownames(sample), freq=sample[,1], min.freq=1,
+                     max.words=50, random.order=FALSE, rot.per=0.35,
+                     colors=brewer.pal(8, "Dark2"))
+    set.seed(NULL)
+    fig
   })
   
-  output$value <- renderPrint({ input$test1 })
+  output$selector_ui <- renderUI({
+    path <- sprintf("../../data/kmers/kmer_%s_%s.csv", input$k, input$strat_size)
+    kmer_df <- readr::read_csv(path)
+    selectInput(
+      "strain",
+      "Select name of sample",
+      choices = strains(),
+      selected = NULL,
+      multiple = FALSE
+    )
+  })
   
+  output$wordcloud <- renderPlot({ figure() })
 }
 
 shinyApp(ui = ui, server = server)
