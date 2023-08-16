@@ -53,6 +53,10 @@ generate_kmer_heatmap <- function(kmers, results_path, k) {
   save_plot("heatmap", results_path, k, p)
 }
 
+# k-mer descriptors -> n-gram descriptors, use k = 7 for final output
+# For each sample, then for all samples (mean)
+# I'm making this in shiny because my gosh there are 23000 plus samples
+# It would be horrifying to check out all of those manually
 generate_kmer_wordcloud <- function(kmer_df, write_path = "data/kmers", k) {
   write_path <- paste0(write_path, "/wordclouds")
   if(!dir.exists(write_path))
