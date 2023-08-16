@@ -57,16 +57,20 @@ generate_kmer_heatmap <- function(kmers, results_path, k) {
 # For each sample, then for all samples (mean)
 # I'm making this in shiny because my gosh there are 23000 plus samples
 # It would be horrifying to check out all of those manually
-generate_kmer_wordcloud <- function(kmer_df, write_path = "data/kmers", k) {
+generate_kmer_wordcloud <- function(kmer_df, write_path = "data/kmers", k, seed = 777) {
   write_path <- paste0(write_path, "/wordclouds")
   if(!dir.exists(write_path))
     dir.create(write_path)
-  # remove metadata columns
-  df <- kmer_df %>% dplyr::select(!(strain:ncol(kmer_df)))
-  test <- t(df[1,])
-  test2 <- test[order(test[,1],decreasing=TRUE),]
-  wordcloud(words = names(test2), freq = test2, min.freq = 1,
+  # Select sample using strain, then remove metadata columns
+  sample <- kmer_df %>%
+    dplyr::filter(strain == "hCoV-19/Philippines/PH-PGCMIN49/2021") %>%
+    dplyr::select(!(strain:length(kmer_df)))
+  sample <- t(sample)
+  sample <- sample[order(sample,decreasing=TRUE),]
+  set.seed(777)
+  wordcloud(words = rownames(sample), freq = sample[,1], min.freq = 1,
             max.words=200, random.order=FALSE, rot.per=0.35,
             colors=brewer.pal(8, "Dark2"))
+  set.seed(NULL)
 }
 
