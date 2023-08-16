@@ -38,6 +38,7 @@ pacman::p_load(ggbiplot)
 
 # Define UI for app that draws a word cloud
 ui <- fluidPage(
+  shinyjs::useShinyjs(),
   # App title
   titlePanel("k-mer word clouds"),
   # Sidebar layout with input and output definitions
@@ -56,9 +57,11 @@ ui <- fluidPage(
                    choices = list(3,5,7),
                    inline = TRUE),
       selectizeInput("sample_name", label = "Select sample name", choices = NULL),
-      checkboxInput(inputId = "show_all",
-                    label = "Show word cloud for full dataset (WIP)",
-                    value = FALSE)
+      tags$div(title="Whether to compute the wordcloud using the mean of the entire k-mer matrix",
+               checkboxInput(inputId = "show_all",
+                             label = "Show wordcloud for full dataset",
+                             value = FALSE)
+      )
     ),
     
     # Main panel for displaying outputs ----
@@ -81,26 +84,50 @@ server <- function(input, output, session) {
     kmer_df(readr::read_csv(path))
     strains <- lapply(as.list(select(kmer_df(), strain)), sort)
     updateSelectizeInput(session, "sample_name", choices = strains, server = TRUE)
+    output$numsamples <- renderText(sprintf("This stratum size yields %s samples.", nrow(df)))
   })
   
   figure <- reactive({
     data()
     df <- kmer_df()
-    output$numsamples <- renderText(sprintf("This stratum size yields %s samples.", nrow(df)))
     if(!is.null(input$sample_name)) {
-      sample <- df %>%
-        dplyr::filter(strain == input$sample_name) %>%
-        dplyr::select(!(strain:length(df)))
-      sample <- t(sample)
-      sample <- sample[order(sample,decreasing=TRUE),]
-      if(length(sample)>0) {
-        set.seed(seed)
-        fig <- wordcloud(words=names(sample), freq=sample, min.freq=1,
-                         max.words=200, random.order=FALSE, rot.per=0.35,
-                         colors=brewer.pal(8, "Dark2"))
-        set.seed(NULL)
-        fig
+      if(!input$show_all) {
+        sample <- df %>%
+          dplyr::filter(strain == input$sample_name) %>%
+          dplyr::select(!(strain:length(df)))
+        sample <- t(sample)
+        sample <- sample[order(sample,decreasing=TRUE),]
+        if(length(sample)>0) {
+          set.seed(seed)
+          fig <- wordcloud(words=names(sample), freq=sample, min.freq=1,
+                           max.words=200, random.order=FALSE, rot.per=0.35,
+                           colors=brewer.pal(8, "Dark2"))
+          set.seed(NULL)
+          fig
+        }
+      } else {
+        sample <- df %>%
+          dplyr::select(!(strain:length(df))) %>%
+          dplyr::summarise(dplyr::across(dplyr::everything(), mean))
+        sample <- round(t(sample[1,]))
+        sample <- sample[order(sample,decreasing=TRUE),]
+        if(length(sample)>0) {
+          set.seed(seed)
+          fig <- wordcloud(words=names(sample), freq=sample, min.freq=1,
+                           max.words=200, random.order=FALSE, rot.per=0.35,
+                           colors=brewer.pal(8, "Dark2"))
+          set.seed(NULL)
+          fig
+        }
       }
+    }
+  })
+  
+  observe({
+    if((input$show_all == TRUE)) {
+      shinyjs::disable("sample_name")
+    } else {
+      shinyjs::enable("sample_name")
     }
   })
   
