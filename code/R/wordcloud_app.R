@@ -88,7 +88,7 @@ server <- function(input, output) {
       sample <- sample[order(sample,decreasing=TRUE),]
       set.seed(seed)
       fig <- wordcloud(words=names(sample), freq=sample, min.freq=1,
-                       max.words=50, random.order=FALSE, rot.per=0.35,
+                       max.words=200, random.order=FALSE, rot.per=0.35,
                        colors=brewer.pal(8, "Dark2"))
       set.seed(NULL)
       fig
@@ -105,7 +105,14 @@ server <- function(input, output) {
     )
   })
   
-  output$wordcloud <- renderPlot({ figure() })
+  k <- reactive({
+    if (input$k==3) 500
+    else if (input$k==5) 1200
+    else if (input$k==7) 1200
+  })
+
+  output$wordcloud <- renderPlot({figure()},
+                                 height = k, width = k)
 }
 
 shinyApp(ui = ui, server = server)
