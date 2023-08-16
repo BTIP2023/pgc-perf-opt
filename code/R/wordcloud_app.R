@@ -54,7 +54,7 @@ ui <- fluidPage(
                    label = "Select k-mer size",
                    choices = list(3,5,7),
                    inline = TRUE),
-      uiOutput("selector_ui"),
+      selectizeInput("sample_name", label = "Select sample name", choices = NULL),
       checkboxInput(inputId = "show_all",
                     label = "Show word cloud for full dataset (WIP)",
                     value = FALSE)
@@ -72,18 +72,25 @@ ui <- fluidPage(
 seed <- 777
 
 # Define server logic required to compute and render wordcloud ----
-server <- function(input, output) {
-  strains <- reactiveVal()
-
-  figure <- reactive({
+server <- function(input, output, session) {
+  kmer_df <- reactiveVal()
+  
+  data <- reactive({
     path <- sprintf("../../data/kmers/kmer_%s_%s.csv", input$k, input$strat_size)
-    kmer_df <- readr::read_csv(path)
-    strains(lapply(as.list(select(kmer_df, strain)), sort))
-    output$numsamples <- renderText(sprintf("This stratum size yields %s samples.", nrow(kmer_df)))
-    if(!is.null(input$strain)) {
-      sample <- kmer_df %>%
-        dplyr::filter(strain == input$strain) %>%
-        dplyr::select(!(strain:length(kmer_df)))
+    kmer_df(readr::read_csv(path))
+  })
+  
+  figure <- reactive({
+    data()
+    df <- kmer_df()
+    strains <- lapply(as.list(select(df, strain)), sort)
+    if (input$sample_name == "")
+      updateSelectizeInput(session, "sample_name", choices = strains, server = TRUE)
+    output$numsamples <- renderText(sprintf("This stratum size yields %s samples.", nrow(df)))
+    if(!is.null(input$sample_name)) {
+      sample <- df %>%
+        dplyr::filter(strain == input$sample_name) %>%
+        dplyr::select(!(strain:length(df)))
       sample <- t(sample)
       sample <- sample[order(sample,decreasing=TRUE),]
       if(length(sample)>0) {
@@ -95,16 +102,6 @@ server <- function(input, output) {
         fig
       }
     }
-  })
-  
-  output$selector_ui <- renderUI({
-    path <- sprintf("../../data/kmers/kmer_%s_%s.csv", input$k, input$strat_size)
-    kmer_df <- readr::read_csv(path)
-    selectInput(
-      "strain",
-      "Select name of sample",
-      choices = strains()
-    )
   })
   
   k <- reactive({
