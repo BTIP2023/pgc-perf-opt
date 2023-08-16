@@ -28,11 +28,8 @@ ui <- fluidPage(
       checkboxInput(inputId = "show_all",
                     label = "Show word cloud for full dataset",
                     value = FALSE),
-      numericInput(inputId = "",
-                   label = "test",
-                   min = 1,
-                   value = 1,
-                   step = 1)
+      checkboxInput(inputId = "strain",
+                    label = "Select")
       
     ),
     
