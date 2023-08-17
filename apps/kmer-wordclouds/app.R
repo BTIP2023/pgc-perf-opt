@@ -1,3 +1,5 @@
+library(tidyverse)
+
 # Define UI for app that draws a word cloud
 ui <- fluidPage(
   shinyjs::useShinyjs(),
@@ -49,7 +51,7 @@ server <- function(input, output, session) {
   data <- reactive({
     path <- sprintf("data/kmer_%s_%s.csv", input$k, input$strat_size)
     kmer_df(readr::read_csv(path))
-    strains <- lapply(as.list(select(kmer_df(), strain)), sort)
+    strains <- lapply(as.list(dplyr::select(kmer_df(), strain)), sort)
     updateSelectizeInput(session, "sample_name", choices = strains, server = TRUE)
     output$numsamples <- renderText(sprintf("This stratum size yields %s samples.", nrow(kmer_df())))
   })
