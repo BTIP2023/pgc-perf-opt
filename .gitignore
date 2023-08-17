@@ -107,10 +107,12 @@ backup/
 **/tmp*
 
 # App Data
-apps/kmer-wordclouds/data/kmer_*
-!apps/kmer-wordclouds/data/*_100.csv
-!apps/kmer-wordclouds/data/*_250.csv
-!apps/kmer-wordclouds/data/*_500.csv
+apps/kmercloud/data/kmer_*
+!apps/kmercloud/data/*_100.csv
+!apps/kmercloud/data/*_250.csv
+apps/kmercloud2/data/kmer_*
+!apps/kmercloud2/data/*_100.csv
+!apps/kmercloud2/data/*_250.csv
 **/rsconnect
 
 # VSCode files
