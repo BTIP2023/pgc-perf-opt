@@ -107,10 +107,10 @@ backup/
 **/tmp*
 
 # App Data
-apps/wordcloud/data/kmer_*
-!apps/wordcloud/data/*_100.csv
-!apps/wordcloud/data/*_250.csv
-!apps/wordcloud/data/*_500.csv
+apps/kmer_wordclouds/data/kmer_*
+!apps/kmer_wordclouds/data/*_100.csv
+!apps/kmer_wordclouds/data/*_250.csv
+!apps/kmer_wordclouds/data/*_500.csv
 
 # VSCode files
 tempCodeRunnerFile.R

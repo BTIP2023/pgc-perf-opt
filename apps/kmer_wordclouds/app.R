@@ -47,7 +47,7 @@ server <- function(input, output, session) {
   kmer_df <- reactiveVal()
   
   data <- reactive({
-    path <- sprintf("../../data/kmers/kmer_%s_%s.csv", input$k, input$strat_size)
+    path <- sprintf("data/kmer_%s_%s.csv", input$k, input$strat_size)
     kmer_df(readr::read_csv(path))
     strains <- lapply(as.list(select(kmer_df(), strain)), sort)
     updateSelectizeInput(session, "sample_name", choices = strains, server = TRUE)
