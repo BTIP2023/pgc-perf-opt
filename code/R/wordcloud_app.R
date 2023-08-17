@@ -50,7 +50,7 @@ ui <- fluidPage(
       p("Only the top 200 most frequent k-mers will be displayed."),
       selectInput(inputId = "strat_size",
                   label = "Select stratum size",
-                  choices = list(100,250,500,750,1000,2000)),
+                  choices = list(100,250,500,750,1000,1500,2000)),
       textOutput(outputId = "numsamples"),
       hr(),
       radioButtons(inputId = "k",
