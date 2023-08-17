@@ -74,7 +74,8 @@ server <- function(input, output, session) {
         output$summary <- renderTable({summary_tbl})
         if(length(sample)>0) {
           wordcloud2::wordcloud2(summary_tbl,
-                                 color=RColorBrewer::brewer.pal(8, "Dark2"))
+                                 color=RColorBrewer::brewer.pal(8, "Dark2"),
+                                 shuffle=FALSE)
         }
       } else {
         sample <- df %>%
