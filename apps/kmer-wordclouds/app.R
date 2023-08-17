@@ -1,4 +1,6 @@
-library(tidyverse, wordcloud)
+library(tidyverse)
+library(RColorBrewer)
+library(wordcloud)
 
 # Define UI for app that draws a word cloud
 ui <- fluidPage(
